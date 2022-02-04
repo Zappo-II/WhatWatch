@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  
+  `glib-compile-schemas schemas/` 
+  
+  -->
+<schemalist>
+  <schema id="org.gnome.shell.extensions.zappoii.whatwatch" path="/org/gnome/shell/extensions/zappoii/whatwatch/">
+
+    <key name="clockstyle" type="s">
+      <default>"default"</default>
+      <summary>The clock's style</summary>
+      <description>Select the clock's graphical style on screen. Defaults to 'default'.</description>
+    </key>
+
+    <key name="clockposition" type="s">
+      <default>"default"</default>
+      <summary>The clock's position on screen</summary>
+      <description>Select the clock's on screen position. Defaults to 'default'.</description>
+    </key>
+
+    <key name="clockwidth" type="i">
+      <default>128</default>
+      <summary>The clock's width</summary>
+      <description>Select the clock's width on screen. Defaults to 128.</description>
+    </key>
+
+    <key name="clockheight" type="i">
+      <default>128</default>
+      <summary>The clock's height</summary>
+      <description>Select the clock's height on screen. Defaults to 128.</description>
+    </key>
+
+    <key name="margintop" type="i">
+      <default>40</default>
+    </key>
+
+    <key name="marginside" type="i">
+      <default>30</default>
+    </key>
+
+    <key name="facedialcolor-r" type="d">
+      <default>0.25</default>
+    </key>
+    <key name="facedialcolor-g" type="d">
+      <default>0.25</default>
+    </key>
+    <key name="facedialcolor-b" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facedialcolor-a" type="d">
+      <default>0.5</default>
+    </key>
+
+    <key name="facecenterdialradius" type="d">
+      <default>0.03</default>
+    </key>
+
+    <key name="facecenterdialcolor-r" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facecenterdialcolor-g" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facecenterdialcolor-b" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facecenterdialcolor-a" type="d">
+      <default>1.0</default>
+    </key>
+
+    <key name="facediallinewidth" type="d">
+      <default>0.02</default>
+    </key>
+
+    <key name="facediallineinset" type="d">
+      <default>0.01</default>
+    </key>
+
+    <key name="facediallinecolor-r" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facediallinecolor-g" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facediallinecolor-b" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facediallinecolor-a" type="d">
+      <default>0.5</default>
+    </key>
+
+    <key name="facediallinetickinset" type="d">
+      <default>0.01</default>
+    </key>
+
+    <key name="faceminuteticklinewidth" type="d">
+      <default>0.01</default>
+    </key>
+
+    <key name="faceminuteticklineinset" type="d">
+      <default>0.07</default>
+    </key>
+
+    <key name="faceminutetickcolor-r" type="d">
+      <default>1.0</default>
+    </key>
+    <key name="faceminutetickcolor-g" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="faceminutetickcolor-b" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="faceminutetickcolor-a" type="d">
+      <default>0.2</default>
+    </key>
+
+    <key name="faceticklinewidth" type="d">
+      <default>0.02</default>
+    </key>
+
+    <key name="faceticklineinset" type="d">
+      <default>0.10</default>
+    </key>
+
+    <key name="facetickcolor-r" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facetickcolor-g" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facetickcolor-b" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facetickcolor-a" type="d">
+      <default>1.0</default>
+    </key>
+
+    <key name="faceprominentticklinewidth" type="d">
+      <default>0.03</default>
+    </key>
+
+    <key name="faceprominentticklineinset" type="d">
+      <default>0.15</default>
+    </key>
+
+    <key name="faceprominenttickcolor-r" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="faceprominenttickcolor-g" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="faceprominenttickcolor-b" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="faceprominenttickcolor-a" type="d">
+      <default>1.0</default>
+    </key>
+
+    <key name="facehourhandlinewidth" type="d">
+      <default>0.04</default>
+    </key>
+
+    <key name="facehourhandlinelength" type="d">
+      <default>0.5</default>
+    </key>
+
+    <key name="facehourhandcolor-r" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facehourhandcolor-g" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facehourhandcolor-b" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facehourhandcolor-a" type="d">
+      <default>1.0</default>
+    </key>
+
+    <key name="faceminutehandlinewidth" type="d">
+      <default>0.04</default>
+    </key>
+
+    <key name="faceminutehandlinelength" type="d">
+      <default>0.8</default>
+    </key>
+
+    <key name="faceminutehandcolor-r" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="faceminutehandcolor-g" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="faceminutehandcolor-b" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="faceminutehandcolor-a" type="d">
+      <default>1.0</default>
+    </key>
+
+    <key name="facesecondhandlinewidth" type="d">
+      <default>0.01</default>
+    </key>
+
+    <key name="facesecondhandlinelength" type="d">
+      <default>0.85</default>
+    </key>
+
+    <key name="facesecondhandcolor-r" type="d">
+      <default>1.0</default>
+    </key>
+    <key name="facesecondhandcolor-g" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facesecondhandcolor-b" type="d">
+      <default>0.0</default>
+    </key>
+    <key name="facesecondhandcolor-a" type="d">
+      <default>1.0</default>
+    </key>
+
+    <key name="facehourhandfilled" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="faceminutehandfilled" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="facesecondhandfilled" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="faceminutetickcircle" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="facetickcircle" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="faceprominenttickcircle" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="faceminutetickoutercircle" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="facetickoutercircle" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="faceprominenttickoutercircle" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="debuglogging" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="faceshadowoffsetx" type="d">
+      <default>0.03</default>
+    </key>
+
+    <key name="faceshadowoffsety" type="d">
+      <default>0.03</default>
+    </key>
+
+    <key name="faceshadowcolor-r" type="d">
+      <default>0.20</default>
+    </key>
+    <key name="faceshadowcolor-g" type="d">
+      <default>0.20</default>
+    </key>
+    <key name="faceshadowcolor-b" type="d">
+      <default>0.20</default>
+    </key>
+    <key name="faceshadowcolor-a" type="d">
+      <default>0.8</default>
+    </key>
+    <key name="faceshadowhand" type="b">
+      <default>false</default>
+    </key>
+    <key name="faceshadowtick" type="b">
+      <default>false</default>
+    </key>
+    <key name="faceshadownumber" type="b">
+      <default>false</default>
+    </key>
+
+  </schema>
+</schemalist>

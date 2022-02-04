@@ -1,0 +1,11 @@
+{
+    "name" : "What Watch",
+    "description" : "Shows a customizeable analog desktop clock.",
+    "settings-schema": "org.gnome.shell.extensions.zappoii.whatwatch",
+    "shell-version" : [
+        "41"
+    ],
+    "url" : "https://github.com/Zappo-II/WhatWatch",
+    "uuid" : "WhatWatch@Zappo-II.github.io",
+    "version" : 23
+}
