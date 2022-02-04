@@ -4,7 +4,7 @@
 
 This is a gnome-shell-extension. It displays an analog clock on the desktop and exposes a great variety of customisation options.
 
-![Screenshot showing WhatWatch clock on desktop with browser window opened behind it...](doc/WhatWatch.png "Screenshot showing WhatWatch in action...")
+![Screenshot showing WhatWatch clock on desktop with browser window opened behind it...](WhatWatch.png "Screenshot showing WhatWatch in action...")
 
 ## General Usage
 
