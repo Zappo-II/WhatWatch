@@ -21,6 +21,14 @@ var settings;
 function init () {
   Common.myDebugLog('Entering prefs.js init()');
 
+  // NOP
+
+  Common.myDebugLog('Exiting prefs.js init()');
+}
+
+function buildPrefsWidget () {
+  Common.myDebugLog('Entering prefs.js buildPrefsWidget()');
+
   try {
     settings = ExtensionUtils.getSettings(schemaid);
     Common.debugLogging = settings.get_boolean("debuglogging");
@@ -29,11 +37,6 @@ function init () {
     Common.myErrorLog('It is most likely that the config is somehow corrupted...');
   }
 
-  Common.myDebugLog('Exiting prefs.js init()');
-}
-
-function buildPrefsWidget () {
-  Common.myDebugLog('Entering prefs.js buildPrefsWidget()');
   let prefsWidget = new Gtk.Notebook();
 
   prefsWidget.append_page(buildPrefsPage(), new Gtk.Label({ label: 'Preferences' }));

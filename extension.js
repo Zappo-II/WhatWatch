@@ -19,23 +19,16 @@ const Common = Me.imports.common;
 //
 const schemaid = Me.metadata['settings-schema'];
 //
-var area;
-var config;
-var settings;
-let timeout;
+let repaintHandlerID = null;
+var area = null;
+var config = null;
+var settings = null;
+let timeout = null;
 
 function init () {
     Common.myDebugLog('Entering init()');
 
-    try {
-        settings = ExtensionUtils.getSettings(schemaid);
-        Common.debugLogging = settings.get_boolean("debuglogging");
-    } catch (e) {
-        Common.myErrorLog('Error getting Settings(\'' + schemaid + '\'): ' + e);
-        Common.myErrorLog('It is most likely that the config is somehow corrupted...');
-    }
-    
-    config = readSettings();
+    // NOP
 
     Common.myDebugLog('Exiting init()');
 }
@@ -43,6 +36,16 @@ function init () {
 function enable () {
     Common.myDebugLog('Entering enable()');
     //
+    try {
+        settings = ExtensionUtils.getSettings(schemaid);
+        Common.debugLogging = settings.get_boolean("debuglogging");
+    } catch (e) {
+        Common.myErrorLog('Error getting Settings(\'' + schemaid + '\'): ' + e);
+        Common.myErrorLog('It is most likely that the config is somehow corrupted...');
+    }
+    Common.myDebugLog('Entering enable() - After initialisation of Common.debugLogging...');
+    //
+
     config = readSettings();
 
     const clockWidth = config.clockWidth;
@@ -70,17 +73,15 @@ function enable () {
         Common.myDebugLog('left');
     });
   
-    */
-
     area.connect("button-press-event", () => {
         Common.myDebugLog('clicked');
         test();
     });
-    /*
+
     */
 
     Common.myDebugLog('Connecting "area - repaint" to local function drawClock()...');
-    area.connect('repaint', (area) => drawClock(area));
+    repaintHandlerID = area.connect('repaint', (area) => drawClock(area));
 
     Common.myDebugLog('Adding "area" to LayoutManager...');
     Main.layoutManager.addChrome(area, {
@@ -95,7 +96,6 @@ function enable () {
         this.area.queue_repaint();
         return true;
     });
-
     //
     Main.notify(`${Me.metadata.name}`, `${Me.metadata.name} (V.${Me.metadata.version}) is enabled now...`);
     Common.myLog('Enabled now...');
@@ -105,14 +105,28 @@ function enable () {
 function disable () {
     Common.myDebugLog('Entering disable()');
     //
-    config = readSettings();
-    setClockPosition();
+    if (timeout) {
+        Common.myDebugLog('Removing "timeout" from Source context...');
+        GLib.Source.remove(timeout);
+        timeout = null;
+    }
     //
-    Common.myDebugLog('Removing "area" from LayoutManager...');
-    Main.layoutManager.removeChrome(area);
-    Common.myDebugLog('Removing "timeout" from Source context...');
-    GLib.Source.remove(timeout);
-
+    if (repaintHandlerID) {
+        if (area) {
+            Common.myDebugLog('Disconnecting "area" repaintHandler...');
+            area.disconnect(repaintHandlerID);
+        }
+        repaintHandlerID = null;
+    }
+    if (area) {
+        Common.myDebugLog('Removing "area" from LayoutManager...');
+        Main.layoutManager.removeChrome(area);
+        area.destroy();
+        area = null;
+    }
+    config = null;
+    settings = null;
+    //
     Main.notify(`${Me.metadata.name}`, `${Me.metadata.name} (V.${Me.metadata.version}) is disabled now...`);
     Common.myLog('Disabled now...');
     Common.myDebugLog('Exiting disable()');
@@ -620,7 +634,6 @@ function drawFaceDialNumbers (cr, faceDialLineTickRadius, shadow, shadowColor, c
                 numberSize = numberSmallSize;
             }
         }
-
 
         if (numberArabian) {
             center = { "X": initialCenter.X + (-1 * (numberSize / 3)), "Y": initialCenter.Y + ((numberSize / 3))};
