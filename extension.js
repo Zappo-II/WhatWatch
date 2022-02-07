@@ -36,13 +36,9 @@ function init () {
 function enable () {
     Common.myDebugLog('Entering enable()');
     //
-    try {
-        settings = ExtensionUtils.getSettings(schemaid);
-        Common.debugLogging = settings.get_boolean("debuglogging");
-    } catch (e) {
-        Common.myErrorLog('Error getting Settings(\'' + schemaid + '\'): ' + e);
-        Common.myErrorLog('It is most likely that the config is somehow corrupted...');
-    }
+    settings = ExtensionUtils.getSettings(schemaid);
+    Common.debugLogging = settings.get_boolean("debuglogging");
+
     Common.myDebugLog('Entering enable() - After initialisation of Common.debugLogging...');
     //
 
@@ -97,8 +93,7 @@ function enable () {
         return true;
     });
     //
-    Main.notify(`${Me.metadata.name}`, `${Me.metadata.name} (V.${Me.metadata.version}) is enabled now...`);
-    Common.myLog('Enabled now...');
+    Common.myLog(`${Me.metadata.name}`, `${Me.metadata.name} (V.${Me.metadata.version}) is enabled now...`);
     Common.myDebugLog('Exiting enable()');
 }
 
@@ -127,8 +122,7 @@ function disable () {
     config = null;
     settings = null;
     //
-    Main.notify(`${Me.metadata.name}`, `${Me.metadata.name} (V.${Me.metadata.version}) is disabled now...`);
-    Common.myLog('Disabled now...');
+    Common.myLog(`${Me.metadata.name}`, `${Me.metadata.name} (V.${Me.metadata.version}) is disabled now...`);
     Common.myDebugLog('Exiting disable()');
 }
 
@@ -890,8 +884,7 @@ function readSettings() {
         //
         Common.myDebugLog('readSettings - theSettings: ' + JSON.stringify(theSettings));
     } catch (e) {
-        Common.myErrorLog('readSettings - Error reading Settings: ' + e);
-        Common.myErrorLog('It is most likely that the config is somehow corrupted...');
+        Common.myErrorLog(e, 'readSettings');
     }
     //
     Common.myDebugLog('Exiting readSettings()');

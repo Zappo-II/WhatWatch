@@ -29,13 +29,8 @@ function init () {
 function buildPrefsWidget () {
   Common.myDebugLog('Entering prefs.js buildPrefsWidget()');
 
-  try {
-    settings = ExtensionUtils.getSettings(schemaid);
-    Common.debugLogging = settings.get_boolean("debuglogging");
-  } catch (e) {
-    Common.myErrorLog('Error getting Settings(\'' + schemaid + '\'): ' + e);
-    Common.myErrorLog('It is most likely that the config is somehow corrupted...');
-  }
+  settings = ExtensionUtils.getSettings(schemaid);
+  Common.debugLogging = settings.get_boolean("debuglogging");
 
   let prefsWidget = new Gtk.Notebook();
 

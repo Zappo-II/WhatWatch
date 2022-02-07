@@ -20,13 +20,13 @@
     </key>
 
     <key name="clockwidth" type="i">
-      <default>128</default>
+      <default>256</default>
       <summary>The clock's width</summary>
       <description>Select the clock's width on screen. Defaults to 128.</description>
     </key>
 
     <key name="clockheight" type="i">
-      <default>128</default>
+      <default>256</default>
       <summary>The clock's height</summary>
       <description>Select the clock's height on screen. Defaults to 128.</description>
     </key>
@@ -36,28 +36,28 @@
     </key>
 
     <key name="marginside" type="i">
-      <default>30</default>
+      <default>40</default>
     </key>
 
     <key name="facedialcolor-r" type="d">
-      <default>0.25</default>
+      <default>0.733</default>
     </key>
     <key name="facedialcolor-g" type="d">
-      <default>0.25</default>
+      <default>0.733</default>
     </key>
     <key name="facedialcolor-b" type="d">
-      <default>0.0</default>
+      <default>0.733</default>
     </key>
     <key name="facedialcolor-a" type="d">
-      <default>0.5</default>
+      <default>0.8</default>
     </key>
 
     <key name="facecenterdialradius" type="d">
-      <default>0.03</default>
+      <default>0.06</default>
     </key>
 
     <key name="facecenterdialcolor-r" type="d">
-      <default>0.0</default>
+      <default>1.0</default>
     </key>
     <key name="facecenterdialcolor-g" type="d">
       <default>0.0</default>
@@ -70,11 +70,11 @@
     </key>
 
     <key name="facediallinewidth" type="d">
-      <default>0.02</default>
+      <default>0.03</default>
     </key>
 
     <key name="facediallineinset" type="d">
-      <default>0.01</default>
+      <default>0.06</default>
     </key>
 
     <key name="facediallinecolor-r" type="d">
@@ -87,11 +87,11 @@
       <default>0.0</default>
     </key>
     <key name="facediallinecolor-a" type="d">
-      <default>0.5</default>
+      <default>1.0</default>
     </key>
 
     <key name="facediallinetickinset" type="d">
-      <default>0.01</default>
+      <default>0.05</default>
     </key>
 
     <key name="faceminuteticklinewidth" type="d">
@@ -99,11 +99,11 @@
     </key>
 
     <key name="faceminuteticklineinset" type="d">
-      <default>0.07</default>
+      <default>0.05</default>
     </key>
 
     <key name="faceminutetickcolor-r" type="d">
-      <default>1.0</default>
+      <default>0.0</default>
     </key>
     <key name="faceminutetickcolor-g" type="d">
       <default>0.0</default>
@@ -112,7 +112,7 @@
       <default>0.0</default>
     </key>
     <key name="faceminutetickcolor-a" type="d">
-      <default>0.2</default>
+      <default>1.0</default>
     </key>
 
     <key name="faceticklinewidth" type="d">
@@ -200,11 +200,11 @@
     </key>
 
     <key name="facesecondhandlinewidth" type="d">
-      <default>0.01</default>
+      <default>0.02</default>
     </key>
 
     <key name="facesecondhandlinelength" type="d">
-      <default>0.85</default>
+      <default>0.80</default>
     </key>
 
     <key name="facesecondhandcolor-r" type="d">
@@ -221,7 +221,7 @@
     </key>
 
     <key name="facehourhandfilled" type="b">
-      <default>true</default>
+      <default>false</default>
     </key>
 
     <key name="faceminutehandfilled" type="b">
@@ -229,7 +229,7 @@
     </key>
 
     <key name="facesecondhandfilled" type="b">
-      <default>false</default>
+      <default>true</default>
     </key>
 
     <key name="faceminutetickcircle" type="b">
@@ -261,30 +261,30 @@
     </key>
 
     <key name="faceshadowoffsetx" type="d">
-      <default>0.03</default>
+      <default>0.04</default>
     </key>
 
     <key name="faceshadowoffsety" type="d">
-      <default>0.03</default>
+      <default>0.02</default>
     </key>
 
     <key name="faceshadowcolor-r" type="d">
-      <default>0.20</default>
+      <default>0.30</default>
     </key>
     <key name="faceshadowcolor-g" type="d">
-      <default>0.20</default>
+      <default>0.30</default>
     </key>
     <key name="faceshadowcolor-b" type="d">
-      <default>0.20</default>
+      <default>0.30</default>
     </key>
     <key name="faceshadowcolor-a" type="d">
       <default>0.8</default>
     </key>
     <key name="faceshadowhand" type="b">
-      <default>false</default>
+      <default>true</default>
     </key>
     <key name="faceshadowtick" type="b">
-      <default>false</default>
+      <default>true</default>
     </key>
     <key name="faceshadownumber" type="b">
       <default>false</default>

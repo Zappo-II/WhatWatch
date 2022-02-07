@@ -11,19 +11,20 @@ var debugLogging = false;
 
 function myDebugLog(msg) {
     if (debugLogging) {
-        let myPrefix = '[DEBUG] ';
-        myLog('' + myPrefix + '' + msg + '');
+        log('' + logPrefix('[DEBUG]') + ' - ' + msg + '');
     }
 }
 
-function myErrorLog(msg) {
-    let myPrefix = '[ERROR] ';
-    myLog('' + myPrefix + '' + msg + '');
+function myErrorLog(e, msg) {
+    logError(e, '' + logPrefix('[ERROR]') + ' - ' + msg + '');
 }
 
 function myLog(msg) {
+    log('' + logPrefix('') + '' + msg + '');
+}
+
+function logPrefix(msg) {
     let now = GLib.DateTime.new_now_local();
     let nowString = now.format("%Y-%m-%d %H:%M:%S.%f");
-    let myPrefix = nowString + ' - ' + `${Me.metadata.name} (V.${Me.metadata.version})` + ' - ';
-    log('' + myPrefix + '' + msg + '');
+    return nowString + ' - ' + `${Me.metadata.name} (V.${Me.metadata.version})` + ' - ' + msg;
 }

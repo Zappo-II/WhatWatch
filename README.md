@@ -14,14 +14,37 @@ It displays an analog clock on the desktop and exposes a great variety of custom
 
 ## Install
 
-Clone this repo to your `.../gnome-shell/extensions/` folder.
+### First Install
+
+Clone this repo to any local folder...
 
 ```
-cd ~/.local/share/gnome-shell/extensions/
+cd ~/myLocalFolder/
 git clone git@github.com:Zappo-II/WhatWatch.git
 ```
 
-Update the installation directory with `git pull`.
+###  Update
+
+Later on update the repo with...
+
+```
+cd ~/myLocalFolder/WhatWatch
+git fetch
+git pull
+```
+
+Or create a new clone...
+
+### Install plugin
+
+Install the plugin to gnome-shell by executing 
+
+```
+cd ~/myLocalFolder/WhatWatch
+./install.local.sh
+```
+
+This will install to ~/.local/share/gnome-shell/extensions/
 
 You must restart (X11: `Alt-F2` --> `r`) or logout/relogin (Wayland) to activate the (updated) extension.
 
@@ -36,7 +59,8 @@ Please take a look at the documentation found in the `.../doc` folder of the ext
 ## Troubleshooting
 
 * check your system's log `journalctl -f` for any `GJS` / `gnome-shell` messages...
-* activate Debug Logging via preferences page...
+* activate Debug Logging via plugin's preferences page...
+* Again, your mileage may vary.
 
 ## Issues / Requests
 
