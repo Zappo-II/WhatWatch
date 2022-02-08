@@ -93,8 +93,6 @@ function buildPrefsPage () {
     Gio.SettingsBindFlags.DEFAULT
   );
 
-  // clockStyle = settings.get_string("clockstyle");
-
   let styleRow = debugToggleRow + 1;
 
   let styleLabel = new Gtk.Label({
@@ -107,20 +105,12 @@ function buildPrefsPage () {
   let styleValue = new Gtk.ComboBoxText();
   styleValue.append('default', '(default)');
   styleValue.append('OldSchool', 'OldSchool');
-  styleValue.append('OldSchoolKinkyHands', 'OldSchool alt.');
-  styleValue.append('OldSchoolKinkyHardCore', 'OldSchool heavy');
-  //
-  styleValue.append('OldSchoolNumbered', 'OldSchool num.');
-  styleValue.append('OldSchoolKinkyHandsNumbered', 'OldSchool alt. num.');
-  styleValue.append('OldSchoolKinkyHardCoreNumbered', 'OldSchool heavy num.');
-  //
+  styleValue.append('OldSchoolArabian', 'OldSchool Arabian');
+  styleValue.append('OldSchoolRoman', 'OldSchool Roman');
   styleValue.append('OldSchoolDB', 'Deutsche Bahn');
-  styleValue.append('OldSchoolKinkyHandsDB', 'Deutsche Bahn alt.');
   styleValue.append('Radar', 'Radar');
   this.settings.bind('clockstyle', styleValue, 'active-id', Gio.SettingsBindFlags.DEFAULT);
   prefsWidget.attach(styleValue, 1, styleRow, 2, 1);
-
-  // clockPosition = settings.get_string("clockposition");
 
   styleRow += 1;
 
@@ -143,8 +133,6 @@ function buildPrefsPage () {
   positionValue.append('center-right', 'Center-Right');
   this.settings.bind('clockposition', positionValue, 'active-id', Gio.SettingsBindFlags.DEFAULT);
   prefsWidget.attach(positionValue, 1, styleRow, 2, 1);
-
-  // clockWidth = settings.get_int("clockwidth"); / clockHeight = settings.get_int("clockheight");
 
   let widthHeightRow = styleRow + 1;
 
@@ -205,8 +193,6 @@ function buildPrefsPage () {
     visible: true
   });
   prefsWidget.attach(spinHeightNotification, 3, widthHeightRow, 3, 1);
-
-  // marginTop = settings.get_int("margintop"); marginSide = settings.get_int("marginside");
 
   let marginRow = widthHeightRow +1;
 
@@ -409,8 +395,6 @@ function buildFacePage () {
   });
   prefsWidget.attach(buttonFaceDialColor, 5, faceColorRow, 1, 1);
 
-  // faceCenterDialRadius = settings.get_double("facecenterdialradius");
-
   let faceCenterDialRadiusRow = faceColorRow +1;
 
   let spinFaceCenterDialRadius_Label = new Gtk.Label({
@@ -432,8 +416,6 @@ function buildFacePage () {
       this.settings.set_double('facecenterdialradius', w.get_value());
   });
   prefsWidget.attach(spinFaceCenterDialRadius, 1, faceCenterDialRadiusRow, 1, 1);
-
-  // faceCenterDialColor = {"R": settings.get_double("facecenterdialcolor-r"), "G": settings.get_double("facecenterdialcolor-g"), "B": settings.get_double("facecenterdialcolor-b"), "A": settings.get_double("facecenterdialcolor-a")};
 
   let faceCenterDialColorRow = faceCenterDialRadiusRow +1;
 
@@ -561,11 +543,6 @@ function buildFacePage () {
   });
   prefsWidget.attach(buttonFaceCenterDialColor, 5, faceCenterDialColorRow, 1, 1);
 
-  // faceDialLineWidth = settings.get_double("facediallinewidth");
-  // faceDialLineInset = settings.get_double("facediallineinset");
-  // faceDialLineTickInset = settings.get_double("facediallinetickinset");
-  // faceDialLineColor = {"R": settings.get_double("facediallinecolor-r"), "G": settings.get_double("facediallinecolor-g"), "B": settings.get_double("facediallinecolor-b"), "A": settings.get_double("facediallinecolor-a")};
-
   let faceDialLineRow = faceCenterDialColorRow +1;
 
   let faceDialLineLabel = new Gtk.Label({
@@ -600,26 +577,6 @@ function buildFacePage () {
       this.settings.set_double('facediallineinset', w.get_value());
   });
   prefsWidget.attach(faceDialLineLength, 2, faceDialLineRow, 1, 1);
-
-  let faceDialLineTILabel = new Gtk.Label({
-    label: 'Tick Inset:',
-    halign: Gtk.Align.START,
-    visible: true
-  });
-  prefsWidget.attach(faceDialLineTILabel, 3, faceDialLineRow, 1, 1);
-
-  let faceDialLineTI = new Gtk.SpinButton({ 
-    halign: Gtk.Align.END, 
-    digits: 3
-  });
-  faceDialLineTI.set_sensitive(true);
-  faceDialLineTI.set_range(0.0, 1.0);
-  faceDialLineTI.set_value(this.settings.get_double('facediallinetickinset'));
-  faceDialLineTI.set_increments(0.01, 0.1);
-  faceDialLineTI.connect('value-changed', w => {
-      this.settings.set_double('facediallinetickinset', w.get_value());
-  });
-  prefsWidget.attach(faceDialLineTI, 4, faceDialLineRow, 1, 1);
 
   let faceDialLineColorRow = faceDialLineRow +1;
 
@@ -776,11 +733,29 @@ function buildTickPage () {
   });
   prefsWidget.attach(title, 0, 0, 2, 1);
 
-  // faceMinuteTickLineWidth = settings.get_double("faceminuteticklinewidth");
-  // faceMinuteTickLineInset = settings.get_double("faceminuteticklineinset");
-  // faceMinuteTickColor = {"R": settings.get_double("faceminutetickcolor-r"), "G": settings.get_double("faceminutetickcolor-g"), "B": settings.get_double("faceminutetickcolor-b"), "A": settings.get_double("faceminutetickcolor-a")};
+  let faceDialLineTIRow = 1;
 
-  let faceMinuteTickLineRow = 1;
+  let faceDialLineTILabel = new Gtk.Label({
+    label: 'Tick Inset:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(faceDialLineTILabel, 0, faceDialLineTIRow, 1, 1);
+
+  let faceDialLineTI = new Gtk.SpinButton({ 
+    halign: Gtk.Align.END, 
+    digits: 3
+  });
+  faceDialLineTI.set_sensitive(true);
+  faceDialLineTI.set_range(0.0, 1.0);
+  faceDialLineTI.set_value(this.settings.get_double('facediallinetickinset'));
+  faceDialLineTI.set_increments(0.01, 0.1);
+  faceDialLineTI.connect('value-changed', w => {
+      this.settings.set_double('facediallinetickinset', w.get_value());
+  });
+  prefsWidget.attach(faceDialLineTI, 1, faceDialLineTIRow, 1, 1);
+
+  let faceMinuteTickLineRow = faceDialLineTIRow +1;
 
   let faceMinuteTickLineLabel = new Gtk.Label({
     label: 'Minute Tick (Width/Inset):',
@@ -815,19 +790,21 @@ function buildTickPage () {
   });
   prefsWidget.attach(faceMinuteTickLineLength, 2, faceMinuteTickLineRow, 1, 1);
 
+  faceMinuteTickLineRow += 1;
+
   let toggleMinuteTickLineCircleLabel = new Gtk.Label({
     label: 'Circle (Inner/Outer):',
     halign: Gtk.Align.START,
     visible: true
   });
-  prefsWidget.attach(toggleMinuteTickLineCircleLabel, 3, faceMinuteTickLineRow, 2, 1);
+  prefsWidget.attach(toggleMinuteTickLineCircleLabel, 0, faceMinuteTickLineRow, 2, 1);
 
   let toggleMinuteTickLineCircle = new Gtk.Switch({
     active: this.settings.get_boolean("faceminutetickcircle"),
     halign: Gtk.Align.END,
     visible: true
   });
-  prefsWidget.attach(toggleMinuteTickLineCircle, 4, faceMinuteTickLineRow, 1, 1);
+  prefsWidget.attach(toggleMinuteTickLineCircle, 1, faceMinuteTickLineRow, 1, 1);
 
   this.settings.bind(
     'faceminutetickcircle',
@@ -841,7 +818,7 @@ function buildTickPage () {
     halign: Gtk.Align.END,
     visible: true
   });
-  prefsWidget.attach(toggleMinuteTickLineOuterCircle, 5, faceMinuteTickLineRow, 1, 1);
+  prefsWidget.attach(toggleMinuteTickLineOuterCircle, 2, faceMinuteTickLineRow, 1, 1);
 
   this.settings.bind(
     'faceminutetickoutercircle',
@@ -976,10 +953,6 @@ function buildTickPage () {
   });
   prefsWidget.attach(buttonFaceMinuteTickLineColor, 5, faceMinuteTickLineColorRow, 1, 1);
   
-  // faceTickLineWidth = settings.get_double("faceticklinewidth");
-  // faceTickLineInset = settings.get_double("faceticklineinset");
-  // faceTickColor = {"R": settings.get_double("facetickcolor-r"), "G": settings.get_double("facetickcolor-g"), "B": settings.get_double("facetickcolor-b"), "A": settings.get_double("facetickcolor-a")};
-
   let faceTickLineRow = faceMinuteTickLineColorRow +1;
 
   let faceTickLineLabel = new Gtk.Label({
@@ -1015,19 +988,21 @@ function buildTickPage () {
   });
   prefsWidget.attach(faceTickLineLength, 2, faceTickLineRow, 1, 1);
 
+  faceTickLineRow += 1;
+
   let toggleTickLineCircleLabel = new Gtk.Label({
     label: 'Circle (Inner/Outer):',
     halign: Gtk.Align.START,
     visible: true
   });
-  prefsWidget.attach(toggleTickLineCircleLabel, 3, faceTickLineRow, 2, 1);
+  prefsWidget.attach(toggleTickLineCircleLabel, 0, faceTickLineRow, 2, 1);
 
   let toggleTickLineCircle = new Gtk.Switch({
     active: this.settings.get_boolean("facetickcircle"),
     halign: Gtk.Align.END,
     visible: true
   });
-  prefsWidget.attach(toggleTickLineCircle, 4, faceTickLineRow, 1, 1);
+  prefsWidget.attach(toggleTickLineCircle, 1, faceTickLineRow, 1, 1);
 
   this.settings.bind(
     'facetickcircle',
@@ -1041,7 +1016,7 @@ function buildTickPage () {
     halign: Gtk.Align.END,
     visible: true
   });
-  prefsWidget.attach(toggleTickLineOuterCircle, 5, faceTickLineRow, 1, 1);
+  prefsWidget.attach(toggleTickLineOuterCircle, 2, faceTickLineRow, 1, 1);
 
   this.settings.bind(
     'facetickoutercircle',
@@ -1176,10 +1151,6 @@ function buildTickPage () {
   });
   prefsWidget.attach(buttonFaceTickLineColor, 5, faceTickLineColorRow, 1, 1);
 
-  // faceProminentTickLineWidth = settings.get_double("faceprominentticklinewidth");
-  // faceProminentTickLineInset = settings.get_double("faceprominentticklineinset");
-  // faceProminentTickColor = {"R": settings.get_double("faceprominenttickcolor-r"), "G": settings.get_double("faceprominenttickcolor-g"), "B": settings.get_double("faceprominenttickcolor-b"), "A": settings.get_double("faceprominenttickcolor-a")};
-
   let faceProminentTickLineRow = faceTickLineColorRow +1;
 
   let faceProminentTickLineLabel = new Gtk.Label({
@@ -1215,19 +1186,21 @@ function buildTickPage () {
   });
   prefsWidget.attach(faceProminentTickLineLength, 2, faceProminentTickLineRow, 1, 1);
 
+  faceProminentTickLineRow += 1;
+
   let toggleProminentTickLineCircleLabel = new Gtk.Label({
     label: 'Circle (Inner/Outer):',
     halign: Gtk.Align.START,
     visible: true
   });
-  prefsWidget.attach(toggleProminentTickLineCircleLabel, 3, faceProminentTickLineRow, 2, 1);
+  prefsWidget.attach(toggleProminentTickLineCircleLabel, 0, faceProminentTickLineRow, 2, 1);
 
   let toggleProminentTickLineCircle = new Gtk.Switch({
     active: this.settings.get_boolean("faceprominenttickcircle"),
     halign: Gtk.Align.END,
     visible: true
   });
-  prefsWidget.attach(toggleProminentTickLineCircle, 4, faceProminentTickLineRow, 1, 1);
+  prefsWidget.attach(toggleProminentTickLineCircle, 1, faceProminentTickLineRow, 1, 1);
 
   this.settings.bind(
     'faceprominenttickcircle',
@@ -1241,7 +1214,7 @@ function buildTickPage () {
     halign: Gtk.Align.END,
     visible: true
   });
-  prefsWidget.attach(toggleProminentTickLineOuterCircle, 5, faceProminentTickLineRow, 1, 1);
+  prefsWidget.attach(toggleProminentTickLineOuterCircle, 2, faceProminentTickLineRow, 1, 1);
 
   this.settings.bind(
     'faceprominenttickoutercircle',
@@ -1405,11 +1378,6 @@ function buildHandPage () {
   });
   prefsWidget.attach(title, 0, 0, 2, 1);
 
-  // faceHourHandLineWidth = settings.get_double("facehourhandlinewidth");
-  // faceHourHandLineLength = settings.get_double("facehourhandlinelength");
-  // faceHourHandColor = {"R": settings.get_double("facehourhandcolor-r"), "G": settings.get_double("facehourhandcolor-g"), "B": settings.get_double("facehourhandcolor-b"), "A": settings.get_double("facehourhandcolor-a")};
-  // faceHourHandFilled = settings.get_boolean("facehourhandfilled");
-
   let hourHandLineRow = 1;
 
   let hourHandLineLabel = new Gtk.Label({
@@ -1445,7 +1413,75 @@ function buildHandPage () {
   });
   prefsWidget.attach(hourHandLineLength, 2, hourHandLineRow, 1, 1);
 
-  let faceHourHandColorRow = hourHandLineRow +1;
+  let hourHandFilledToggleRow = hourHandLineRow +1;
+
+  let toggleHourHandFilledLabel = new Gtk.Label({
+    label: 'Filled/Eyed/Tailed/Finned:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(toggleHourHandFilledLabel, 0, hourHandFilledToggleRow, 1, 1);
+
+  let toggleHourHandFilled = new Gtk.Switch({
+    active: this.settings.get_boolean("facehourhandfilled"),
+    halign: Gtk.Align.END,
+    visible: true
+  });
+  prefsWidget.attach(toggleHourHandFilled, 1, hourHandFilledToggleRow, 1, 1);
+
+  this.settings.bind(
+    'facehourhandfilled',
+    toggleHourHandFilled,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleHourHandEyed = new Gtk.Switch({
+    active: this.settings.get_boolean("facehourhandeyed"),
+    halign: Gtk.Align.END,
+    vexpand: false,
+    visible: true
+  });
+  prefsWidget.attach(toggleHourHandEyed, 2, hourHandFilledToggleRow, 1, 1);
+
+  this.settings.bind(
+    'facehourhandeyed',
+    toggleHourHandEyed,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleHourHandTailed = new Gtk.Switch({
+    active: this.settings.get_boolean("facehourhandtailed"),
+    halign: Gtk.Align.END,
+    vexpand: false,
+    visible: true
+  });
+  prefsWidget.attach(toggleHourHandTailed, 3, hourHandFilledToggleRow, 1, 1);
+
+  this.settings.bind(
+    'facehourhandtailed',
+    toggleHourHandTailed,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleHourHandFinned = new Gtk.Switch({
+    active: this.settings.get_boolean("facehourhandfinned"),
+    halign: Gtk.Align.END,
+    vexpand: false,
+    visible: true
+  });
+  prefsWidget.attach(toggleHourHandFinned, 4, hourHandFilledToggleRow, 1, 1);
+
+  this.settings.bind(
+    'facehourhandfinned',
+    toggleHourHandFinned,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let faceHourHandColorRow = hourHandFilledToggleRow +1;
 
   let spinFaceHourHandColor_ALabel = new Gtk.Label({
     label: 'Hour Hand color (R/G/B/A):',
@@ -1571,34 +1607,6 @@ function buildHandPage () {
   });
   prefsWidget.attach(buttonFaceHourHandColor, 5, faceHourHandColorRow, 1, 1);
 
-  let hourHandFilledToggleRow = hourHandLineRow;
-
-  let toggleHourHandFilledLabel = new Gtk.Label({
-    label: 'Filled:',
-    halign: Gtk.Align.START,
-    visible: true
-  });
-  prefsWidget.attach(toggleHourHandFilledLabel, 3, hourHandFilledToggleRow, 1, 1);
-
-  let toggleHourHandFilled = new Gtk.Switch({
-    active: this.settings.get_boolean("facehourhandfilled"),
-    halign: Gtk.Align.END,
-    visible: true
-  });
-  prefsWidget.attach(toggleHourHandFilled, 4, hourHandFilledToggleRow, 1, 1);
-
-  this.settings.bind(
-    'facehourhandfilled',
-    toggleHourHandFilled,
-    'active',
-    Gio.SettingsBindFlags.DEFAULT
-  );
-
-  // faceMinuteHandLineWidth = settings.get_double("faceminutehandlinewidth");
-  // faceMinuteHandLineLength = settings.get_double("faceminutehandlinelength");
-  // faceMinuteHandColor = {"R": settings.get_double("faceminutehandcolor-r"), "G": settings.get_double("faceminutehandcolor-g"), "B": settings.get_double("faceminutehandcolor-b"), "A": settings.get_double("faceminutehandcolor-a")};
-  // faceMinuteHandFilled = settings.get_boolean("faceminutehandfilled");
-
   let minuteHandLineRow = faceHourHandColorRow +1;
 
   let minuteHandLineLabel = new Gtk.Label({
@@ -1634,7 +1642,75 @@ function buildHandPage () {
   });
   prefsWidget.attach(minuteHandLineLength, 2, minuteHandLineRow, 1, 1);
 
-  let faceMinuteHandColorRow = minuteHandLineRow +1;
+  let minuteHandFilledToggleRow = minuteHandLineRow +1;
+
+  let toggleMinuteHandFilledLabel = new Gtk.Label({
+    label: 'Filled/Eyed/Tailed/Finned:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(toggleMinuteHandFilledLabel, 0, minuteHandFilledToggleRow, 1, 1);
+
+  let toggleMinuteHandFilled = new Gtk.Switch({
+    active: this.settings.get_boolean("faceminutehandfilled"),
+    halign: Gtk.Align.END,
+    visible: true
+  });
+  prefsWidget.attach(toggleMinuteHandFilled, 1, minuteHandFilledToggleRow, 1, 1);
+
+  this.settings.bind(
+    'faceminutehandfilled',
+    toggleMinuteHandFilled,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleMinuteHandEyed = new Gtk.Switch({
+    active: this.settings.get_boolean("faceminutehandeyed"),
+    halign: Gtk.Align.END,
+    vexpand: false,
+    visible: true
+  });
+  prefsWidget.attach(toggleMinuteHandEyed, 2, minuteHandFilledToggleRow, 1, 1);
+
+  this.settings.bind(
+    'faceminutehandeyed',
+    toggleMinuteHandEyed,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleMinuteHandTailed = new Gtk.Switch({
+    active: this.settings.get_boolean("faceminutehandtailed"),
+    halign: Gtk.Align.END,
+    vexpand: false,
+    visible: true
+  });
+  prefsWidget.attach(toggleMinuteHandTailed, 3, minuteHandFilledToggleRow, 1, 1);
+
+  this.settings.bind(
+    'faceminutehandtailed',
+    toggleMinuteHandTailed,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleMinuteHandFinned = new Gtk.Switch({
+    active: this.settings.get_boolean("faceminutehandfinned"),
+    halign: Gtk.Align.END,
+    vexpand: false,
+    visible: true
+  });
+  prefsWidget.attach(toggleMinuteHandFinned, 4, minuteHandFilledToggleRow, 1, 1);
+
+  this.settings.bind(
+    'faceminutehandfinned',
+    toggleMinuteHandFinned,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let faceMinuteHandColorRow = minuteHandFilledToggleRow +1;
 
   let spinFaceMinuteHandColor_ALabel = new Gtk.Label({
     label: 'Minute Hand color (R/G/B/A):',
@@ -1760,32 +1836,6 @@ function buildHandPage () {
   });
   prefsWidget.attach(buttonFaceMinuteHandColor, 5, faceMinuteHandColorRow, 1, 1);
 
-  let minuteHandFilledToggleRow = minuteHandLineRow;
-
-  let toggleMinuteHandFilledLabel = new Gtk.Label({
-    label: 'Filled:',
-    halign: Gtk.Align.START,
-    visible: true
-  });
-  prefsWidget.attach(toggleMinuteHandFilledLabel, 3, minuteHandFilledToggleRow, 1, 1);
-
-  let toggleMinuteHandFilled = new Gtk.Switch({
-    active: this.settings.get_boolean("faceminutehandfilled"),
-    halign: Gtk.Align.END,
-    visible: true
-  });
-  prefsWidget.attach(toggleMinuteHandFilled, 4, minuteHandFilledToggleRow, 1, 1);
-
-  this.settings.bind(
-    'faceminutehandfilled',
-    toggleMinuteHandFilled,
-    'active',
-    Gio.SettingsBindFlags.DEFAULT
-  );
-
-  // faceSecondHandLineWidth = settings.get_double("facesecondhandlinewidth");
-  // faceSecondHandLineLength = settings.get_double("facesecondhandlinelength");
-
   let secondHandLineRow = faceMinuteHandColorRow +1;
 
   let secondHandLineLabel = new Gtk.Label({
@@ -1821,9 +1871,76 @@ function buildHandPage () {
   });
   prefsWidget.attach(secondHandLineLength, 2, secondHandLineRow, 1, 1);
 
-  // faceSecondHandColor = {"R": settings.get_double("facesecondhandcolor-r"), "G": settings.get_double("facesecondhandcolor-g"), "B": settings.get_double("facesecondhandcolor-b"), "A": settings.get_double("facesecondhandcolor-a")};
+  let secondHandFilledToggleRow = secondHandLineRow +1;
 
-  let faceSecondHandColorRow = secondHandLineRow +1;
+  let toggleSecondHandFilledLabel = new Gtk.Label({
+    label: 'Filled/Eyed/Tailed/Finned:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(toggleSecondHandFilledLabel, 0, secondHandFilledToggleRow, 1, 1);
+
+  let toggleSecondHandFilled = new Gtk.Switch({
+    active: this.settings.get_boolean("facesecondhandfilled"),
+    halign: Gtk.Align.END,
+    vexpand: false,
+    visible: true
+  });
+  prefsWidget.attach(toggleSecondHandFilled, 1, secondHandFilledToggleRow, 1, 1);
+
+  this.settings.bind(
+    'facesecondhandfilled',
+    toggleSecondHandFilled,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleSecondHandEyed = new Gtk.Switch({
+    active: this.settings.get_boolean("facesecondhandeyed"),
+    halign: Gtk.Align.END,
+    vexpand: false,
+    visible: true
+  });
+  prefsWidget.attach(toggleSecondHandEyed, 2, secondHandFilledToggleRow, 1, 1);
+
+  this.settings.bind(
+    'facesecondhandeyed',
+    toggleSecondHandEyed,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleSecondHandTailed = new Gtk.Switch({
+    active: this.settings.get_boolean("facesecondhandtailed"),
+    halign: Gtk.Align.END,
+    vexpand: false,
+    visible: true
+  });
+  prefsWidget.attach(toggleSecondHandTailed, 3, secondHandFilledToggleRow, 1, 1);
+
+  this.settings.bind(
+    'facesecondhandtailed',
+    toggleSecondHandTailed,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleSecondHandFinned = new Gtk.Switch({
+    active: this.settings.get_boolean("facesecondhandfinned"),
+    halign: Gtk.Align.END,
+    vexpand: false,
+    visible: true
+  });
+  prefsWidget.attach(toggleSecondHandFinned, 4, secondHandFilledToggleRow, 1, 1);
+
+  this.settings.bind(
+    'facesecondhandfinned',
+    toggleSecondHandFinned,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let faceSecondHandColorRow = secondHandFilledToggleRow +1;
 
   let spinFaceSecondHandColor_ALabel = new Gtk.Label({
     label: 'Second Hand color (R/G/B/A):',
@@ -1948,32 +2065,6 @@ function buildHandPage () {
     spinFaceSecondHandColor_A.set_value(buttonFaceSecondHandColor.rgba.alpha);
   });
   prefsWidget.attach(buttonFaceSecondHandColor, 5, faceSecondHandColorRow, 1, 1);
-
-  // faceSecondHandFilled = settings.get_boolean("facesecondhandfilled");
-
-  let secondHandFilledToggleRow = secondHandLineRow;
-
-  let toggleSecondHandFilledLabel = new Gtk.Label({
-    label: 'Filled:',
-    halign: Gtk.Align.START,
-    visible: true
-  });
-  prefsWidget.attach(toggleSecondHandFilledLabel, 3, secondHandFilledToggleRow, 1, 1);
-
-  let toggleSecondHandFilled = new Gtk.Switch({
-    active: this.settings.get_boolean("facesecondhandfilled"),
-    halign: Gtk.Align.END,
-    vexpand: false,
-    visible: true
-  });
-  prefsWidget.attach(toggleSecondHandFilled, 4, secondHandFilledToggleRow, 1, 1);
-
-  this.settings.bind(
-    'facesecondhandfilled',
-    toggleSecondHandFilled,
-    'active',
-    Gio.SettingsBindFlags.DEFAULT
-  );
 
   Common.myDebugLog('Exiting prefs.js buildHandsPage()');
   return prefsWidget;

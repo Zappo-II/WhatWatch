@@ -188,32 +188,16 @@ function drawClock (area) {
             drawRadarClock (area);
             break;
 
-        case "OldSchoolKinkyHandsDB":
-            drawOldSchoolClock (area, true, true, false, true, false);
-            break;
-
         case "OldSchoolDB":
-            drawOldSchoolClock (area, false, true, false, true, false);
+            drawOldSchoolClock (area, false, false, true);
             break;
 
-        case "OldSchoolKinkyHandsNumbered":
-            drawOldSchoolClock (area, true, true, false, false, true);
+        case "OldSchoolArabian":
+            drawOldSchoolClock (area, true, false, false);
             break;
 
-        case "OldSchoolKinkyHardCoreNumbered":
-            drawOldSchoolClock (area, true, true, true, false, true);
-            break;
-                
-        case "OldSchoolNumbered":
-            drawOldSchoolClock (area, false, false, false, false, true);
-            break;
-        
-        case "OldSchoolKinkyHands":
-            drawOldSchoolClock (area, true, true, false, false, false);
-            break;
-
-        case "OldSchoolKinkyHardCore":
-            drawOldSchoolClock (area, true, true, true, false, false);
+        case "OldSchoolRoman":
+            drawOldSchoolClock (area, true, true, false);
             break;
                 
         case "OldSchool":
@@ -223,14 +207,14 @@ function drawClock (area) {
             if (! skipThis) {
                 Common.myErrorLog('drawClock - Invalid clockStyle: ' + config.clockStyle);
             }
-            drawOldSchoolClock (area, false, false, false, false, false);
+            drawOldSchoolClock (area, false, false, false);
             break;
     }
 
     return true;
 }
 
-function drawOldSchoolClock (area, kinkyHands, hasRing, hardCore, isBundesBahn, hasNumbers) {
+function drawOldSchoolClock (area, hasNumbers, hasRomanNumbers, isBundesBahn) {
     // Get the cairo context
     let cr = area.get_context();
 
@@ -245,14 +229,26 @@ function drawOldSchoolClock (area, kinkyHands, hasRing, hardCore, isBundesBahn, 
     const faceHourHandLineWidth = config.faceHourHandLineWidth;
     const faceHourHandLineLength = config.faceHourHandLineLength;
     const faceHourHandColor = config.faceHourHandColor;
+    const faceHourHandFilled = config.faceHourHandFilled;
+    const faceHourHandEyed = config.faceHourHandEyed;
+    const faceHourHandTailed = config.faceHourHandTailed;
+    const faceHourHandFinned = config.faceHourHandFinned;
 
     const faceMinuteHandLineWidth = config.faceMinuteHandLineWidth;
     const faceMinuteHandLineLength = config.faceMinuteHandLineLength;
     const faceMinuteHandColor = config.faceMinuteHandColor;
+    const faceMinuteHandFilled = config.faceMinuteHandFilled;
+    const faceMinuteHandEyed = config.faceMinuteHandEyed;
+    const faceMinuteHandTailed = config.faceMinuteHandTailed;
+    const faceMinuteHandFinned = config.faceMinuteHandFinned;
 
     const faceSecondHandLineWidth = config.faceSecondHandLineWidth;
     const faceSecondHandLineLength = config.faceSecondHandLineLength;
     const faceSecondHandColor = config.faceSecondHandColor;
+    const faceSecondHandFilled = config.faceSecondHandFilled;
+    const faceSecondHandEyed = config.faceSecondHandEyed;
+    const faceSecondHandTailed = config.faceSecondHandTailed;
+    const faceSecondHandFinned = config.faceSecondHandFinned;
 
     let theFont = '';
     let theOnlyQuarters = false;
@@ -288,7 +284,7 @@ function drawOldSchoolClock (area, kinkyHands, hasRing, hardCore, isBundesBahn, 
         theOnlyQuarters = false;
         theOthersSmall = true;
         theArabianNumbers = true;
-        if (hardCore) {
+        if (hasRomanNumbers) {
             theFont = 'serif';
             theArabianNumbers = false;
             theOthersSmall = true;
@@ -299,9 +295,9 @@ function drawOldSchoolClock (area, kinkyHands, hasRing, hardCore, isBundesBahn, 
     }
 
     if (config.faceShadowHand) {
-        drawHand(cr, shadow, faceHourHandLineWidth, faceHourHandLineLength, shadowColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, kinkyHands, hardCore, hardCore);
-        drawHand(cr, shadow, faceMinuteHandLineWidth, faceMinuteHandLineLength, shadowColor, myClockData.nowMinuteDegrees + myClockData.nowSecondDegrees / 60, kinkyHands, hardCore, hardCore);
-        drawHand(cr, shadow, faceSecondHandLineWidth, faceSecondHandLineLength, shadowColor, myClockData.nowSecondDegrees, kinkyHands, kinkyHands, hasRing);    
+        drawHand(cr, shadow, faceHourHandLineWidth, faceHourHandLineLength, shadowColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, faceHourHandTailed, faceHourHandFinned, faceHourHandEyed, faceHourHandFilled);
+        drawHand(cr, shadow, faceMinuteHandLineWidth, faceMinuteHandLineLength, shadowColor, myClockData.nowMinuteDegrees + myClockData.nowSecondDegrees / 60, faceMinuteHandTailed, faceMinuteHandFinned, faceMinuteHandEyed, faceMinuteHandFilled);
+        drawHand(cr, shadow, faceSecondHandLineWidth, faceSecondHandLineLength, shadowColor, myClockData.nowSecondDegrees, faceSecondHandTailed, faceSecondHandFinned, faceSecondHandEyed , faceSecondHandFilled);    
         drawCenterDial(cr, shadow, shadowColor, true);
     }
 
@@ -318,7 +314,7 @@ function drawOldSchoolClock (area, kinkyHands, hasRing, hardCore, isBundesBahn, 
         theOnlyQuarters = false;
         theOthersSmall = true;
         theArabianNumbers = true;
-        if (hardCore) {
+        if (hasRomanNumbers) {
             theFont = 'serif';
             theArabianNumbers = false;
             theOthersSmall = true;
@@ -326,9 +322,9 @@ function drawOldSchoolClock (area, kinkyHands, hasRing, hardCore, isBundesBahn, 
         drawFaceDialNumbers (cr, faceDialLineTickRadius, null, null, false, theArabianNumbers, theOnlyQuarters, theOthersSmall, theFont);
     }
     //
-    drawHand(cr, shadow, faceHourHandLineWidth, faceHourHandLineLength, faceHourHandColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, kinkyHands, hardCore, hardCore);
-    drawHand(cr, shadow, faceMinuteHandLineWidth, faceMinuteHandLineLength, faceMinuteHandColor, myClockData.nowMinuteDegrees + myClockData.nowSecondDegrees / 60, kinkyHands, hardCore, hardCore);
-    drawHand(cr, shadow, faceSecondHandLineWidth, faceSecondHandLineLength, faceSecondHandColor, myClockData.nowSecondDegrees, kinkyHands, kinkyHands, hasRing);
+    drawHand(cr, shadow, faceHourHandLineWidth, faceHourHandLineLength, faceHourHandColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, faceHourHandTailed, faceHourHandFinned, faceHourHandEyed, faceHourHandFilled);
+    drawHand(cr, shadow, faceMinuteHandLineWidth, faceMinuteHandLineLength, faceMinuteHandColor, myClockData.nowMinuteDegrees + myClockData.nowSecondDegrees / 60, faceMinuteHandTailed, faceMinuteHandFinned, faceMinuteHandEyed, faceMinuteHandFilled);
+    drawHand(cr, shadow, faceSecondHandLineWidth, faceSecondHandLineLength, faceSecondHandColor, myClockData.nowSecondDegrees, faceSecondHandTailed, faceSecondHandFinned, faceSecondHandEyed, faceSecondHandFilled);
     //
     drawCenterDial(cr, {}, {}, false);
     //
@@ -425,7 +421,7 @@ function drawRadarClock (area) {
     return true;
 }
 
-function drawHand(cr, center, width, length, color, degrees, hasTail, hasFin, hasEye) {
+function drawHand(cr, center, width, length, color, degrees, hasTail, hasFin, hasEye, isFilled) {
     //
     cr.setLineWidth (width);
     cr.setSourceRGBA (color.R, color.G, color.B, color.A);
@@ -434,7 +430,11 @@ function drawHand(cr, center, width, length, color, degrees, hasTail, hasFin, ha
         cr.lineTo(Math.sin(degrees) * (length / 5 * 3) + center.X, -1 * Math.cos(degrees) * (length / 5 * 3) + center.Y);
         cr.stroke();
         cr.arc(Math.sin(degrees) * ((length / 5 * 3) + 0.06) + center.X, -1 * Math.cos(degrees) * ((length / 5 * 3) + 0.06) + center.Y, 0.06, 0, 2 * Math.PI);
-        cr.stroke();
+        if (isFilled) {
+            cr.fill();
+        } else {
+            cr.stroke();
+        }
         cr.moveTo(Math.sin(degrees) * ((length / 5 * 3) + 0.12) + center.X, -1 * Math.cos(degrees) * ((length / 5 * 3) + 0.12 ) + center.Y)
         cr.lineTo(Math.sin(degrees) * length + center.X, -1 * Math.cos(degrees) * length + center.Y);
     } else {
@@ -864,16 +864,25 @@ function readSettings() {
         theSettings.faceHourHandLineLength = settings.get_double("facehourhandlinelength");
         theSettings.faceHourHandColor = {"R": settings.get_double("facehourhandcolor-r"), "G": settings.get_double("facehourhandcolor-g"), "B": settings.get_double("facehourhandcolor-b"), "A": settings.get_double("facehourhandcolor-a")};
         theSettings.faceHourHandFilled = settings.get_boolean("facehourhandfilled");
+        theSettings.faceHourHandEyed = settings.get_boolean("facehourhandeyed");
+        theSettings.faceHourHandTailed = settings.get_boolean("facehourhandtailed");
+        theSettings.faceHourHandFinned = settings.get_boolean("facehourhandfinned");
         //
         theSettings.faceMinuteHandLineWidth = settings.get_double("faceminutehandlinewidth");
         theSettings.faceMinuteHandLineLength = settings.get_double("faceminutehandlinelength");
         theSettings.faceMinuteHandColor = {"R": settings.get_double("faceminutehandcolor-r"), "G": settings.get_double("faceminutehandcolor-g"), "B": settings.get_double("faceminutehandcolor-b"), "A": settings.get_double("faceminutehandcolor-a")};
         theSettings.faceMinuteHandFilled = settings.get_boolean("faceminutehandfilled");
+        theSettings.faceMinuteHandEyed = settings.get_boolean("faceminutehandeyed");
+        theSettings.faceMinuteHandTailed = settings.get_boolean("faceminutehandtailed");
+        theSettings.faceMinuteHandFinned = settings.get_boolean("faceminutehandfinned");
         //
         theSettings.faceSecondHandLineWidth = settings.get_double("facesecondhandlinewidth");
         theSettings.faceSecondHandLineLength = settings.get_double("facesecondhandlinelength");
         theSettings.faceSecondHandColor = {"R": settings.get_double("facesecondhandcolor-r"), "G": settings.get_double("facesecondhandcolor-g"), "B": settings.get_double("facesecondhandcolor-b"), "A": settings.get_double("facesecondhandcolor-a")};
         theSettings.faceSecondHandFilled = settings.get_boolean("facesecondhandfilled");
+        theSettings.faceSecondHandEyed = settings.get_boolean("facesecondhandeyed");
+        theSettings.faceSecondHandTailed = settings.get_boolean("facesecondhandtailed");
+        theSettings.faceSecondHandFinned = settings.get_boolean("facesecondhandfinned");
         //
         theSettings.faceShadowOffsetX = settings.get_double("faceshadowoffsetx");
         theSettings.faceShadowOffsetY = settings.get_double("faceshadowoffsety");

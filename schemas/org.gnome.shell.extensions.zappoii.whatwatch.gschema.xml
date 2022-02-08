@@ -224,11 +224,47 @@
       <default>false</default>
     </key>
 
+    <key name="facehourhandeyed" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="facehourhandtailed" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="facehourhandfinned" type="b">
+      <default>false</default>
+    </key>
+
     <key name="faceminutehandfilled" type="b">
       <default>false</default>
     </key>
 
+    <key name="faceminutehandeyed" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="faceminutehandtailed" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="faceminutehandfinned" type="b">
+      <default>false</default>
+    </key>
+
     <key name="facesecondhandfilled" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="facesecondhandeyed" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="facesecondhandtailed" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="facesecondhandfinned" type="b">
       <default>true</default>
     </key>
 
