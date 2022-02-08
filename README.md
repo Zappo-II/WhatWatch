@@ -14,6 +14,10 @@ It displays an analog clock on the desktop and exposes a great variety of custom
 
 ## Install
 
+Visit [ego](https://extensions.gnome.org/extension/4806/what-watch/) to install the latest review release.
+
+## Install from Repo
+
 ### First Install
 
 Clone this repo to any local folder...
@@ -44,7 +48,7 @@ cd ~/myLocalFolder/WhatWatch
 ./install.local.sh
 ```
 
-This will install to ~/.local/share/gnome-shell/extensions/
+This will install to `~/.local/share/gnome-shell/extensions/`
 
 You must restart (X11: `Alt-F2` --> `r`) or logout/relogin (Wayland) to activate the (updated) extension.
 
@@ -52,7 +56,7 @@ Your mileage may vary.
 
 ## Documentation
 
-Please take a look at the documentation found in the `.../doc` folder of the extension's installation directory.
+Please take a look at the documentation found in the `.../doc` folder of this repository.
 
 * [WhatWatch-Doc.md](doc/WhatWatch-Doc.md)
 
