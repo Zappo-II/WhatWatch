@@ -194,7 +194,38 @@ function buildPrefsPage () {
   });
   prefsWidget.attach(spinHeightNotification, 3, widthHeightRow, 3, 1);
 
-  let marginRow = widthHeightRow +1;
+  let trackFullscreenRow = widthHeightRow +1;
+
+  let toggleTrackFullscreenLabel = new Gtk.Label({
+    label: 'Track (obey) Fullscreen:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(toggleTrackFullscreenLabel, 0, trackFullscreenRow, 1, 1);
+
+  let toggleTrackFullscreen = new Gtk.Switch({
+    active: this.settings.get_boolean("trackfullscreen"),
+    halign: Gtk.Align.END,
+    visible: true
+  });
+  prefsWidget.attach(toggleTrackFullscreen, 2, trackFullscreenRow, 1, 1);
+
+  this.settings.bind(
+    'trackfullscreen',
+    toggleTrackFullscreen,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleTrackFullscreenNotification = new Gtk.Label({
+    label: `<i>must restart <b>${Me.metadata.name}</b> to take effekt.</i>`,
+    halign: Gtk.Align.START,
+    use_markup: true,
+    visible: true
+  });
+  prefsWidget.attach(toggleTrackFullscreenNotification, 3, trackFullscreenRow, 3, 1);
+
+  let marginRow = trackFullscreenRow +1;
 
   let spinMarginTopLabel = new Gtk.Label({
     label: 'Margin top:',

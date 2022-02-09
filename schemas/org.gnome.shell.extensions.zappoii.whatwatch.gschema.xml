@@ -7,6 +7,10 @@
 <schemalist>
   <schema id="org.gnome.shell.extensions.zappoii.whatwatch" path="/org/gnome/shell/extensions/zappoii/whatwatch/">
 
+    <key name="debuglogging" type="b">
+      <default>false</default>
+    </key>
+
     <key name="clockstyle" type="s">
       <default>"default"</default>
       <summary>The clock's style</summary>
@@ -29,6 +33,10 @@
       <default>256</default>
       <summary>The clock's height</summary>
       <description>Select the clock's height on screen. Defaults to 128.</description>
+    </key>
+
+    <key name="trackfullscreen" type="b">
+      <default>true</default>
     </key>
 
     <key name="margintop" type="i">
@@ -289,10 +297,6 @@
     </key>
 
     <key name="faceprominenttickoutercircle" type="b">
-      <default>false</default>
-    </key>
-
-    <key name="debuglogging" type="b">
       <default>false</default>
     </key>
 

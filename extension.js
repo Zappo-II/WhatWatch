@@ -83,7 +83,7 @@ function enable () {
     Main.layoutManager.addChrome(area, {
         affectsInputRegion : false,
         affectsStruts : false,
-        trackFullscreen : false,
+        trackFullscreen : config.trackFullscreen
     });
 
     Common.myDebugLog('Adding callback (area.queue_repaint()) "timeout" with 500ms to Source context...');
@@ -827,6 +827,7 @@ function readSettings() {
         theSettings.clockStyle = settings.get_string("clockstyle");
         theSettings.clockPosition = settings.get_string("clockposition");
         //
+        theSettings.trackFullscreen = settings.get_boolean("trackfullscreen");
         theSettings.clockWidth = settings.get_int("clockwidth");
         theSettings.clockHeight = settings.get_int("clockheight");
         theSettings.marginTop = settings.get_int("margintop");
