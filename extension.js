@@ -87,7 +87,7 @@ function enable () {
     });
 
     Common.myDebugLog('Adding callback (area.queue_repaint()) "timeout" with 500ms to Source context...');
-    timeout = GLib.timeout_add(0, 500, () => {
+    timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
         Common.myDebugLog('TimeOut triggered...');
         this.area.queue_repaint();
         return true;
