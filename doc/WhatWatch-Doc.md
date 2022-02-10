@@ -1,5 +1,7 @@
 # WhatWatch Documentation
 
+![WhatWatch](WhatWatch-Icon.png)
+
 ## About
 
 This is a gnome-shell-extension. It displays an analog clock on the desktop and exposes a great variety of customisation options.
