@@ -41,6 +41,10 @@ function buildPrefsWidget () {
   prefsWidget.append_page(buildShadowPage(), new Gtk.Label({ label: 'Shadow' }));
   prefsWidget.append_page(buildAboutPage(), new Gtk.Label({ label: 'About' }));
 
+  if (prefsWidget.show_all) {
+    prefsWidget.show_all();
+  }
+
   Common.myDebugLog('Exiting prefs.js buildPrefsWidget()');
   return prefsWidget;
 }

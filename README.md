@@ -4,8 +4,10 @@
 
 ## About
 
-This is a gnome-shell-extension that supports Gnome-Shell:
+This is a gnome-shell-extension that supports the following Gnome-Shell Versions:
 
+* 3.38
+* 40
 * 41
 
 It displays an analog clock on the desktop and exposes a great variety of customisation options.
@@ -14,9 +16,11 @@ It displays an analog clock on the desktop and exposes a great variety of custom
 
 ## Install
 
-Visit [ego](https://extensions.gnome.org/extension/4806/what-watch/) to install the latest review release.
+Visit [ego](https://extensions.gnome.org/extension/4806/what-watch/) to install the latest reviewed release.
 
-## Install from Repo
+## Install any branch / tag / from this Repo
+
+Default branch is `main`.
 
 ### First Install
 
