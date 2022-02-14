@@ -2,6 +2,9 @@
  * 
  * org.gnome.shell.extensions.zappoii.whatwatch prefs...
  * 
+ * Visit https://github.com/Zappo-II/WhatWatch for 
+ * LICENSE and documentation
+ * 
  * Console-Debug:
  *   `journalctl -f -o cat /usr/bin/gjs`
  * 
@@ -1864,10 +1867,10 @@ function buildHandPage () {
     Common.myDebugLog('buttonFaceMinuteHandColor.rgba.green : ' + buttonFaceMinuteHandColor.rgba.green);
     Common.myDebugLog('buttonFaceMinuteHandColor.rgba.blue  : ' + buttonFaceMinuteHandColor.rgba.blue);
     Common.myDebugLog('buttonFaceMinuteHandColor.rgba.alpha : ' + buttonFaceMinuteHandColor.rgba.alpha);
-    spinFaceHourHandColor_R.set_value(buttonFaceMinuteHandColor.rgba.red);
-    spinFaceHourHandColor_G.set_value(buttonFaceMinuteHandColor.rgba.green);
-    spinFaceHourHandColor_B.set_value(buttonFaceMinuteHandColor.rgba.blue);
-    spinFaceHourHandColor_A.set_value(buttonFaceMinuteHandColor.rgba.alpha);
+    spinFaceMinuteHandColor_R.set_value(buttonFaceMinuteHandColor.rgba.red);
+    spinFaceMinuteHandColor_G.set_value(buttonFaceMinuteHandColor.rgba.green);
+    spinFaceMinuteHandColor_B.set_value(buttonFaceMinuteHandColor.rgba.blue);
+    spinFaceMinuteHandColor_A.set_value(buttonFaceMinuteHandColor.rgba.alpha);
   });
   prefsWidget.attach(buttonFaceMinuteHandColor, 5, faceMinuteHandColorRow, 1, 1);
 

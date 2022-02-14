@@ -2,6 +2,9 @@
  * 
  * org.gnome.shell.extensions.zappoii.whatwatch common...
  * 
+ * Visit https://github.com/Zappo-II/WhatWatch for 
+ * LICENSE and documentation
+ * 
  */
 'use strict';
 const GLib = imports.gi.GLib;

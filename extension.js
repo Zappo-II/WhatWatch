@@ -3,6 +3,9 @@
  * WhatWatch@Zappo-II.github.io
  * org.gnome.shell.extensions.zappoii.whatwatch ...
  * 
+ * Visit https://github.com/Zappo-II/WhatWatch for 
+ * LICENSE and documentation
+ * 
  * Console-Debug:
  *   `journalctl -f -o cat /usr/bin/gnome-shell`
  * 

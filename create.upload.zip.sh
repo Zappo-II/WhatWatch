@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+#* 
+#* Visit https://github.com/Zappo-II/WhatWatch for 
+#* LICENSE and documentation
+#* 
+#
 theVersion="$(echo $(grep '"version"' metadata.json | cut -f 2 -d ':' | cut -f 1 -d ','))"
 theZip="$(grep "uuid" metadata.json | cut -f 4 -d '"').V.${theVersion}.zip"
 

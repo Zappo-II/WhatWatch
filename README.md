@@ -6,9 +6,9 @@
 
 This is a gnome-shell-extension that supports the following Gnome-Shell Versions:
 
-* 3.38
-* 40
-* 41
+* 3.38 - Tested with live Ubuntu 21.04
+* 40 - Tested with live Ubuntu 21.10
+* 41 - Tested with Manjaro - Gnome
 
 It displays an analog clock on the desktop and exposes a great variety of customisation options.
 

@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+#* 
+#* Visit https://github.com/Zappo-II/WhatWatch for 
+#* LICENSE and documentation
+#* 
+#
 
 installPath="$(echo ~/.local/share/gnome-shell/extensions/)"
 installDir="$(grep "uuid" metadata.json | cut -f 4 -d '"')/"
