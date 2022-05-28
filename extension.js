@@ -12,7 +12,7 @@
  */
 'use strict';
 
-const {St, GLib} = imports.gi;
+const {St, GLib, Gio, Shell} = imports.gi;
 const Main = imports.ui.main;
 const Cairo = imports.cairo;
 //
@@ -27,6 +27,7 @@ var area = null;
 var config = null;
 var settings = null;
 let timeout = null;
+//
 
 function init () {
     Common.myDebugLog('Entering init()');
@@ -71,7 +72,7 @@ function enable () {
     area.connect("leave-event", () => {
         Common.myDebugLog('left');
     });
-  
+
     area.connect("button-press-event", () => {
         Common.myDebugLog('clicked');
         test();
@@ -174,7 +175,7 @@ function setClockPosition() {
                 Common.myErrorLog('setClockPosition - Invalid clockPosition: ' + clockPosition);
             }
             Common.myDebugLog('area.set_position(' + clockPosition + '):= (' + pMonitor.width + ' - ' +  clockWidth + ' - ' + marginSide + '), ' + marginTop);
-            area.set_position((pMonitor.width - clockWidth - marginSide), marginTop);
+            area.set_position(pMonitor.x + (pMonitor.width - clockWidth - marginSide), pMonitor.y + marginTop);
             break;
     }
 
@@ -186,32 +187,36 @@ function drawClock (area) {
     config = readSettings();
     setClockPosition();
 
-    switch (config.clockStyle) {
-        case "Radar":
-            drawRadarClock (area);
-            break;
+    if ( ! windowTest()) {
 
-        case "OldSchoolDB":
-            drawOldSchoolClock (area, false, false, true);
-            break;
+        switch (config.clockStyle) {
+            case "Radar":
+                drawRadarClock (area);
+                break;
 
-        case "OldSchoolArabian":
-            drawOldSchoolClock (area, true, false, false);
-            break;
+            case "OldSchoolDB":
+                drawOldSchoolClock (area, false, false, true);
+                break;
 
-        case "OldSchoolRoman":
-            drawOldSchoolClock (area, true, true, false);
-            break;
-                
-        case "OldSchool":
-        case "default":
-            skipThis = true;
-        default:
-            if (! skipThis) {
-                Common.myErrorLog('drawClock - Invalid clockStyle: ' + config.clockStyle);
-            }
-            drawOldSchoolClock (area, false, false, false);
-            break;
+            case "OldSchoolArabian":
+                drawOldSchoolClock (area, true, false, false);
+                break;
+
+            case "OldSchoolRoman":
+                drawOldSchoolClock (area, true, true, false);
+                break;
+                    
+            case "OldSchool":
+            case "default":
+                skipThis = true;
+            default:
+                if (! skipThis) {
+                    Common.myErrorLog('drawClock - Invalid clockStyle: ' + config.clockStyle);
+                }
+                drawOldSchoolClock (area, false, false, false);
+                break;
+        }
+
     }
 
     return true;
@@ -906,16 +911,172 @@ function readSettings() {
 
 function test() {
     let myLayoutManager = Main.layoutManager;
+
     Common.myLog('Display: Test Monitor Output...');
-    Common.myLog('Display: Primary Monitor');
-    Common.myLog('Display: ' + JSON.stringify(myLayoutManager.primaryMonitor, null, 2));
-    Common.myLog('Display: Current Monitor');
-    Common.myLog('Display: ' + JSON.stringify(myLayoutManager.currentMonitor, null, 2));
+    Common.myLog('Display: Primary Monitor ' + myLayoutManager.primaryMonitor.index);
+    //Common.myLog('Display: ' + JSON.stringify(myLayoutManager.primaryMonitor, null, 2));
+    Common.myLog('Display: Current Monitor ' + myLayoutManager.currentMonitor.index);
+    //Common.myLog('Display: ' + JSON.stringify(myLayoutManager.currentMonitor, null, 2));
     Common.myLog('Display: Monitors');
     Common.myLog('Display: ' + JSON.stringify(myLayoutManager.monitors, null, 2));
     Common.myLog('Display: Iterating each Monitor');
     for (let myMonitor in myLayoutManager.monitors) {
-        Common.myLog('Display: ' + JSON.stringify(myMonitor, null, 2));
+        Common.myLog('Display(' + myMonitor + '): ' + JSON.stringify(myLayoutManager.monitors[myMonitor], null, 2));
     }
-    Common.myLog('Display:');
+    Common.myLog('Display: ...');
+
+    /*
+    dbus_test();
+    */
+
+    windowTest();
+
+}
+
+function dbus_test() {
+
+    const XML_INTERFACE =
+        '<node>\
+            <interface name="org.gnome.Mutter.DisplayConfig">\
+                <method name="GetCurrentState">\
+                <arg name="serial" direction="out" type="u" />\
+                <arg name="monitors" direction="out" type="a((ssss)a(siiddada{sv})a{sv})" />\
+                <arg name="logical_monitors" direction="out" type="a(iiduba(ssss)a{sv})" />\
+                <arg name="properties" direction="out" type="a{sv}" />\
+                </method>\
+                <signal name="MonitorsChanged" />\
+            </interface>\
+        </node>';
+
+    const ProxyWrapper = Gio.DBusProxy.makeProxyWrapper(XML_INTERFACE);
+    
+    let monitorsConfigProxy = ProxyWrapper(
+        Gio.DBus.session,
+        "org.gnome.Mutter.DisplayConfig",
+        "/org/gnome/Mutter/DisplayConfig"
+    );
+
+    function resourceCallback(resource, err) {
+        if (err) {
+            Common.myLog('resourceCallback.err: ' + JSON.stringify(err));
+            logError(err);
+            return;
+        }
+        //Common.myLog('resourceCallback.resource: ' + JSON.stringify(resource));
+
+        const [_serial, monitors, logicalMonitors] = resource;
+        let index = 0;
+        for (const monitor of monitors) {
+            const [monitorSpecs, _modes, props] = monitor;
+            const [connector, vendor, product, serial] = monitorSpecs;
+
+            //
+            //Common.myLog('resourceCallback.resource.monitors[' + index + ']: ' + JSON.stringify(monitor));
+            //
+            Common.myLog('resourceCallback.resource.monitors[' + index + '].connector: ' + JSON.stringify(connector));
+            Common.myLog('resourceCallback.resource.monitors[' + index + '].vendor: ' + JSON.stringify(vendor));
+            Common.myLog('resourceCallback.resource.monitors[' + index + '].product: ' + JSON.stringify(product));
+            Common.myLog('resourceCallback.resource.monitors[' + index + '].serial: ' + JSON.stringify(serial));
+            Common.myLog('resourceCallback.resource.monitors[' + index + '].displayName: ' + JSON.stringify(props['display-name'].unpack()));
+            index++;
+
+        }
+
+        index = 0;
+        let indey = 0;
+        for (const logicalMonitor of logicalMonitors) {
+            const [_x, _y, _scale, _transform, isPrimary, monitorsSpecs] =
+                logicalMonitor;
+
+            Common.myLog('resourceCallback.resource.logicalMonitors[' + index + '].isPrimary: ' + JSON.stringify(isPrimary));
+            
+            for (const monitorSpecs of monitorsSpecs) {
+                const [connector, vendor, product, serial] = monitorSpecs;
+                Common.myLog('resourceCallback.resource.logicalMonitors[' + index + '].monitorsSpecs[' + indey + '].connector: ' + JSON.stringify(connector));
+                Common.myLog('resourceCallback.resource.logicalMonitors[' + index + '].monitorsSpecs[' + indey + '].vendor: ' + JSON.stringify(vendor));
+                Common.myLog('resourceCallback.resource.logicalMonitors[' + index + '].monitorsSpecs[' + indey + '].product: ' + JSON.stringify(product));
+                Common.myLog('resourceCallback.resource.logicalMonitors[' + index + '].monitorsSpecs[' + indey + '].serial: ' + JSON.stringify(serial));   
+               indey++;
+            }
+            index++;
+
+        }        
+
+        Common.myLog('resourceCallback: ...');
+    }
+
+    monitorsConfigProxy.GetCurrentStateRemote(resourceCallback);
+    Common.myLog('monitorsConfigProxy: ...');
+
+}
+
+function windowTest() {
+    let myResult = false;
+    const myMonitor = Main.layoutManager.primaryMonitor.index;
+    const myWorkspace = global.workspace_manager.get_active_workspace_index();
+    let windows = global.get_window_actors();
+
+    let clockBox = { x1:0, y1:0, x2: 0, y2:0};
+    clockBox.x1 = area.get_position()[0];
+    clockBox.y1 = area.get_position()[1];
+    clockBox.x2 = clockBox.x1 + area.width;
+    clockBox.y2 = clockBox.y1 + area.height;
+    let test = false;
+
+    //Common.myLog('windowTest.windows.length: ' + windows.length);
+    if (windows.length > 0) {
+        for (let i = windows.length - 1; i >= 0; i--) {
+            let meta_win = windows[i].get_meta_window();
+            //Common.myLog('windowTest.windows[' + i + '].meta_win.get_wm_class: ' + meta_win.get_wm_class());
+            if (myMonitor == meta_win.get_monitor()) {
+                //Common.myLog('windowTest.windows[' + i + ']: Same as myMonitor');
+                if (meta_win.get_workspace().index() == myWorkspace) {
+                    //Common.myLog('windowTest.windows[' + i + ']: Same as myWorkspace');
+                    switch (meta_win.get_window_type()) {
+                        case 0:
+                            // META_WINDOW_NORMAL
+                        case 1:
+                            // META_WINDOW_DESKTOP
+                        case 2:
+                            // META_WINDOW_DOCK
+                        case 3:
+                            // META_WINDOW_DIALOG
+                        case 4:
+                            // META_WINDOW_MODAL_DIALOG
+                        case 5:
+                            // META_WINDOW_TOOLBAR
+                        case 6:
+                            // META_WINDOW_MENU
+                        case 7:
+                            // META_WINDOW_UTILITY
+                            //Common.myLog('windowTest.windows[' + i + ']: Should be checked for overlapping...');
+                            //Common.myLog('windowTest.windows[' + i + '].meta_win.get_wm_class: ' + meta_win.get_wm_class());
+                            //Common.myLog('windowTest.windows[' + i + '].meta_win.get_window_type: ' + meta_win.get_window_type());
+                            let rect = meta_win.get_frame_rect();
+                            //Common.myLog('windowTest.windows[' + i + '].meta_win.get_frame_rect(x,y width, height): ' + rect.x + ',' + rect.y + ',' + rect.width + ',' + rect.height);
+                            test = (rect.x < clockBox.x2) &&
+                                (rect.x + rect.width > clockBox.x1) &&
+                                (rect.y < clockBox.y2) &&
+                                (rect.y + rect.height > clockBox.y1);
+                            if (test) {
+                                //Common.myLog('windowTest.windows[' + i + '].meta_win.get_wm_class: ' + meta_win.get_wm_class() + ' is overlapping...');
+                                myResult = true;
+                            }
+                            break;
+                        default:
+                            //Common.myLog('windowTest.windows[' + i + ']: Is irrelevant...');
+                            break;
+                    }
+
+                } else {
+                    //Common.myLog('windowTest.windows[' + i + ']: Is on other Workspace');
+                }
+            } else {
+                //Common.myLog('windowTest.windows[' + i + ']: Is on other Monitor');
+            }
+        }
+    }
+
+    //Common.myLog('windowTest: ...');
+    return myResult;
 }
