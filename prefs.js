@@ -141,7 +141,51 @@ function buildPrefsPage () {
   this.settings.bind('clockposition', positionValue, 'active-id', Gio.SettingsBindFlags.DEFAULT);
   prefsWidget.attach(positionValue, 1, styleRow, 2, 1);
 
-  let widthHeightRow = styleRow + 1;
+  let marginRow = styleRow +1;
+
+  let spinMarginTopLabel = new Gtk.Label({
+    label: 'Margin top:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(spinMarginTopLabel, 0, marginRow, 1, 1);
+
+  let spinMarginTop = new Gtk.SpinButton({ 
+    halign: Gtk.Align.END, 
+    digits: 0
+  });
+  spinMarginTop.set_sensitive(true);
+  spinMarginTop.set_range(0, 2000);
+  spinMarginTop.set_value(this.settings.get_int('margintop'));
+  spinMarginTop.set_increments(1, 10);
+  spinMarginTop.connect('value-changed', w => {
+      this.settings.set_int('margintop', w.get_value());
+  });
+  prefsWidget.attach(spinMarginTop, 2, marginRow, 1, 1);
+
+  marginRow += 1;
+
+  let spinMarginSideLabel = new Gtk.Label({
+    label: 'Margin side:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(spinMarginSideLabel, 0, marginRow, 1, 1);
+
+  let spinMarginSide = new Gtk.SpinButton({ 
+    halign: Gtk.Align.END, 
+    digits: 0
+  });
+  spinMarginSide.set_sensitive(true);
+  spinMarginSide.set_range(0, 4000);
+  spinMarginSide.set_value(this.settings.get_int('marginside'));
+  spinMarginSide.set_increments(1, 10);
+  spinMarginSide.connect('value-changed', w => {
+      this.settings.set_int('marginside', w.get_value());
+  });
+  prefsWidget.attach(spinMarginSide, 2, marginRow, 1, 1);
+
+  let widthHeightRow = marginRow + 1;
 
   let spinWidthLabel = new Gtk.Label({
     label: 'Clock size width:',
@@ -232,49 +276,69 @@ function buildPrefsPage () {
   });
   prefsWidget.attach(toggleTrackFullscreenNotification, 3, trackFullscreenRow, 3, 1);
 
-  let marginRow = trackFullscreenRow +1;
+  let hideOnRow = trackFullscreenRow +1;
 
-  let spinMarginTopLabel = new Gtk.Label({
-    label: 'Margin top:',
+  let toggleHideOnOverlapLabel = new Gtk.Label({
+    label: 'Hide on overlap:',
     halign: Gtk.Align.START,
     visible: true
   });
-  prefsWidget.attach(spinMarginTopLabel, 0, marginRow, 1, 1);
+  prefsWidget.attach(toggleHideOnOverlapLabel, 0, hideOnRow, 1, 1);
 
-  let spinMarginTop = new Gtk.SpinButton({ 
-    halign: Gtk.Align.END, 
-    digits: 0
+  let toggleHideOnOverlap = new Gtk.Switch({
+    active: this.settings.get_boolean("hideonoverlap"),
+    halign: Gtk.Align.END,
+    visible: true
   });
-  spinMarginTop.set_sensitive(true);
-  spinMarginTop.set_range(0, 2000);
-  spinMarginTop.set_value(this.settings.get_int('margintop'));
-  spinMarginTop.set_increments(1, 10);
-  spinMarginTop.connect('value-changed', w => {
-      this.settings.set_int('margintop', w.get_value());
+  toggleHideOnOverlap.connect('state-flags-changed', w => {
+    if (toggleHideOnOverlap.get_state() == false) {
+      toggleHideOnFocus.set_state(false);
+    }
   });
-  prefsWidget.attach(spinMarginTop, 2, marginRow, 1, 1);
+  prefsWidget.attach(toggleHideOnOverlap, 2, hideOnRow, 1, 1);
 
-  marginRow += 1;
+  this.settings.bind(
+    'hideonoverlap',
+    toggleHideOnOverlap,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
 
-  let spinMarginSideLabel = new Gtk.Label({
-    label: 'Margin side:',
+  hideOnRow = hideOnRow +1;
+
+  let toggleHideOnFocusLabel = new Gtk.Label({
+    label: 'Hide only on focus:',
     halign: Gtk.Align.START,
     visible: true
   });
-  prefsWidget.attach(spinMarginSideLabel, 0, marginRow, 1, 1);
+  prefsWidget.attach(toggleHideOnFocusLabel, 0, hideOnRow, 1, 1);
 
-  let spinMarginSide = new Gtk.SpinButton({ 
-    halign: Gtk.Align.END, 
-    digits: 0
+  let toggleHideOnFocus = new Gtk.Switch({
+    active: this.settings.get_boolean("hideonfocusoverlap"),
+    halign: Gtk.Align.END,
+    visible: true
   });
-  spinMarginSide.set_sensitive(true);
-  spinMarginSide.set_range(0, 4000);
-  spinMarginSide.set_value(this.settings.get_int('marginside'));
-  spinMarginSide.set_increments(1, 10);
-  spinMarginSide.connect('value-changed', w => {
-      this.settings.set_int('marginside', w.get_value());
+  toggleHideOnFocus.connect('state-flags-changed', w => {
+    if (toggleHideOnFocus.get_state() == true) {
+      toggleHideOnOverlap.set_state(true);
+    }
   });
-  prefsWidget.attach(spinMarginSide, 2, marginRow, 1, 1);
+  prefsWidget.attach(toggleHideOnFocus, 2, hideOnRow, 1, 1);
+
+  this.settings.bind(
+    'hideonfocusoverlap',
+    toggleHideOnFocus,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleHideOnFocusNotification = new Gtk.Label({
+    label: `<i>will force <b>Hide on overlap</b> to on.</i>`,
+    halign: Gtk.Align.START,
+    use_markup: true,
+    visible: true
+  });
+  prefsWidget.attach(toggleHideOnFocusNotification, 3, hideOnRow, 3, 1);
 
   Common.myDebugLog('Exiting prefs.js buildPrefsPage()');
   return prefsWidget;

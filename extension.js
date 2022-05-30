@@ -27,6 +27,7 @@ var area = null;
 var config = null;
 var settings = null;
 let timeout = null;
+let areaActive = false;
 //
 
 function init () {
@@ -89,9 +90,10 @@ function enable () {
         affectsStruts : false,
         trackFullscreen : config.trackFullscreen
     });
+    areaActive = true;
 
-    Common.myDebugLog('Adding callback (area.queue_repaint()) "timeout" with 500ms to Source context...');
-    timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+    Common.myDebugLog('Adding callback (area.queue_repaint()) "timeout" with 100ms to Source context...');
+    timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
         Common.myDebugLog('TimeOut triggered...');
         this.area.queue_repaint();
         return true;
@@ -120,6 +122,7 @@ function disable () {
     if (area) {
         Common.myDebugLog('Removing "area" from LayoutManager...');
         Main.layoutManager.removeChrome(area);
+        areaActive = false;
         area.destroy();
         area = null;
     }
@@ -143,28 +146,23 @@ function setClockPosition() {
 
     switch (clockPosition) {
         case "center-left":
-            Common.myDebugLog('area.set_position(' + clockPosition + '):= (' + marginSide + ',' + ( pMonitor.height / 2 ) - ( clockHeight / 2 ) + ')');
-            area.set_position(marginSide, ( pMonitor.height / 2 ) - ( clockHeight / 2 ));
+            area.set_position(pMonitor.x + marginSide, pMonitor.y + (( pMonitor.height / 2 ) - ( clockHeight / 2 )));
             break;
     
         case "center":
-            Common.myDebugLog('area.set_position(' + clockPosition + '):= (' + ( pMonitor.width / 2 ) - ( clockWidth / 2 ) + ',' + ( pMonitor.height / 2 ) - ( clockHeight / 2 ) + ')');
-            area.set_position(( pMonitor.width / 2 ) - ( clockWidth / 2 ), ( pMonitor.height / 2 ) - ( clockHeight / 2 ));
+            area.set_position(pMonitor.x + (( pMonitor.width / 2 ) - ( clockWidth / 2 )), pMonitor.y + (( pMonitor.height / 2 ) - ( clockHeight / 2 )));
             break;
         
         case "center-right":
-            Common.myDebugLog('area.set_position(' + clockPosition + '):= (' +  ( pMonitor.width - clockWidth - marginSide ) + ',' + ( pMonitor.height / 2 ) - ( clockHeight / 2 ) + ')');
-            area.set_position(( pMonitor.width - clockWidth - marginSide ), ( pMonitor.height / 2 ) - ( clockHeight / 2 ));
+            area.set_position(pMonitor.x + ( pMonitor.width - clockWidth - marginSide ), pMonitor.y + (( pMonitor.height / 2 ) - ( clockHeight / 2 )));
             break;
 
         case "top-left":
-            Common.myDebugLog('area.set_position(' + clockPosition + '):= (' +  marginSide + ',' + marginTop + ')');
-            area.set_position(marginSide, marginTop);
+            area.set_position(pMonitor.x + marginSide, pMonitor.y + marginTop);
             break;
 
         case "top-middle":
-            Common.myDebugLog('area.set_position(' + clockPosition + '):= (' +  (pMonitor.width / 2 ) - (clockWidth / 2) + ',' + marginTop + ')');
-            area.set_position((pMonitor.width / 2 ) - (clockWidth / 2), marginTop);
+            area.set_position(pMonitor.x + ((pMonitor.width / 2 ) - (clockWidth / 2)), pMonitor.y + marginTop);
             break;
 
         case "top-right":
@@ -174,7 +172,6 @@ function setClockPosition() {
             if (! skipThis) {
                 Common.myErrorLog('setClockPosition - Invalid clockPosition: ' + clockPosition);
             }
-            Common.myDebugLog('area.set_position(' + clockPosition + '):= (' + pMonitor.width + ' - ' +  clockWidth + ' - ' + marginSide + '), ' + marginTop);
             area.set_position(pMonitor.x + (pMonitor.width - clockWidth - marginSide), pMonitor.y + marginTop);
             break;
     }
@@ -185,9 +182,19 @@ function drawClock (area) {
     let skipThis = false;
 
     config = readSettings();
-    setClockPosition();
+    
+    if ( (! config.hideOnOverlap) || (! windowTest(config.hideOnOverlap && config.hideOnFocusOverlap))) {
 
-    if ( ! windowTest()) {
+        if ( ! areaActive) {
+            Main.layoutManager.addChrome(area, {
+                affectsInputRegion : false,
+                affectsStruts : false,
+                trackFullscreen : config.trackFullscreen
+            });        
+            areaActive = true;
+        }
+
+        setClockPosition();
 
         switch (config.clockStyle) {
             case "Radar":
@@ -217,6 +224,11 @@ function drawClock (area) {
                 break;
         }
 
+    } else {
+        if (areaActive) {
+            Main.layoutManager.removeChrome(area);
+            areaActive = false;
+        }
     }
 
     return true;
@@ -836,6 +848,10 @@ function readSettings() {
         theSettings.clockPosition = settings.get_string("clockposition");
         //
         theSettings.trackFullscreen = settings.get_boolean("trackfullscreen");
+        //
+        theSettings.hideOnOverlap = settings.get_boolean("hideonoverlap");
+        theSettings.hideOnFocusOverlap = settings.get_boolean("hideonfocusoverlap");
+        //
         theSettings.clockWidth = settings.get_int("clockwidth");
         theSettings.clockHeight = settings.get_int("clockheight");
         theSettings.marginTop = settings.get_int("margintop");
@@ -910,6 +926,9 @@ function readSettings() {
 }
 
 function test() {
+    /*
+     * Dead Code Experiment...
+     */
     let myLayoutManager = Main.layoutManager;
 
     Common.myLog('Display: Test Monitor Output...');
@@ -929,11 +948,14 @@ function test() {
     dbus_test();
     */
 
-    windowTest();
+    windowTest(false);
 
 }
 
 function dbus_test() {
+    /*
+     * Dead Code Experiment...
+     */
 
     const XML_INTERFACE =
         '<node>\
@@ -1010,12 +1032,21 @@ function dbus_test() {
 
 }
 
-function windowTest() {
+function testOverlap(rect, clockBox) {
+    return (rect.x < clockBox.x2) &&
+        (rect.x + rect.width > clockBox.x1) &&
+        (rect.y < clockBox.y2) &&
+        (rect.y + rect.height > clockBox.y1);
+}
+
+function windowTest(onlyFocus) {
     let myResult = false;
     const myMonitor = Main.layoutManager.primaryMonitor.index;
     const myWorkspace = global.workspace_manager.get_active_workspace_index();
     let windows = global.get_window_actors();
 
+    let focusWindow = global.display.get_focus_window();
+    let rect = {x:0, y:0, width:0, height:0};
     let clockBox = { x1:0, y1:0, x2: 0, y2:0};
     clockBox.x1 = area.get_position()[0];
     clockBox.y1 = area.get_position()[1];
@@ -1023,60 +1054,81 @@ function windowTest() {
     clockBox.y2 = clockBox.y1 + area.height;
     let test = false;
 
-    //Common.myLog('windowTest.windows.length: ' + windows.length);
-    if (windows.length > 0) {
-        for (let i = windows.length - 1; i >= 0; i--) {
-            let meta_win = windows[i].get_meta_window();
-            //Common.myLog('windowTest.windows[' + i + '].meta_win.get_wm_class: ' + meta_win.get_wm_class());
-            if (myMonitor == meta_win.get_monitor()) {
-                //Common.myLog('windowTest.windows[' + i + ']: Same as myMonitor');
-                if (meta_win.get_workspace().index() == myWorkspace) {
-                    //Common.myLog('windowTest.windows[' + i + ']: Same as myWorkspace');
-                    switch (meta_win.get_window_type()) {
-                        case 0:
-                            // META_WINDOW_NORMAL
-                        case 1:
-                            // META_WINDOW_DESKTOP
-                        case 2:
-                            // META_WINDOW_DOCK
-                        case 3:
-                            // META_WINDOW_DIALOG
-                        case 4:
-                            // META_WINDOW_MODAL_DIALOG
-                        case 5:
-                            // META_WINDOW_TOOLBAR
-                        case 6:
-                            // META_WINDOW_MENU
-                        case 7:
-                            // META_WINDOW_UTILITY
-                            //Common.myLog('windowTest.windows[' + i + ']: Should be checked for overlapping...');
-                            //Common.myLog('windowTest.windows[' + i + '].meta_win.get_wm_class: ' + meta_win.get_wm_class());
-                            //Common.myLog('windowTest.windows[' + i + '].meta_win.get_window_type: ' + meta_win.get_window_type());
-                            let rect = meta_win.get_frame_rect();
-                            //Common.myLog('windowTest.windows[' + i + '].meta_win.get_frame_rect(x,y width, height): ' + rect.x + ',' + rect.y + ',' + rect.width + ',' + rect.height);
-                            test = (rect.x < clockBox.x2) &&
-                                (rect.x + rect.width > clockBox.x1) &&
-                                (rect.y < clockBox.y2) &&
-                                (rect.y + rect.height > clockBox.y1);
-                            if (test) {
-                                //Common.myLog('windowTest.windows[' + i + '].meta_win.get_wm_class: ' + meta_win.get_wm_class() + ' is overlapping...');
-                                myResult = true;
-                            }
-                            break;
-                        default:
-                            //Common.myLog('windowTest.windows[' + i + ']: Is irrelevant...');
-                            break;
-                    }
+    if (onlyFocus) {
 
+        //Common.myLog('global.display.get_focus_window: ' + global.display.get_focus_window());
+        /*
+        for (let thing in global.display.get_focus_window()) {
+            Common.myLog('global.display.get_focus_window.thing: ' + thing);
+        } 
+        */  
+        //Common.myLog('global.display.get_focus_window: -----------------------------------------');
+        
+        if (focusWindow !== null) {
+            rect = global.display.get_focus_window().get_frame_rect();
+        }
+        test = testOverlap(rect, clockBox);
+        if (test) {
+            //Common.myLog('global.display.get_focus_window: Is overlapping...');
+            myResult = true;
+        }
+        //Common.myLog('global.display.get_focus_window.get_frame_rect(x, y, width, height): ' + rect.x + ',' + rect.y + ',' + rect.width + ',' + rect.height);
+        //Common.myLog('global.display.get_focus_window: -----------------------------------------');
+
+    } else {
+
+        //Common.myLog('windowTest.windows.length: ' + windows.length);
+        if (windows.length > 0) {
+            for (let i = windows.length - 1; i >= 0; i--) {
+                let meta_win = windows[i].get_meta_window();
+                //Common.myLog('windowTest.windows[' + i + '].meta_win.get_wm_class: ' + meta_win.get_wm_class());
+                if (myMonitor == meta_win.get_monitor()) {
+                    //Common.myLog('windowTest.windows[' + i + ']: Same as myMonitor');
+                    if (meta_win.get_workspace().index() == myWorkspace) {
+                        //Common.myLog('windowTest.windows[' + i + ']: Same as myWorkspace');
+                        switch (meta_win.get_window_type()) {
+                            case 0:
+                                // META_WINDOW_NORMAL
+                            case 1:
+                                // META_WINDOW_DESKTOP
+                            case 2:
+                                // META_WINDOW_DOCK
+                            case 3:
+                                // META_WINDOW_DIALOG
+                            case 4:
+                                // META_WINDOW_MODAL_DIALOG
+                            case 5:
+                                // META_WINDOW_TOOLBAR
+                            case 6:
+                                // META_WINDOW_MENU
+                            case 7:
+                                // META_WINDOW_UTILITY
+                                //Common.myLog('windowTest.windows[' + i + ']: Should be checked for overlapping...');
+                                //Common.myLog('windowTest.windows[' + i + '].meta_win.get_wm_class: ' + meta_win.get_wm_class());
+                                //Common.myLog('windowTest.windows[' + i + '].meta_win.get_window_type: ' + meta_win.get_window_type());
+                                rect = meta_win.get_frame_rect();
+                                //Common.myLog('windowTest.windows[' + i + '].meta_win.get_frame_rect(x, y, width, height): ' + rect.x + ',' + rect.y + ',' + rect.width + ',' + rect.height);
+                                test = testOverlap(rect, clockBox);
+                                if (test) {
+                                    //Common.myLog('windowTest.windows[' + i + '].meta_win.get_wm_class: ' + meta_win.get_wm_class() + ' is overlapping...');
+                                    myResult = true;
+                                }
+                                break;                            
+                            default:
+                                //Common.myLog('windowTest.windows[' + i + ']: Is irrelevant...');
+                                break;
+                        }
+
+                    } else {
+                        //Common.myLog('windowTest.windows[' + i + ']: Is on other Workspace');
+                    }
                 } else {
-                    //Common.myLog('windowTest.windows[' + i + ']: Is on other Workspace');
+                    //Common.myLog('windowTest.windows[' + i + ']: Is on other Monitor');
                 }
-            } else {
-                //Common.myLog('windowTest.windows[' + i + ']: Is on other Monitor');
             }
         }
-    }
 
+    }
     //Common.myLog('windowTest: ...');
     return myResult;
 }

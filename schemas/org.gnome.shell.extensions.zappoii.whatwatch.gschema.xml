@@ -42,6 +42,14 @@
       <default>true</default>
     </key>
 
+    <key name="hideonoverlap" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="hideonfocusoverlap" type="b">
+      <default>true</default>
+    </key>
+
     <key name="margintop" type="i">
       <default>40</default>
     </key>
