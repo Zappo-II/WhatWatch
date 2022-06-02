@@ -293,6 +293,11 @@ function buildPrefsPage () {
   toggleHideOnOverlap.connect('state-flags-changed', w => {
     if (toggleHideOnOverlap.get_state() == false) {
       toggleHideOnFocus.set_state(false);
+      spinHideIncrease.set_visible(false);
+      spinHideDecrease.set_visible(false);
+    } else {
+      spinHideIncrease.set_visible(true);
+      spinHideDecrease.set_visible(true);
     }
   });
   prefsWidget.attach(toggleHideOnOverlap, 2, hideOnRow, 1, 1);
@@ -339,6 +344,50 @@ function buildPrefsPage () {
     visible: true
   });
   prefsWidget.attach(toggleHideOnFocusNotification, 3, hideOnRow, 3, 1);
+
+  let hideIncreaseRow = hideOnRow +1;
+
+  let spinHideIncrease_Label = new Gtk.Label({
+    label: 'Fade in interval:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(spinHideIncrease_Label, 0, hideIncreaseRow, 1, 1);
+
+  let spinHideIncrease = new Gtk.SpinButton({ 
+    halign: Gtk.Align.END, 
+    digits: 3
+  });
+  spinHideIncrease.set_sensitive(true);
+  spinHideIncrease.set_range(0.001, 1.000);
+  spinHideIncrease.set_value(this.settings.get_double('hideincrease'));
+  spinHideIncrease.set_increments(0.001, 0.100);
+  spinHideIncrease.connect('value-changed', w => {
+      this.settings.set_double('hideincrease', w.get_value());
+  });
+  prefsWidget.attach(spinHideIncrease, 2, hideIncreaseRow, 1, 1);
+
+  let hideDecreaseRow = hideIncreaseRow + 1;
+
+  let spinHideDecrease_Label = new Gtk.Label({
+    label: 'Fade out interval:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(spinHideDecrease_Label, 0, hideDecreaseRow, 1, 1);
+
+  let spinHideDecrease = new Gtk.SpinButton({ 
+    halign: Gtk.Align.END, 
+    digits: 3
+  });
+  spinHideDecrease.set_sensitive(true);
+  spinHideDecrease.set_range(0.001, 1.000);
+  spinHideDecrease.set_value(this.settings.get_double('hidedecrease'));
+  spinHideDecrease.set_increments(0.001, 0.100);
+  spinHideDecrease.connect('value-changed', w => {
+      this.settings.set_double('hidedecrease', w.get_value());
+  });
+  prefsWidget.attach(spinHideDecrease, 2, hideDecreaseRow, 1, 1);  
 
   Common.myDebugLog('Exiting prefs.js buildPrefsPage()');
   return prefsWidget;

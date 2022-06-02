@@ -28,6 +28,8 @@ var config = null;
 var settings = null;
 let timeout = null;
 let areaActive = false;
+let globalOpacity = 1;
+let globalDirection = 1;
 //
 
 function init () {
@@ -180,61 +182,94 @@ function setClockPosition() {
 
 function drawClock (area) {
     let skipThis = false;
+    let increment = 0;
 
     config = readSettings();
     
     if ( (! config.hideOnOverlap) || (! windowTest(config.hideOnOverlap && config.hideOnFocusOverlap))) {
 
+        globalDirection = 1;
         if ( ! areaActive) {
+            /*
             Main.layoutManager.addChrome(area, {
                 affectsInputRegion : false,
                 affectsStruts : false,
                 trackFullscreen : config.trackFullscreen
-            });        
+            });
+            */
             areaActive = true;
-        }
-
-        setClockPosition();
-
-        switch (config.clockStyle) {
-            case "Radar":
-                drawRadarClock (area);
-                break;
-
-            case "OldSchoolDB":
-                drawOldSchoolClock (area, false, false, true);
-                break;
-
-            case "OldSchoolArabian":
-                drawOldSchoolClock (area, true, false, false);
-                break;
-
-            case "OldSchoolRoman":
-                drawOldSchoolClock (area, true, true, false);
-                break;
-                    
-            case "OldSchool":
-            case "default":
-                skipThis = true;
-            default:
-                if (! skipThis) {
-                    Common.myErrorLog('drawClock - Invalid clockStyle: ' + config.clockStyle);
-                }
-                drawOldSchoolClock (area, false, false, false);
-                break;
+            return true;
         }
 
     } else {
-        if (areaActive) {
-            Main.layoutManager.removeChrome(area);
-            areaActive = false;
+
+        globalDirection = -1;
+        if (globalOpacity <= 0) {
+            if (areaActive) {
+                /*
+                Main.layoutManager.removeChrome(area);
+                */
+                areaActive = false;
+            }
         }
+
+    }
+
+    if (globalDirection > 0) {
+        increment = config.hideIncrease;
+    } else {
+        increment = config.hideDecrease;
+    }
+    globalOpacity = globalOpacity + (globalDirection * increment);
+
+    if (globalOpacity <= 0) {
+        globalDirection = 0;
+        globalOpacity = 0;
+    }
+
+    if (globalOpacity >= 1) {
+        globalDirection = 0;
+        globalOpacity = 1;
+    }
+
+    if (! areaActive) {
+        return true;
+    }
+
+    setClockPosition();
+
+    switch (config.clockStyle) {
+        case "Radar":
+            drawRadarClock (area, globalOpacity);
+            break;
+
+        case "OldSchoolDB":
+            drawOldSchoolClock (area, globalOpacity, false, false, true);
+            break;
+
+        case "OldSchoolArabian":
+            drawOldSchoolClock (area, globalOpacity, true, false, false);
+            break;
+
+        case "OldSchoolRoman":
+            drawOldSchoolClock (area, globalOpacity, true, true, false);
+            break;
+                
+        case "OldSchool":
+        case "default":
+            skipThis = true;
+        default:
+            if (! skipThis) {
+                Common.myErrorLog('drawClock - Invalid clockStyle: ' + config.clockStyle);
+            }
+            drawOldSchoolClock (area, globalOpacity, false, false, false);
+            break;
     }
 
     return true;
 }
 
-function drawOldSchoolClock (area, hasNumbers, hasRomanNumbers, isBundesBahn) {
+function drawOldSchoolClock (area, opacity, hasNumbers, hasRomanNumbers, isBundesBahn) {
     // Get the cairo context
     let cr = area.get_context();
 
@@ -279,11 +314,11 @@ function drawOldSchoolClock (area, hasNumbers, hasRomanNumbers, isBundesBahn) {
     cr.save();
     //
     drawFaceInit(cr);
-    drawFaceDial(cr);
+    drawFaceDial(cr, opacity);
 
     if (isBundesBahn) {
-        clockRoundRectangle (cr, {X: -0.13, Y: (-1 * (faceDialLineTickRadius - config.faceProminentTickLineInset - 0.05))}, {height: 0.15, width: 0.26}, 0.02, 4, {R: 1, G: 0, B: 0, A: 1}, false);
-        clockPrint(cr, {X: -0.1, Y: (-1 * (faceDialLineTickRadius - config.faceProminentTickLineInset - 0.17))}, {R: 1, G: 0, B: 0, A: 1}, "", 0.125, false, true, "DB");
+        clockRoundRectangle (cr, {X: -0.13, Y: (-1 * (faceDialLineTickRadius - config.faceProminentTickLineInset - 0.05))}, {height: 0.15, width: 0.26}, 0.02, 4, {R: 1, G: 0, B: 0, A: 1 * opacity}, false);
+        clockPrint(cr, {X: -0.1, Y: (-1 * (faceDialLineTickRadius - config.faceProminentTickLineInset - 0.17))}, {R: 1, G: 0, B: 0, A: 1 * opacity}, "", 0.125, false, true, "DB");
     }
 
     //
@@ -295,8 +330,8 @@ function drawOldSchoolClock (area, hasNumbers, hasRomanNumbers, isBundesBahn) {
     shadowColor = config.faceShadowColor;
 
     if (config.faceShadowTick) {
-        drawFaceDialLine(cr, shadow, shadowColor, true);
-        drawFaceDialTicks(cr, faceDialLineTickRadius, shadow, shadowColor, true);    
+        drawFaceDialLine(cr, opacity, shadow, shadowColor, true);
+        drawFaceDialTicks(cr, opacity, faceDialLineTickRadius, shadow, shadowColor, true);    
     }
 
     if (hasNumbers) {
@@ -310,15 +345,15 @@ function drawOldSchoolClock (area, hasNumbers, hasRomanNumbers, isBundesBahn) {
             theOthersSmall = true;
         }
         if (config.faceShadowNumber) {
-            drawFaceDialNumbers (cr, faceDialLineTickRadius, shadow, shadowColor, true, theArabianNumbers, theOnlyQuarters, theOthersSmall, theFont);
+            drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, shadow, shadowColor, true, theArabianNumbers, theOnlyQuarters, theOthersSmall, theFont);
         }
     }
 
     if (config.faceShadowHand) {
-        drawHand(cr, shadow, faceHourHandLineWidth, faceHourHandLineLength, shadowColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, faceHourHandTailed, faceHourHandFinned, faceHourHandEyed, faceHourHandFilled);
-        drawHand(cr, shadow, faceMinuteHandLineWidth, faceMinuteHandLineLength, shadowColor, myClockData.nowMinuteDegrees + myClockData.nowSecondDegrees / 60, faceMinuteHandTailed, faceMinuteHandFinned, faceMinuteHandEyed, faceMinuteHandFilled);
-        drawHand(cr, shadow, faceSecondHandLineWidth, faceSecondHandLineLength, shadowColor, myClockData.nowSecondDegrees, faceSecondHandTailed, faceSecondHandFinned, faceSecondHandEyed , faceSecondHandFilled);    
-        drawCenterDial(cr, shadow, shadowColor, true);
+        drawHand(cr, opacity, shadow, faceHourHandLineWidth, faceHourHandLineLength, shadowColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, faceHourHandTailed, faceHourHandFinned, faceHourHandEyed, faceHourHandFilled);
+        drawHand(cr, opacity, shadow, faceMinuteHandLineWidth, faceMinuteHandLineLength, shadowColor, myClockData.nowMinuteDegrees + myClockData.nowSecondDegrees / 60, faceMinuteHandTailed, faceMinuteHandFinned, faceMinuteHandEyed, faceMinuteHandFilled);
+        drawHand(cr, opacity, shadow, faceSecondHandLineWidth, faceSecondHandLineLength, shadowColor, myClockData.nowSecondDegrees, faceSecondHandTailed, faceSecondHandFinned, faceSecondHandEyed , faceSecondHandFilled);    
+        drawCenterDial(cr, opacity, shadow, shadowColor, true);
     }
 
     //
@@ -326,8 +361,8 @@ function drawOldSchoolClock (area, hasNumbers, hasRomanNumbers, isBundesBahn) {
     shadow.X = 0.0;
     shadow.Y = 0.0;
     //
-    drawFaceDialLine(cr, {}, {}, false);
-    drawFaceDialTicks(cr, faceDialLineTickRadius, {}, {}, false);
+    drawFaceDialLine(cr, opacity, {}, {}, false);
+    drawFaceDialTicks(cr, opacity, faceDialLineTickRadius, {}, {}, false);
     //
     if (hasNumbers) {
         theFont = 'sans serif';
@@ -339,14 +374,14 @@ function drawOldSchoolClock (area, hasNumbers, hasRomanNumbers, isBundesBahn) {
             theArabianNumbers = false;
             theOthersSmall = true;
         }
-        drawFaceDialNumbers (cr, faceDialLineTickRadius, null, null, false, theArabianNumbers, theOnlyQuarters, theOthersSmall, theFont);
+        drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, null, null, false, theArabianNumbers, theOnlyQuarters, theOthersSmall, theFont);
     }
     //
-    drawHand(cr, shadow, faceHourHandLineWidth, faceHourHandLineLength, faceHourHandColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, faceHourHandTailed, faceHourHandFinned, faceHourHandEyed, faceHourHandFilled);
-    drawHand(cr, shadow, faceMinuteHandLineWidth, faceMinuteHandLineLength, faceMinuteHandColor, myClockData.nowMinuteDegrees + myClockData.nowSecondDegrees / 60, faceMinuteHandTailed, faceMinuteHandFinned, faceMinuteHandEyed, faceMinuteHandFilled);
-    drawHand(cr, shadow, faceSecondHandLineWidth, faceSecondHandLineLength, faceSecondHandColor, myClockData.nowSecondDegrees, faceSecondHandTailed, faceSecondHandFinned, faceSecondHandEyed, faceSecondHandFilled);
+    drawHand(cr, opacity, shadow, faceHourHandLineWidth, faceHourHandLineLength, faceHourHandColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, faceHourHandTailed, faceHourHandFinned, faceHourHandEyed, faceHourHandFilled);
+    drawHand(cr, opacity, shadow, faceMinuteHandLineWidth, faceMinuteHandLineLength, faceMinuteHandColor, myClockData.nowMinuteDegrees + myClockData.nowSecondDegrees / 60, faceMinuteHandTailed, faceMinuteHandFinned, faceMinuteHandEyed, faceMinuteHandFilled);
+    drawHand(cr, opacity, shadow, faceSecondHandLineWidth, faceSecondHandLineLength, faceSecondHandColor, myClockData.nowSecondDegrees, faceSecondHandTailed, faceSecondHandFinned, faceSecondHandEyed, faceSecondHandFilled);
     //
-    drawCenterDial(cr, {}, {}, false);
+    drawCenterDial(cr, opacity, {}, {}, false);
     //
     cr.restore();
 
@@ -355,7 +390,7 @@ function drawOldSchoolClock (area, hasNumbers, hasRomanNumbers, isBundesBahn) {
     return true;
 }
 
-function drawRadarClock (area) {
+function drawRadarClock (area, opacity) {
     // Get the cairo context
     let cr = area.get_context();
 
@@ -382,14 +417,14 @@ function drawRadarClock (area) {
     cr.save();
     //
     drawFaceInit(cr);
-    drawFaceDial(cr);
-    drawFaceDialTicks(cr, faceDialLineTickRadius, {}, {}, false);
+    drawFaceDial(cr, opacity);
+    drawFaceDialTicks(cr, opacity, faceDialLineTickRadius, {}, {}, false);
     //
     let arcOffset = -1 * ((Math.PI * 2) / 4);
     //
     // Second Hand
     cr.setLineWidth (faceSecondHandLineWidth);
-    cr.setSourceRGBA (faceSecondHandColor.R, faceSecondHandColor.G, faceSecondHandColor.B, faceSecondHandColor.A);
+    cr.setSourceRGBA (faceSecondHandColor.R, faceSecondHandColor.G, faceSecondHandColor.B, faceSecondHandColor.A * opacity);
     if (faceSecondHandFilled == true) {
         cr.moveTo (0,0);
         cr.lineTo(0, faceSecondHandLineLength);
@@ -404,7 +439,7 @@ function drawRadarClock (area) {
     //
     // Minute Hand
     cr.setLineWidth (faceMinuteHandLineWidth);
-    cr.setSourceRGBA (faceMinuteHandColor.R, faceMinuteHandColor.G, faceMinuteHandColor.B, faceMinuteHandColor.A);
+    cr.setSourceRGBA (faceMinuteHandColor.R, faceMinuteHandColor.G, faceMinuteHandColor.B, faceMinuteHandColor.A * opacity);
     if (faceMinuteHandFilled == true) {
         cr.moveTo (0,0);
         cr.lineTo(0, faceMinuteHandLineLength);
@@ -419,7 +454,7 @@ function drawRadarClock (area) {
     //
     // Hour Hand
     cr.setLineWidth (faceHourHandLineWidth);
-    cr.setSourceRGBA (faceHourHandColor.R, faceHourHandColor.G, faceHourHandColor.B, faceHourHandColor.A);
+    cr.setSourceRGBA (faceHourHandColor.R, faceHourHandColor.G, faceHourHandColor.B, faceHourHandColor.A * opacity);
     if (faceHourHandFilled == true) {
         cr.moveTo (0,0);
         cr.lineTo(0, faceHourHandLineLength);
@@ -432,7 +467,7 @@ function drawRadarClock (area) {
         cr.stroke();
     }
     //
-    drawCenterDial(cr, {}, {}, false);
+    drawCenterDial(cr, opacity, {}, {}, false);
 
     //
     cr.restore();
@@ -441,10 +476,10 @@ function drawRadarClock (area) {
     return true;
 }
 
-function drawHand(cr, center, width, length, color, degrees, hasTail, hasFin, hasEye, isFilled) {
+function drawHand(cr, opacity, center, width, length, color, degrees, hasTail, hasFin, hasEye, isFilled) {
     //
     cr.setLineWidth (width);
-    cr.setSourceRGBA (color.R, color.G, color.B, color.A);
+    cr.setSourceRGBA (color.R, color.G, color.B, color.A * opacity);
     cr.moveTo(center.X, center.Y)
     if (hasEye) {
         cr.lineTo(Math.sin(degrees) * (length / 5 * 3) + center.X, -1 * Math.cos(degrees) * (length / 5 * 3) + center.Y);
@@ -480,7 +515,7 @@ function drawHand(cr, center, width, length, color, degrees, hasTail, hasFin, ha
     } 
 }
 
-function drawFaceDialLine(cr, shadow, shadowColor, castShadow) {
+function drawFaceDialLine(cr, opacity, shadow, shadowColor, castShadow) {
     // Face Dial Line (circle)
     const faceDialLineWidth = config.faceDialLineWidth;
     const faceDialLineInset = config.faceDialLineInset;
@@ -492,12 +527,12 @@ function drawFaceDialLine(cr, shadow, shadowColor, castShadow) {
     }
     let faceDialLineRadius = 1 - faceDialLineWidth - faceDialLineInset;
     cr.setLineWidth (faceDialLineWidth);
-    cr.setSourceRGBA (faceDialLineColor.R, faceDialLineColor.G, faceDialLineColor.B, faceDialLineColor.A);
+    cr.setSourceRGBA (faceDialLineColor.R, faceDialLineColor.G, faceDialLineColor.B, faceDialLineColor.A * opacity);
     cr.arc(center.X, center.Y, faceDialLineRadius, 0, 2 * Math.PI);
     cr.stroke();
 }
 
-function drawFaceDialTicks (cr, faceDialLineTickRadius, shadow, shadowColor, castShadow) {
+function drawFaceDialTicks (cr, opacity, faceDialLineTickRadius, shadow, shadowColor, castShadow) {
     // Dial Ticks
     const faceMinuteTickLineWidth = config.faceMinuteTickLineWidth;
     const faceMinuteTickLineInset = config.faceMinuteTickLineInset;
@@ -527,18 +562,18 @@ function drawFaceDialTicks (cr, faceDialLineTickRadius, shadow, shadowColor, cas
             if (i % 5 != 0) {
                 // Minute Ticks
                 inset = faceMinuteTickLineInset;
-                cr.setSourceRGBA (faceMinuteTickColor.R, faceMinuteTickColor.G, faceMinuteTickColor.B, faceMinuteTickColor.A);
+                cr.setSourceRGBA (faceMinuteTickColor.R, faceMinuteTickColor.G, faceMinuteTickColor.B, faceMinuteTickColor.A * opacity);
                 cr.setLineWidth(faceMinuteTickLineWidth);
             } else {
                 // (5er) Ticks on 5 / 10 / 20 / 25 / 35 / 40 / 50 / 55
                 inset = faceTickLineInset;
-                cr.setSourceRGBA (faceTickColor.R, faceTickColor.G, faceTickColor.B, faceTickColor.A);
+                cr.setSourceRGBA (faceTickColor.R, faceTickColor.G, faceTickColor.B, faceTickColor.A * opacity);
                 cr.setLineWidth(faceTickLineWidth);
             }
         } else {
             // Prominent (Quarter) Ticks on 3 / 6 / 9 / 12
             inset = faceProminentTickLineInset;
-            cr.setSourceRGBA (faceProminentTickColor.R, faceProminentTickColor.G, faceProminentTickColor.B, faceProminentTickColor.A);
+            cr.setSourceRGBA (faceProminentTickColor.R, faceProminentTickColor.G, faceProminentTickColor.B, faceProminentTickColor.A * opacity);
             cr.setLineWidth(faceProminentTickLineWidth);    
         }
 
@@ -549,7 +584,7 @@ function drawFaceDialTicks (cr, faceDialLineTickRadius, shadow, shadowColor, cas
     }
 
     if (config.faceMinuteTickCircle || config.faceMinuteTickOuterCircle) {
-        cr.setSourceRGBA (faceMinuteTickColor.R, faceMinuteTickColor.G, faceMinuteTickColor.B, faceMinuteTickColor.A);
+        cr.setSourceRGBA (faceMinuteTickColor.R, faceMinuteTickColor.G, faceMinuteTickColor.B, faceMinuteTickColor.A * opacity);
         cr.setLineWidth(faceMinuteTickLineWidth);
         if (config.faceMinuteTickCircle)
             cr.arc(center.X, center.Y, faceDialLineTickRadius - faceMinuteTickLineInset, 0, 2 * Math.PI);
@@ -559,7 +594,7 @@ function drawFaceDialTicks (cr, faceDialLineTickRadius, shadow, shadowColor, cas
     }
 
     if (config.faceTickCircle || config.faceTickOuterCircle) {
-        cr.setSourceRGBA (faceTickColor.R, faceTickColor.G, faceTickColor.B, faceTickColor.A);
+        cr.setSourceRGBA (faceTickColor.R, faceTickColor.G, faceTickColor.B, faceTickColor.A * opacity);
         cr.setLineWidth(faceTickLineWidth);
         if (config.faceTickCircle)
             cr.arc(center.X, center.Y, faceDialLineTickRadius - faceTickLineInset, 0, 2 * Math.PI);
@@ -569,7 +604,7 @@ function drawFaceDialTicks (cr, faceDialLineTickRadius, shadow, shadowColor, cas
     }
 
     if (config.faceProminentTickCircle || config.faceProminentTickOuterCircle) {
-        cr.setSourceRGBA (faceProminentTickColor.R, faceProminentTickColor.G, faceProminentTickColor.B, faceProminentTickColor.A);
+        cr.setSourceRGBA (faceProminentTickColor.R, faceProminentTickColor.G, faceProminentTickColor.B, faceProminentTickColor.A * opacity);
         cr.setLineWidth(faceProminentTickLineWidth);
         if (config.faceProminentTickCircle)
             cr.arc(center.X, center.Y, faceDialLineTickRadius - faceProminentTickLineInset, 0, 2 * Math.PI);
@@ -580,7 +615,7 @@ function drawFaceDialTicks (cr, faceDialLineTickRadius, shadow, shadowColor, cas
 
 }
 
-function drawFaceDialNumbers (cr, faceDialLineTickRadius, shadow, shadowColor, castShadow, numberArabian, onlyQuarters, othersSmall, numberFont) {
+function drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, shadow, shadowColor, castShadow, numberArabian, onlyQuarters, othersSmall, numberFont) {
 
     // const numberArabian = true;
     // const numberFont = '';
@@ -634,14 +669,14 @@ function drawFaceDialNumbers (cr, faceDialLineTickRadius, shadow, shadowColor, c
             color.R = faceProminentTickColor.R;
             color.G = faceProminentTickColor.G;
             color.B = faceProminentTickColor.B;
-            color.A = faceProminentTickColor.A;
+            color.A = faceProminentTickColor.A * opacity;
             inset += faceProminentTickLineInset;
         } else {
             // 5er on 5 / 10 / 20 / 25 / 35 / 40 / 50 / 55
             color.R = faceTickColor.R;
             color.G = faceTickColor.G;
             color.B = faceTickColor.B;
-            color.A = faceTickColor.A;
+            color.A = faceTickColor.A * opacity;
             showThis = !onlyQuarters;
             inset += faceTickLineInset;
             if (othersSmall) {
@@ -714,15 +749,15 @@ function drawFaceInit(cr) {
     cr.scale(area.width / 2, area.height / 2);
 }
 
-function drawFaceDial(cr) {
+function drawFaceDial(cr, opacity) {
     // Face Dial
     const faceDialColor = config.faceDialColor;
-    cr.setSourceRGBA (faceDialColor.R, faceDialColor.G, faceDialColor.B, faceDialColor.A);
+    cr.setSourceRGBA (faceDialColor.R, faceDialColor.G, faceDialColor.B, faceDialColor.A * opacity);
     cr.arc(0.0, 0.0, 1.0 - 0.05, 0, 2 * Math.PI);
     cr.fill();
 }
 
-function drawCenterDial(cr, shadow, shadowColor, castShadow) {
+function drawCenterDial(cr, opacity, shadow, shadowColor, castShadow) {
     // Center Dial
     const faceCenterDialRadius = config.faceCenterDialRadius;
     let faceCenterDialColor = config.faceCenterDialColor;
@@ -731,7 +766,7 @@ function drawCenterDial(cr, shadow, shadowColor, castShadow) {
         faceCenterDialColor = shadowColor;
         center = { "X": shadow.X, "Y": shadow.Y}
     }
-    cr.setSourceRGBA (faceCenterDialColor.R, faceCenterDialColor.G, faceCenterDialColor.B, faceCenterDialColor.A);
+    cr.setSourceRGBA (faceCenterDialColor.R, faceCenterDialColor.G, faceCenterDialColor.B, faceCenterDialColor.A * opacity);
     cr.arc(center.X, center.Y, faceCenterDialRadius, 0, 2 * Math.PI);
     cr.fill();    
 }
@@ -851,6 +886,9 @@ function readSettings() {
         //
         theSettings.hideOnOverlap = settings.get_boolean("hideonoverlap");
         theSettings.hideOnFocusOverlap = settings.get_boolean("hideonfocusoverlap");
+        //
+        theSettings.hideIncrease = settings.get_double("hideincrease");
+        theSettings.hideDecrease = settings.get_double("hidedecrease");
         //
         theSettings.clockWidth = settings.get_int("clockwidth");
         theSettings.clockHeight = settings.get_int("clockheight");

@@ -50,6 +50,13 @@
       <default>true</default>
     </key>
 
+    <key name="hideincrease" type="d">
+      <default>0.025</default>
+    </key>
+    <key name="hidedecrease" type="d">
+      <default>0.200</default>
+    </key>
+
     <key name="margintop" type="i">
       <default>40</default>
     </key>
