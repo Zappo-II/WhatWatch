@@ -1170,3 +1170,17 @@ function windowTest(onlyFocus) {
     //Common.myLog('windowTest: ...');
     return myResult;
 }
+
+/*
+
+
+Common.myLog('global.display.get_focus_window.get_title: ' + global.display.get_focus_window().get_title());
+let focusWindow = global.display.get_focus_window();
+Common.myLog('Shell.WindowTracker.get_default().get_window_app(focusWindow).get_name():' + Shell.WindowTracker.get_default().get_window_app(focusWindow).get_name());
+
+
+Jun 02 23:42:41 un-VirtualBox gnome-shell[17812]: 2022-06-02 23:42:41.413897 - What Watch (V.5) - global.display.get_focus_window.get_title: @!72,27;BDH
+Jun 02 23:42:41 un-VirtualBox gnome-shell[17812]: 2022-06-02 23:42:41.414579 - What Watch (V.5) - Shell.WindowTracker.get_default().get_window_app(focusWindow).get_name():gjs
+Jun 02 23:42:41 un-VirtualBox gnome-shell[17812]: 2022-06-02 23:42:41.514380 - What Watch (V.5) - global.display.get_focus_window.get_title: @!72,27;BDH
+Jun 02 23:42:41 un-VirtualBox gnome-shell[17812]: 2022-06-02 23:42:41.514962 - What Watch (V.5) - Shell.WindowTracker.get_default().get_window_app(focusWindow).get_name():gjs
+*/
