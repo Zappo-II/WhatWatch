@@ -96,7 +96,7 @@ function enable () {
 
     Common.myDebugLog('Adding callback (area.queue_repaint()) "timeout" with 100ms to Source context...');
     timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
-        Common.myDebugLog('TimeOut triggered...');
+        //Common.myDebugLog('TimeOut triggered...');
         this.area.queue_repaint();
         return true;
     });
@@ -859,16 +859,16 @@ function clockGetTime() {
     clockTime.nowMinuteDegrees = clockTime.nowMinute * Math.PI / 30;
     clockTime.nowSecond = now.format("%S") / 1;
     clockTime.nowSecondDegrees = clockTime.nowSecond * Math.PI / 30;
-    Common.myDebugLog(JSON.stringify(clockTime));
+    //Common.myDebugLog(JSON.stringify(clockTime));
     return clockTime;
 }
 
 function readSettings() {
-    Common.myDebugLog('Entering readSettings()');
+    //Common.myDebugLog('Entering readSettings()');
     let theSettings = {};
     //
     try {
-        Common.myDebugLog('Reading Settings (\'' + schemaid + '\')');
+        //Common.myDebugLog('Reading Settings (\'' + schemaid + '\')');
         //
         if (Common.debugLogging != settings.get_boolean("debuglogging")) {
             Common.debugLogging = settings.get_boolean("debuglogging");
@@ -954,12 +954,12 @@ function readSettings() {
         theSettings.faceShadowNumber = settings.get_boolean("faceshadownumber");
         theSettings.faceShadowColor = {"R": settings.get_double("faceshadowcolor-r"), "G": settings.get_double("faceshadowcolor-g"), "B": settings.get_double("faceshadowcolor-b"), "A": settings.get_double("faceshadowcolor-a")};
         //
-        Common.myDebugLog('readSettings - theSettings: ' + JSON.stringify(theSettings));
+        //Common.myDebugLog('readSettings - theSettings: ' + JSON.stringify(theSettings));
     } catch (e) {
         Common.myErrorLog(e, 'readSettings');
     }
     //
-    Common.myDebugLog('Exiting readSettings()');
+    //Common.myDebugLog('Exiting readSettings()');
     return theSettings;
 }
 
@@ -1103,15 +1103,15 @@ function windowTest(onlyFocus) {
         //Common.myLog('global.display.get_focus_window: -----------------------------------------');
         
         if (focusWindow !== null) {
-            rect = global.display.get_focus_window().get_frame_rect();
+            rect = focusWindow.get_frame_rect();
         }
         test = testOverlap(rect, clockBox);
         if (test) {
-            //Common.myLog('global.display.get_focus_window: Is overlapping...');
+            Common.myDebugLog('This focus window is overlapping...');
+            windowGetTitleAndName(focusWindow);
+            Common.myDebugLog('-----------------------------------------');
             myResult = true;
         }
-        //Common.myLog('global.display.get_focus_window.get_frame_rect(x, y, width, height): ' + rect.x + ',' + rect.y + ',' + rect.width + ',' + rect.height);
-        //Common.myLog('global.display.get_focus_window: -----------------------------------------');
 
     } else {
 
@@ -1141,14 +1141,12 @@ function windowTest(onlyFocus) {
                                 // META_WINDOW_MENU
                             case 7:
                                 // META_WINDOW_UTILITY
-                                //Common.myLog('windowTest.windows[' + i + ']: Should be checked for overlapping...');
-                                //Common.myLog('windowTest.windows[' + i + '].meta_win.get_wm_class: ' + meta_win.get_wm_class());
-                                //Common.myLog('windowTest.windows[' + i + '].meta_win.get_window_type: ' + meta_win.get_window_type());
                                 rect = meta_win.get_frame_rect();
-                                //Common.myLog('windowTest.windows[' + i + '].meta_win.get_frame_rect(x, y, width, height): ' + rect.x + ',' + rect.y + ',' + rect.width + ',' + rect.height);
                                 test = testOverlap(rect, clockBox);
                                 if (test) {
-                                    //Common.myLog('windowTest.windows[' + i + '].meta_win.get_wm_class: ' + meta_win.get_wm_class() + ' is overlapping...');
+                                    Common.myDebugLog('This window is overlapping...');
+                                    windowGetTitleAndName(meta_win);
+                                    Common.myDebugLog('-----------------------------------------');
                                     myResult = true;
                                 }
                                 break;                            
@@ -1172,15 +1170,19 @@ function windowTest(onlyFocus) {
 }
 
 /*
-
-
-Common.myLog('global.display.get_focus_window.get_title: ' + global.display.get_focus_window().get_title());
-let focusWindow = global.display.get_focus_window();
-Common.myLog('Shell.WindowTracker.get_default().get_window_app(focusWindow).get_name():' + Shell.WindowTracker.get_default().get_window_app(focusWindow).get_name());
-
-
 Jun 02 23:42:41 un-VirtualBox gnome-shell[17812]: 2022-06-02 23:42:41.413897 - What Watch (V.5) - global.display.get_focus_window.get_title: @!72,27;BDH
 Jun 02 23:42:41 un-VirtualBox gnome-shell[17812]: 2022-06-02 23:42:41.414579 - What Watch (V.5) - Shell.WindowTracker.get_default().get_window_app(focusWindow).get_name():gjs
 Jun 02 23:42:41 un-VirtualBox gnome-shell[17812]: 2022-06-02 23:42:41.514380 - What Watch (V.5) - global.display.get_focus_window.get_title: @!72,27;BDH
 Jun 02 23:42:41 un-VirtualBox gnome-shell[17812]: 2022-06-02 23:42:41.514962 - What Watch (V.5) - Shell.WindowTracker.get_default().get_window_app(focusWindow).get_name():gjs
 */
+
+function windowGetTitleAndName(window) {
+    let myTitle = window.get_title();
+    let myAppName = Shell.WindowTracker.get_default().get_window_app(window).get_name();
+    let rect = window.get_frame_rect();
+    Common.myDebugLog('App.Name(window)....................: ' + myAppName);
+    Common.myDebugLog('Window.Title(window)................: ' + myTitle);
+    Common.myDebugLog('Window.Class(window)................: ' + window.get_wm_class());
+    Common.myDebugLog('Window.Type(window).................: ' + window.get_window_type());
+    Common.myDebugLog('Win.Window.Rect(x, y, width, height): ' + rect.x + ',' + rect.y + ',' + rect.width + ',' + rect.height);
+}
