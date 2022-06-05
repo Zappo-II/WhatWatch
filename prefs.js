@@ -38,10 +38,12 @@ function buildPrefsWidget () {
   let prefsWidget = new Gtk.Notebook();
 
   prefsWidget.append_page(buildPrefsPage(), new Gtk.Label({ label: 'Preferences' }));
+  prefsWidget.append_page(buildBehaviourPage(), new Gtk.Label({ label: 'Behaviour' }));
   prefsWidget.append_page(buildFacePage(), new Gtk.Label({ label: 'Face' }));
   prefsWidget.append_page(buildTickPage(), new Gtk.Label({ label: 'Ticks' }));
   prefsWidget.append_page(buildHandPage(), new Gtk.Label({ label: 'Hands' }));
   prefsWidget.append_page(buildShadowPage(), new Gtk.Label({ label: 'Shadow' }));
+  prefsWidget.append_page(buildDebugPage(), new Gtk.Label({ label: 'Debug' }));
   prefsWidget.append_page(buildAboutPage(), new Gtk.Label({ label: 'About' }));
 
   if (prefsWidget.show_all) {
@@ -75,32 +77,7 @@ function buildPrefsPage () {
   });
   prefsWidget.attach(title, 0, 0, 2, 1);
 
-  // Debug Toggle
-
-  let debugToggleRow = 1;
-
-  let toggleDebugLoggingLabel = new Gtk.Label({
-    label: 'Debug Logging:',
-    halign: Gtk.Align.START,
-    visible: true
-  });
-  prefsWidget.attach(toggleDebugLoggingLabel, 0, debugToggleRow, 1, 1);
-
-  let toggleDebugLogging = new Gtk.Switch({
-    active: this.settings.get_boolean("debuglogging"),
-    halign: Gtk.Align.END,
-    visible: true
-  });
-  prefsWidget.attach(toggleDebugLogging, 2, debugToggleRow, 1, 1);
-
-  this.settings.bind(
-    'debuglogging',
-    toggleDebugLogging,
-    'active',
-    Gio.SettingsBindFlags.DEFAULT
-  );
-
-  let styleRow = debugToggleRow + 1;
+  let styleRow = 1;
 
   let styleLabel = new Gtk.Label({
     label: 'Clock style:',
@@ -204,16 +181,9 @@ function buildPrefsPage () {
   spinWidth.set_increments(1, 10);
   spinWidth.connect('value-changed', w => {
       this.settings.set_int('clockwidth', w.get_value());
+      this.settings.set_boolean('forcereset', true);
   });
   prefsWidget.attach(spinWidth, 2, widthHeightRow, 1, 1);
-
-  let spinWidthNotification = new Gtk.Label({
-    label: `<i>must restart <b>${Me.metadata.name}</b> to take effekt.</i>`,
-    halign: Gtk.Align.START,
-    use_markup: true,
-    visible: true
-  });
-  prefsWidget.attach(spinWidthNotification, 3, widthHeightRow, 3, 1);
 
   widthHeightRow += 1;
 
@@ -234,21 +204,41 @@ function buildPrefsPage () {
   spinHeight.set_increments(1, 10);
   spinHeight.connect('value-changed', w => {
       this.settings.set_int('clockheight', w.get_value());
+      this.settings.set_boolean('forcereset', true);
   });
   prefsWidget.attach(spinHeight, 2, widthHeightRow, 1, 1);
 
-  let spinHeightNotification = new Gtk.Label({
-    label: `<i>must restart <b>${Me.metadata.name}</b> to take effekt.</i>`,
+  Common.myDebugLog('Exiting prefs.js buildPrefsPage()');
+  return prefsWidget;
+}
+
+function buildBehaviourPage () {
+  Common.myDebugLog('Entering prefs.js buildBehaviourPage()');
+
+  let prefsWidget = new Gtk.Grid({
+    margin_start: 18,
+    margin_end: 18,
+    margin_top: 18,
+    margin_bottom: 18,
+    column_spacing: 12,
+    row_spacing: 12,
+    visible: true
+  });
+
+  // Title...
+
+  let title = new Gtk.Label({
+    label: `<b>${Me.metadata.name} (V.${Me.metadata.version}) - Behaviour</b>`,
     halign: Gtk.Align.START,
     use_markup: true,
     visible: true
   });
-  prefsWidget.attach(spinHeightNotification, 3, widthHeightRow, 3, 1);
+  prefsWidget.attach(title, 0, 0, 2, 1);
 
-  let trackFullscreenRow = widthHeightRow +1;
+  let trackFullscreenRow = 1;
 
   let toggleTrackFullscreenLabel = new Gtk.Label({
-    label: 'Track (obey) Fullscreen:',
+    label: 'Hide in fullscreen mode:',
     halign: Gtk.Align.START,
     visible: true
   });
@@ -260,6 +250,9 @@ function buildPrefsPage () {
     visible: true
   });
   prefsWidget.attach(toggleTrackFullscreen, 2, trackFullscreenRow, 1, 1);
+  toggleTrackFullscreen.connect('state-flags-changed', w => {
+    this.settings.set_boolean('forcereset', true);
+  });
 
   this.settings.bind(
     'trackfullscreen',
@@ -268,18 +261,10 @@ function buildPrefsPage () {
     Gio.SettingsBindFlags.DEFAULT
   );
 
-  let toggleTrackFullscreenNotification = new Gtk.Label({
-    label: `<i>must restart <b>${Me.metadata.name}</b> to take effekt.</i>`,
-    halign: Gtk.Align.START,
-    use_markup: true,
-    visible: true
-  });
-  prefsWidget.attach(toggleTrackFullscreenNotification, 3, trackFullscreenRow, 3, 1);
-
   let hideOnRow = trackFullscreenRow +1;
 
   let toggleHideOnOverlapLabel = new Gtk.Label({
-    label: 'Hide on overlap:',
+    label: 'Hide when overlapped:',
     halign: Gtk.Align.START,
     visible: true
   });
@@ -293,11 +278,13 @@ function buildPrefsPage () {
   toggleHideOnOverlap.connect('state-flags-changed', w => {
     if (toggleHideOnOverlap.get_state() == false) {
       toggleHideOnFocus.set_state(false);
-      spinHideIncrease.set_visible(false);
-      spinHideDecrease.set_visible(false);
+      spinHideIncrease.set_sensitive(false);
+      spinHideDecrease.set_sensitive(false);
+      inputBlacklistWMClassEntry.set_sensitive(false);
     } else {
-      spinHideIncrease.set_visible(true);
-      spinHideDecrease.set_visible(true);
+      spinHideIncrease.set_sensitive(true);
+      spinHideDecrease.set_sensitive(true);
+      inputBlacklistWMClassEntry.set_sensitive(true);
     }
   });
   prefsWidget.attach(toggleHideOnOverlap, 2, hideOnRow, 1, 1);
@@ -338,7 +325,7 @@ function buildPrefsPage () {
   );
 
   let toggleHideOnFocusNotification = new Gtk.Label({
-    label: `<i>will force <b>Hide on overlap</b> to on.</i>`,
+    label: `<i>will force <b>Hide when overlapped</b> to on.</i>`,
     halign: Gtk.Align.START,
     use_markup: true,
     visible: true
@@ -358,7 +345,6 @@ function buildPrefsPage () {
     halign: Gtk.Align.END, 
     digits: 3
   });
-  spinHideIncrease.set_sensitive(true);
   spinHideIncrease.set_range(0.001, 1.000);
   spinHideIncrease.set_value(this.settings.get_double('hideincrease'));
   spinHideIncrease.set_increments(0.001, 0.100);
@@ -380,7 +366,6 @@ function buildPrefsPage () {
     halign: Gtk.Align.END, 
     digits: 3
   });
-  spinHideDecrease.set_sensitive(true);
   spinHideDecrease.set_range(0.001, 1.000);
   spinHideDecrease.set_value(this.settings.get_double('hidedecrease'));
   spinHideDecrease.set_increments(0.001, 0.100);
@@ -389,7 +374,35 @@ function buildPrefsPage () {
   });
   prefsWidget.attach(spinHideDecrease, 2, hideDecreaseRow, 1, 1);  
 
-  Common.myDebugLog('Exiting prefs.js buildPrefsPage()');
+  let blacklistRow = hideDecreaseRow +1;
+
+  let inputBlacklistWMClassLabel = new Gtk.Label({
+    label: 'Blacklist WM_Class(es):',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(inputBlacklistWMClassLabel, 0, blacklistRow, 1, 1);
+
+  let inputBlacklistWMClassEntry = new Gtk.Entry({
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  inputBlacklistWMClassEntry.set_max_length(128);
+  let myinputBlacklistWMClassEntryBuffer = new Gtk.EntryBuffer({
+  });
+  myinputBlacklistWMClassEntryBuffer.set_text(this.settings.get_string('hideblacklist'), -1);
+  inputBlacklistWMClassEntry.set_buffer(myinputBlacklistWMClassEntryBuffer);
+  prefsWidget.attach(inputBlacklistWMClassEntry, 2, blacklistRow, 1, 1);
+
+  let inputBlacklistWMClassNotification = new Gtk.Label({
+    label: `<i>A window of these wm_classes will allways be considdered non overlapping.</i>`,
+    halign: Gtk.Align.START,
+    use_markup: true,
+    visible: true
+  });
+  prefsWidget.attach(inputBlacklistWMClassNotification, 3, blacklistRow, 3, 1);
+
+  Common.myDebugLog('Exiting prefs.js buildBehaviourPage()');
   return prefsWidget;
 }
 
@@ -2508,7 +2521,7 @@ function buildAboutPage () {
   let theRow = 1;
 
   let theLabel = new Gtk.Label({
-    label: `${Me.metadata.name} (V.${Me.metadata.version}) was first brought to you in 02-2022 by Zappo-II.\n${Me.metadata.description}\nVisit <a href="${Me.metadata.url}">${Me.metadata.url}</a> for further details.\nThere is more to come, so stay tuned...`,
+    label: `${Me.metadata.name} (V.${Me.metadata.version}) was first brought to you in 02-2022 by Zappo-II.\n\n${Me.metadata.description}\n\nVisit <a href="${Me.metadata.url}">${Me.metadata.url}</a> for further details.\n\nThere is more to come, so stay tuned...`,
     halign: Gtk.Align.START,
     use_markup: true,
     visible: true
@@ -2516,5 +2529,218 @@ function buildAboutPage () {
   prefsWidget.attach(theLabel, 0, theRow, 6, 6);
 
   Common.myDebugLog('Exiting prefs.js buildAboutPage()');
+  return prefsWidget;
+}
+
+function buildDebugPage () {
+  Common.myDebugLog('Entering prefs.js buildDebugPage()');
+
+  let prefsWidget = new Gtk.Grid({
+    margin_start: 18,
+    margin_end: 18,
+    margin_top: 18,
+    margin_bottom: 18,
+    column_spacing: 12,
+    row_spacing: 12,
+    visible: true
+  });
+
+  // Title...
+
+  let title = new Gtk.Label({
+    label: `<b>${Me.metadata.name} (V.${Me.metadata.version}) - Debug settings</b>`,
+    halign: Gtk.Align.START,
+    use_markup: true,
+    visible: true
+  });
+  prefsWidget.attach(title, 0, 0, 2, 1);
+
+  // Debug Toggle
+
+  let debugToggleRow = 1;
+
+  let toggleDebugLoggingLabel = new Gtk.Label({
+    label: 'Debug Logging:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(toggleDebugLoggingLabel, 0, debugToggleRow, 1, 1);
+
+  let toggleDebugLogging = new Gtk.Switch({
+    active: this.settings.get_boolean("debuglogging"),
+    halign: Gtk.Align.END,
+    visible: true
+  });
+  toggleDebugLogging.connect('state-flags-changed', w => {
+    if (toggleDebugLogging.get_state() == false) {
+      toggleTimedebug.set_state(false);
+      toggleTimedebug.set_sensitive(false);
+      toggleTimerdebug.set_state(false);
+      toggleTimerdebug.set_sensitive(false);
+      toggleConfigdebug.set_state(false);
+      toggleConfigdebug.set_sensitive(false);
+      toggleWindowdebug.set_state(false);
+      toggleWindowdebug.set_sensitive(false);
+    } else {
+      toggleTimedebug.set_sensitive(true);
+      toggleTimerdebug.set_sensitive(true);
+      toggleConfigdebug.set_sensitive(true);
+      toggleWindowdebug.set_sensitive(true);
+    }
+  });
+  prefsWidget.attach(toggleDebugLogging, 2, debugToggleRow, 1, 1);
+
+  this.settings.bind(
+    'debuglogging',
+    toggleDebugLogging,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  debugToggleRow += 1;
+
+  let toggleTimerdebugLabel = new Gtk.Label({
+    label: 'Timerdebug:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(toggleTimerdebugLabel, 0, debugToggleRow, 1, 1);
+
+  let toggleTimerdebug = new Gtk.Switch({
+    active: this.settings.get_boolean("timerdebug"),
+    halign: Gtk.Align.END,
+    visible: true
+  });
+  toggleTimerdebug.connect('state-flags-changed', w => {
+    if (toggleTimerdebug.get_state() == true) {
+      toggleDebugLogging.set_state(true);
+    }
+  });
+  prefsWidget.attach(toggleTimerdebug, 2, debugToggleRow, 1, 1);
+
+  this.settings.bind(
+    'timerdebug',
+    toggleTimerdebug,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleTimerdebugNotification = new Gtk.Label({
+    label: `<i>will force <b>Debug Logging</b> to on.</i>`,
+    halign: Gtk.Align.START,
+    use_markup: true,
+    visible: true
+  });
+  prefsWidget.attach(toggleTimerdebugNotification, 3, debugToggleRow, 3, 1);
+
+  debugToggleRow += 1;
+
+  let toggleTimedebugLabel = new Gtk.Label({
+    label: 'Timedebug:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(toggleTimedebugLabel, 0, debugToggleRow, 1, 1);
+
+  let toggleTimedebug = new Gtk.Switch({
+    active: this.settings.get_boolean("timedebug"),
+    halign: Gtk.Align.END,
+    visible: true
+  });
+  toggleTimedebug.connect('state-flags-changed', w => {
+    if (toggleTimedebug.get_state() == true) {
+      toggleDebugLogging.set_state(true);
+    }
+  });
+  prefsWidget.attach(toggleTimedebug, 2, debugToggleRow, 1, 1);
+
+  this.settings.bind(
+    'timedebug',
+    toggleTimedebug,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleTimedebugNotification = new Gtk.Label({
+    label: `<i>will force <b>Debug Logging</b> to on.</i>`,
+    halign: Gtk.Align.START,
+    use_markup: true,
+    visible: true
+  });
+  prefsWidget.attach(toggleTimedebugNotification, 3, debugToggleRow, 3, 1);
+
+  debugToggleRow += 1;
+
+  let toggleConfigdebugLabel = new Gtk.Label({
+    label: 'Configdebug:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(toggleConfigdebugLabel, 0, debugToggleRow, 1, 1);
+
+  let toggleConfigdebug = new Gtk.Switch({
+    active: this.settings.get_boolean("configdebug"),
+    halign: Gtk.Align.END,
+    visible: true
+  });
+  toggleConfigdebug.connect('state-flags-changed', w => {
+    if (toggleConfigdebug.get_state() == true) {
+      toggleDebugLogging.set_state(true);
+    }
+  });
+  prefsWidget.attach(toggleConfigdebug, 2, debugToggleRow, 1, 1);
+
+  this.settings.bind(
+    'configdebug',
+    toggleConfigdebug,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleConfigdebugNotification = new Gtk.Label({
+    label: `<i>will force <b>Debug Logging</b> to on.</i>`,
+    halign: Gtk.Align.START,
+    use_markup: true,
+    visible: true
+  });
+  prefsWidget.attach(toggleConfigdebugNotification, 3, debugToggleRow, 3, 1);
+
+  debugToggleRow += 1;
+
+  let toggleWindowdebugLabel = new Gtk.Label({
+    label: 'Windowdebug:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(toggleWindowdebugLabel, 0, debugToggleRow, 1, 1);
+
+  let toggleWindowdebug = new Gtk.Switch({
+    active: this.settings.get_boolean("windowdebug"),
+    halign: Gtk.Align.END,
+    visible: true
+  });
+  toggleWindowdebug.connect('state-flags-changed', w => {
+    if (toggleWindowdebug.get_state() == true) {
+      toggleDebugLogging.set_state(true);
+    }
+  });
+  prefsWidget.attach(toggleWindowdebug, 2, debugToggleRow, 1, 1);
+
+  this.settings.bind(
+    'windowdebug',
+    toggleWindowdebug,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let toggleWindowdebugNotification = new Gtk.Label({
+    label: `<i>will force <b>Debug Logging</b> to on.</i>`,
+    halign: Gtk.Align.START,
+    use_markup: true,
+    visible: true
+  });
+  prefsWidget.attach(toggleWindowdebugNotification, 3, debugToggleRow, 3, 1);
+
+  Common.myDebugLog('Exiting prefs.js buildDebugPage()');
   return prefsWidget;
 }

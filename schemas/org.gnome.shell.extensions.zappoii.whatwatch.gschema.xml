@@ -13,6 +13,18 @@
     <key name="debuglogging" type="b">
       <default>false</default>
     </key>
+    <key name="timerdebug" type="b">
+      <default>false</default>
+    </key>
+    <key name="timedebug" type="b">
+      <default>false</default>
+    </key>
+    <key name="configdebug" type="b">
+      <default>false</default>
+    </key>
+    <key name="windowdebug" type="b">
+      <default>false</default>
+    </key>
 
     <key name="clockstyle" type="s">
       <default>"default"</default>
@@ -42,6 +54,10 @@
       <default>true</default>
     </key>
 
+    <key name="forcereset" type="b">
+      <default>false</default>
+    </key>
+
     <key name="hideonoverlap" type="b">
       <default>true</default>
     </key>
@@ -54,7 +70,11 @@
       <default>0.025</default>
     </key>
     <key name="hidedecrease" type="d">
-      <default>0.200</default>
+      <default>0.100</default>
+    </key>
+
+    <key name="hideblacklist" type="s">
+      <default>"Gjs"</default>
     </key>
 
     <key name="margintop" type="i">

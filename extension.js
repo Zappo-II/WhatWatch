@@ -27,9 +27,16 @@ var area = null;
 var config = null;
 var settings = null;
 let timeout = null;
+//
+let clockBox = { x1:0, y1:0, x2: 0, y2:0};
 let areaActive = false;
 let globalOpacity = 1;
 let globalDirection = 1;
+//
+let timerdebug = false;
+let timedebug = false;
+let configdebug = false;
+let windowdebug = false;
 //
 
 function init () {
@@ -48,6 +55,41 @@ function enable () {
 
     Common.myDebugLog('Entering enable() - After initialisation of Common.debugLogging...');
     //
+
+    areaInit();
+
+    Common.myDebugLog('Adding callback (clockTimeOut()) "timeout" with 100ms to Source context...');
+    timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+        if (timerdebug) {
+            Common.myDebugLog('TimeOut triggered...');
+        }
+        this.clockTimeOut();
+        return true;
+    });
+    //
+    Common.myLog(`${Me.metadata.name} is enabled now...`);
+    Common.myDebugLog('Exiting enable()');
+}
+
+function disable () {
+    Common.myDebugLog('Entering disable()');
+    //
+    if (timeout) {
+        Common.myDebugLog('Removing "timeout" from Source context...');
+        GLib.Source.remove(timeout);
+        timeout = null;
+    }
+    //
+    areaDestroy();
+    //
+    config = null;
+    settings = null;
+    //
+    Common.myLog(`${Me.metadata.name} is disabled now...`);
+    Common.myDebugLog('Exiting disable()');
+}
+
+function areaInit() {
 
     config = readSettings();
 
@@ -94,26 +136,10 @@ function enable () {
     });
     areaActive = true;
 
-    Common.myDebugLog('Adding callback (area.queue_repaint()) "timeout" with 100ms to Source context...');
-    timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
-        //Common.myDebugLog('TimeOut triggered...');
-        this.area.queue_repaint();
-        return true;
-    });
-    //
-    Common.myLog(`${Me.metadata.name}`, `${Me.metadata.name} (V.${Me.metadata.version}) is enabled now...`);
-    Common.myDebugLog('Exiting enable()');
 }
 
-function disable () {
-    Common.myDebugLog('Entering disable()');
-    //
-    if (timeout) {
-        Common.myDebugLog('Removing "timeout" from Source context...');
-        GLib.Source.remove(timeout);
-        timeout = null;
-    }
-    //
+function areaDestroy() {
+
     if (repaintHandlerID) {
         if (area) {
             Common.myDebugLog('Disconnecting "area" repaintHandler...');
@@ -124,15 +150,11 @@ function disable () {
     if (area) {
         Common.myDebugLog('Removing "area" from LayoutManager...');
         Main.layoutManager.removeChrome(area);
-        areaActive = false;
         area.destroy();
         area = null;
     }
-    config = null;
-    settings = null;
-    //
-    Common.myLog(`${Me.metadata.name}`, `${Me.metadata.name} (V.${Me.metadata.version}) is disabled now...`);
-    Common.myDebugLog('Exiting disable()');
+    areaActive = false;
+
 }
 
 function setClockPosition() {
@@ -178,27 +200,33 @@ function setClockPosition() {
             break;
     }
 
+    clockBox.x1 = area.get_position()[0];
+    clockBox.y1 = area.get_position()[1];
+    clockBox.x2 = clockBox.x1 + area.width;
+    clockBox.y2 = clockBox.y1 + area.height;
+
 }
 
-function drawClock (area) {
-    let skipThis = false;
+function clockTimeOut() {
     let increment = 0;
+    let forcereset = false;
 
     config = readSettings();
+    forcereset = config.forcereset;
+    settings.set_boolean("forcereset", false);
     
+    if (forcereset) {
+        if (areaActive) {
+            areaDestroy();
+        }
+    }
+
     if ( (! config.hideOnOverlap) || (! windowTest(config.hideOnOverlap && config.hideOnFocusOverlap))) {
 
         globalDirection = 1;
         if ( ! areaActive) {
-            /*
-            Main.layoutManager.addChrome(area, {
-                affectsInputRegion : false,
-                affectsStruts : false,
-                trackFullscreen : config.trackFullscreen
-            });
-            */
-            areaActive = true;
-            return true;
+            areaInit();
+            //return true;
         }
 
     } else {
@@ -206,10 +234,7 @@ function drawClock (area) {
         globalDirection = -1;
         if (globalOpacity <= 0) {
             if (areaActive) {
-                /*
-                Main.layoutManager.removeChrome(area);
-                */
-                areaActive = false;
+                areaDestroy();
             }
         }
 
@@ -232,9 +257,16 @@ function drawClock (area) {
         globalOpacity = 1;
     }
 
-    if (! areaActive) {
-        return true;
+    if (areaActive) {
+        area.queue_repaint();
     }
+
+    return true;
+
+}
+
+function drawClock (area) {
+    let skipThis = false;
 
     setClockPosition();
 
@@ -859,16 +891,20 @@ function clockGetTime() {
     clockTime.nowMinuteDegrees = clockTime.nowMinute * Math.PI / 30;
     clockTime.nowSecond = now.format("%S") / 1;
     clockTime.nowSecondDegrees = clockTime.nowSecond * Math.PI / 30;
-    //Common.myDebugLog(JSON.stringify(clockTime));
+    if (timedebug) {
+        Common.myDebugLog(JSON.stringify(clockTime));
+    }
     return clockTime;
 }
 
 function readSettings() {
-    //Common.myDebugLog('Entering readSettings()');
+
     let theSettings = {};
     //
     try {
-        //Common.myDebugLog('Reading Settings (\'' + schemaid + '\')');
+        if (configdebug) {
+            Common.myDebugLog('Reading Settings (\'' + schemaid + '\')');
+        }
         //
         if (Common.debugLogging != settings.get_boolean("debuglogging")) {
             Common.debugLogging = settings.get_boolean("debuglogging");
@@ -879,10 +915,16 @@ function readSettings() {
             Common.myLog('Debug Logging is now ' + myLogging);
         }
         //
+        timerdebug = settings.get_boolean("timerdebug");
+        timedebug = settings.get_boolean("timedebug");
+        configdebug = settings.get_boolean("configdebug");
+        windowdebug = settings.get_boolean("windowdebug");
+        //
         theSettings.clockStyle = settings.get_string("clockstyle");
         theSettings.clockPosition = settings.get_string("clockposition");
         //
         theSettings.trackFullscreen = settings.get_boolean("trackfullscreen");
+        theSettings.forcereset = settings.get_boolean("forcereset");
         //
         theSettings.hideOnOverlap = settings.get_boolean("hideonoverlap");
         theSettings.hideOnFocusOverlap = settings.get_boolean("hideonfocusoverlap");
@@ -954,18 +996,20 @@ function readSettings() {
         theSettings.faceShadowNumber = settings.get_boolean("faceshadownumber");
         theSettings.faceShadowColor = {"R": settings.get_double("faceshadowcolor-r"), "G": settings.get_double("faceshadowcolor-g"), "B": settings.get_double("faceshadowcolor-b"), "A": settings.get_double("faceshadowcolor-a")};
         //
-        //Common.myDebugLog('readSettings - theSettings: ' + JSON.stringify(theSettings));
+        if (configdebug) {
+            Common.myDebugLog('readSettings - theSettings: ' + JSON.stringify(theSettings));
+        }
     } catch (e) {
         Common.myErrorLog(e, 'readSettings');
     }
     //
-    //Common.myDebugLog('Exiting readSettings()');
     return theSettings;
+
 }
 
 function test() {
     /*
-     * Dead Code Experiment...
+     * Dead Code - Experimental...
      */
     let myLayoutManager = Main.layoutManager;
 
@@ -992,7 +1036,7 @@ function test() {
 
 function dbus_test() {
     /*
-     * Dead Code Experiment...
+     * Dead Code - Experimental...
      */
 
     const XML_INTERFACE =
@@ -1085,45 +1129,53 @@ function windowTest(onlyFocus) {
 
     let focusWindow = global.display.get_focus_window();
     let rect = {x:0, y:0, width:0, height:0};
-    let clockBox = { x1:0, y1:0, x2: 0, y2:0};
-    clockBox.x1 = area.get_position()[0];
-    clockBox.y1 = area.get_position()[1];
-    clockBox.x2 = clockBox.x1 + area.width;
-    clockBox.y2 = clockBox.y1 + area.height;
     let test = false;
 
     if (onlyFocus) {
 
-        //Common.myLog('global.display.get_focus_window: ' + global.display.get_focus_window());
-        /*
-        for (let thing in global.display.get_focus_window()) {
-            Common.myLog('global.display.get_focus_window.thing: ' + thing);
-        } 
-        */  
-        //Common.myLog('global.display.get_focus_window: -----------------------------------------');
-        
         if (focusWindow !== null) {
+
+            //Common.myLog('global.display.get_focus_window: ' + global.display.get_focus_window());
+            /*
+            for (let thing in global.display.get_focus_window()) {
+                Common.myLog('global.display.get_focus_window.thing: ' + thing);
+            } 
+            */  
+            //Common.myLog('global.display.get_focus_window: -----------------------------------------');
+        
             rect = focusWindow.get_frame_rect();
-        }
-        test = testOverlap(rect, clockBox);
-        if (test) {
-            Common.myDebugLog('This focus window is overlapping...');
-            windowGetTitleAndName(focusWindow);
-            Common.myDebugLog('-----------------------------------------');
-            myResult = true;
+
+            if (windowdebug) {
+                windowGetTitleAndName(focusWindow);
+            }
+
+            test = testOverlap(rect, clockBox);
+            if (test) {
+                if (windowdebug) {
+                    Common.myDebugLog('This focus window is overlapping...');
+                }
+                myResult = notOnBlacklist(focusWindow);
+            } else {
+                if (windowdebug) {
+                    Common.myDebugLog('This focus window is not overlapping...');
+                }
+            }
+
+            if (windowdebug) {
+                Common.myDebugLog('-----------------------------------------');
+            }
         }
 
     } else {
 
-        //Common.myLog('windowTest.windows.length: ' + windows.length);
         if (windows.length > 0) {
             for (let i = windows.length - 1; i >= 0; i--) {
                 let meta_win = windows[i].get_meta_window();
-                //Common.myLog('windowTest.windows[' + i + '].meta_win.get_wm_class: ' + meta_win.get_wm_class());
+                if (windowdebug) {
+                    windowGetTitleAndName(meta_win);
+                }
                 if (myMonitor == meta_win.get_monitor()) {
-                    //Common.myLog('windowTest.windows[' + i + ']: Same as myMonitor');
                     if (meta_win.get_workspace().index() == myWorkspace) {
-                        //Common.myLog('windowTest.windows[' + i + ']: Same as myWorkspace');
                         switch (meta_win.get_window_type()) {
                             case 0:
                                 // META_WINDOW_NORMAL
@@ -1144,45 +1196,72 @@ function windowTest(onlyFocus) {
                                 rect = meta_win.get_frame_rect();
                                 test = testOverlap(rect, clockBox);
                                 if (test) {
-                                    Common.myDebugLog('This window is overlapping...');
-                                    windowGetTitleAndName(meta_win);
-                                    Common.myDebugLog('-----------------------------------------');
-                                    myResult = true;
+                                    if (windowdebug) {
+                                        Common.myDebugLog('This window is overlapping...');
+                                    }
+                                    myResult = myResult || notOnBlacklist(meta_win);
                                 }
                                 break;                            
                             default:
-                                //Common.myLog('windowTest.windows[' + i + ']: Is irrelevant...');
+                                if (windowdebug) {
+                                    Common.myDebugLog('This windowtype is irrelevant...');
+                                }
                                 break;
                         }
 
                     } else {
-                        //Common.myLog('windowTest.windows[' + i + ']: Is on other Workspace');
-                    }
+                        if (windowdebug) {
+                            Common.myDebugLog('This window is on another Workspace...');
+                        }
+            }
                 } else {
-                    //Common.myLog('windowTest.windows[' + i + ']: Is on other Monitor');
+                    if (windowdebug) {
+                        Common.myDebugLog('This window is on another Monitor...');
+                    }
                 }
+                if (windowdebug) {
+                    Common.myDebugLog('-----------------------------------------');
+                }
+
             }
         }
 
     }
-    //Common.myLog('windowTest: ...');
     return myResult;
 }
 
-/*
-Jun 02 23:42:41 un-VirtualBox gnome-shell[17812]: 2022-06-02 23:42:41.413897 - What Watch (V.5) - global.display.get_focus_window.get_title: @!72,27;BDH
-Jun 02 23:42:41 un-VirtualBox gnome-shell[17812]: 2022-06-02 23:42:41.414579 - What Watch (V.5) - Shell.WindowTracker.get_default().get_window_app(focusWindow).get_name():gjs
-Jun 02 23:42:41 un-VirtualBox gnome-shell[17812]: 2022-06-02 23:42:41.514380 - What Watch (V.5) - global.display.get_focus_window.get_title: @!72,27;BDH
-Jun 02 23:42:41 un-VirtualBox gnome-shell[17812]: 2022-06-02 23:42:41.514962 - What Watch (V.5) - Shell.WindowTracker.get_default().get_window_app(focusWindow).get_name():gjs
-*/
-
 function windowGetTitleAndName(window) {
     let myTitle = window.get_title();
-    let myAppName = Shell.WindowTracker.get_default().get_window_app(window).get_name();
+    let myAppName = "";
     let rect = window.get_frame_rect();
+
+    if (Shell.WindowTracker.get_default().get_window_app(window)) {
+        myAppName = Shell.WindowTracker.get_default().get_window_app(window).get_name();
+    }
+
     Common.myDebugLog('App.Name(window)....................: ' + myAppName);
     Common.myDebugLog('Window.Title(window)................: ' + myTitle);
     Common.myDebugLog('Window.Class(window)................: ' + window.get_wm_class());
     Common.myDebugLog('Window.Type(window).................: ' + window.get_window_type());
     Common.myDebugLog('Win.Window.Rect(x, y, width, height): ' + rect.x + ',' + rect.y + ',' + rect.width + ',' + rect.height);
+}
+
+function notOnBlacklist(window) {
+    let myValue = true;
+    let wmClass = ""
+    if (window) {
+        wmClass = window.get_wm_class()
+
+        if (wmClass.toLowerCase() == "gjs") {
+            if (windowdebug) {
+                Common.myDebugLog('This windowclass is on the focus blacklist, overlapping will be ignored...');
+            }
+            myValue = false;
+        } else {
+            if (windowdebug) {
+                Common.myDebugLog('This windowclass is not on the focus blacklist, overlapping will be signaled...');
+            }
+        }
+    }
+    return myValue;
 }
