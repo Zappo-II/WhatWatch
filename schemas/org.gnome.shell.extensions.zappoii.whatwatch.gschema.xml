@@ -74,7 +74,7 @@
     </key>
 
     <key name="hideblacklist" type="s">
-      <default>"Gjs"</default>
+      <default>"Gjs;gjs"</default>
     </key>
 
     <key name="margintop" type="i">

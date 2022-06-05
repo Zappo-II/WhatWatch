@@ -931,6 +931,7 @@ function readSettings() {
         //
         theSettings.hideIncrease = settings.get_double("hideincrease");
         theSettings.hideDecrease = settings.get_double("hidedecrease");
+        theSettings.hideBlacklist = settings.get_string("hideblacklist");
         //
         theSettings.clockWidth = settings.get_int("clockwidth");
         theSettings.clockHeight = settings.get_int("clockheight");
@@ -1248,20 +1249,28 @@ function windowGetTitleAndName(window) {
 
 function notOnBlacklist(window) {
     let myValue = true;
-    let wmClass = ""
+    let wmClass = "";
+    let wmClassBlacklist = config.hideBlacklist.replace(/ /g, "").split(";");
     if (window) {
         wmClass = window.get_wm_class()
 
-        if (wmClass.toLowerCase() == "gjs") {
-            if (windowdebug) {
-                Common.myDebugLog('This windowclass is on the focus blacklist, overlapping will be ignored...');
-            }
-            myValue = false;
-        } else {
-            if (windowdebug) {
-                Common.myDebugLog('This windowclass is not on the focus blacklist, overlapping will be signaled...');
+        for (let thisClass of wmClassBlacklist) {
+            if (thisClass != "") {
+                if (wmClass == thisClass) {
+                    if (windowdebug) {
+                        Common.myDebugLog('This window\'s class "' + thisClass + '" is on the focus blacklist, overlapping will be ignored...');
+                    }
+                    myValue = false;
+                }
             }
         }
     }
+
+    if (windowdebug) {
+        if (myValue) {
+            Common.myDebugLog('This windowclass is not on the focus blacklist, overlapping will be signaled...');
+        }
+    }
+
     return myValue;
 }

@@ -348,6 +348,7 @@ function buildBehaviourPage () {
   spinHideIncrease.set_range(0.001, 1.000);
   spinHideIncrease.set_value(this.settings.get_double('hideincrease'));
   spinHideIncrease.set_increments(0.001, 0.100);
+  spinHideIncrease.set_sensitive(toggleHideOnOverlap.get_state());
   spinHideIncrease.connect('value-changed', w => {
       this.settings.set_double('hideincrease', w.get_value());
   });
@@ -369,6 +370,7 @@ function buildBehaviourPage () {
   spinHideDecrease.set_range(0.001, 1.000);
   spinHideDecrease.set_value(this.settings.get_double('hidedecrease'));
   spinHideDecrease.set_increments(0.001, 0.100);
+  spinHideDecrease.set_sensitive(toggleHideOnOverlap.get_state());
   spinHideDecrease.connect('value-changed', w => {
       this.settings.set_double('hidedecrease', w.get_value());
   });
@@ -392,10 +394,14 @@ function buildBehaviourPage () {
   });
   myinputBlacklistWMClassEntryBuffer.set_text(this.settings.get_string('hideblacklist'), -1);
   inputBlacklistWMClassEntry.set_buffer(myinputBlacklistWMClassEntryBuffer);
+  inputBlacklistWMClassEntry.connect('changed', w => {
+    this.settings.set_string('hideblacklist', w.get_text().replace(/ /g, ""));
+  });
+  inputBlacklistWMClassEntry.set_sensitive(toggleHideOnOverlap.get_state());
   prefsWidget.attach(inputBlacklistWMClassEntry, 2, blacklistRow, 1, 1);
 
   let inputBlacklistWMClassNotification = new Gtk.Label({
-    label: `<i>A window of these wm_classes will allways be considdered non overlapping.</i>`,
+    label: `A window of <i>"wm_class;wm_class"</i> will allways be considdered non overlapping.`,
     halign: Gtk.Align.START,
     use_markup: true,
     visible: true
@@ -2611,11 +2617,6 @@ function buildDebugPage () {
     halign: Gtk.Align.END,
     visible: true
   });
-  toggleTimerdebug.connect('state-flags-changed', w => {
-    if (toggleTimerdebug.get_state() == true) {
-      toggleDebugLogging.set_state(true);
-    }
-  });
   prefsWidget.attach(toggleTimerdebug, 2, debugToggleRow, 1, 1);
 
   this.settings.bind(
@@ -2624,14 +2625,7 @@ function buildDebugPage () {
     'active',
     Gio.SettingsBindFlags.DEFAULT
   );
-
-  let toggleTimerdebugNotification = new Gtk.Label({
-    label: `<i>will force <b>Debug Logging</b> to on.</i>`,
-    halign: Gtk.Align.START,
-    use_markup: true,
-    visible: true
-  });
-  prefsWidget.attach(toggleTimerdebugNotification, 3, debugToggleRow, 3, 1);
+  toggleTimerdebug.set_sensitive(toggleDebugLogging.get_state());
 
   debugToggleRow += 1;
 
@@ -2647,11 +2641,6 @@ function buildDebugPage () {
     halign: Gtk.Align.END,
     visible: true
   });
-  toggleTimedebug.connect('state-flags-changed', w => {
-    if (toggleTimedebug.get_state() == true) {
-      toggleDebugLogging.set_state(true);
-    }
-  });
   prefsWidget.attach(toggleTimedebug, 2, debugToggleRow, 1, 1);
 
   this.settings.bind(
@@ -2660,14 +2649,7 @@ function buildDebugPage () {
     'active',
     Gio.SettingsBindFlags.DEFAULT
   );
-
-  let toggleTimedebugNotification = new Gtk.Label({
-    label: `<i>will force <b>Debug Logging</b> to on.</i>`,
-    halign: Gtk.Align.START,
-    use_markup: true,
-    visible: true
-  });
-  prefsWidget.attach(toggleTimedebugNotification, 3, debugToggleRow, 3, 1);
+  toggleTimedebug.set_sensitive(toggleDebugLogging.get_state());
 
   debugToggleRow += 1;
 
@@ -2683,11 +2665,6 @@ function buildDebugPage () {
     halign: Gtk.Align.END,
     visible: true
   });
-  toggleConfigdebug.connect('state-flags-changed', w => {
-    if (toggleConfigdebug.get_state() == true) {
-      toggleDebugLogging.set_state(true);
-    }
-  });
   prefsWidget.attach(toggleConfigdebug, 2, debugToggleRow, 1, 1);
 
   this.settings.bind(
@@ -2696,14 +2673,7 @@ function buildDebugPage () {
     'active',
     Gio.SettingsBindFlags.DEFAULT
   );
-
-  let toggleConfigdebugNotification = new Gtk.Label({
-    label: `<i>will force <b>Debug Logging</b> to on.</i>`,
-    halign: Gtk.Align.START,
-    use_markup: true,
-    visible: true
-  });
-  prefsWidget.attach(toggleConfigdebugNotification, 3, debugToggleRow, 3, 1);
+  toggleConfigdebug.set_sensitive(toggleDebugLogging.get_state());
 
   debugToggleRow += 1;
 
@@ -2719,11 +2689,6 @@ function buildDebugPage () {
     halign: Gtk.Align.END,
     visible: true
   });
-  toggleWindowdebug.connect('state-flags-changed', w => {
-    if (toggleWindowdebug.get_state() == true) {
-      toggleDebugLogging.set_state(true);
-    }
-  });
   prefsWidget.attach(toggleWindowdebug, 2, debugToggleRow, 1, 1);
 
   this.settings.bind(
@@ -2732,14 +2697,7 @@ function buildDebugPage () {
     'active',
     Gio.SettingsBindFlags.DEFAULT
   );
-
-  let toggleWindowdebugNotification = new Gtk.Label({
-    label: `<i>will force <b>Debug Logging</b> to on.</i>`,
-    halign: Gtk.Align.START,
-    use_markup: true,
-    visible: true
-  });
-  prefsWidget.attach(toggleWindowdebugNotification, 3, debugToggleRow, 3, 1);
+  toggleWindowdebug.set_sensitive(toggleDebugLogging.get_state());
 
   Common.myDebugLog('Exiting prefs.js buildDebugPage()');
   return prefsWidget;
