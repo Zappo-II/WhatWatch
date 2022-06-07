@@ -93,6 +93,7 @@ function buildPrefsPage () {
   styleValue.append('OldSchoolRoman', 'OldSchool Roman');
   styleValue.append('OldSchoolDB', 'Deutsche Bahn');
   styleValue.append('Radar', 'Radar');
+  styleValue.append('Experimental', 'Experimental');
   this.settings.bind('clockstyle', styleValue, 'active-id', Gio.SettingsBindFlags.DEFAULT);
   prefsWidget.attach(styleValue, 1, styleRow, 2, 1);
 

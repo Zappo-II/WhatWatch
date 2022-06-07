@@ -287,6 +287,10 @@ function drawClock (area) {
             drawOldSchoolClock (area, globalOpacity, true, true, false);
             break;
                 
+        case "Experimental":
+            drawExperimentalClock (area, globalOpacity);
+            break;
+
         case "OldSchool":
         case "default":
             skipThis = true;
@@ -298,6 +302,54 @@ function drawClock (area) {
             break;
     }
 
+    return true;
+}
+
+function drawExperimentalClock (area, opacity) {
+
+    let cr = area.get_context();
+
+    const myClockData = clockGetTime();
+
+    const faceDialLineWidth = config.faceDialLineWidth;
+    const faceDialLineInset = config.faceDialLineInset;
+    const faceDialLineTickInset = config.faceDialLineTickInset;
+
+    let faceDialLineTickRadius = 1 - faceDialLineWidth - faceDialLineInset - faceDialLineTickInset
+
+    // Do some drawing with cairo
+    cr.save();
+    //
+    drawFaceInit(cr);
+    drawFaceDial(cr, opacity);
+    //
+
+    let shadow = {};
+    shadow.X = 0.0;
+    shadow.Y = 0.0;
+
+    //
+    drawFaceDialLine(cr, opacity, {}, {}, false);
+    drawFaceDialTicks(cr, opacity, faceDialLineTickRadius, {}, {}, false);
+    //
+
+    const handLineWidth = config.faceSecondHandLineWidth;
+    const handLineLength = config.faceSecondHandLineLength;
+    const handColor = config.faceSecondHandColor;
+    const handFilled = config.faceSecondHandFilled;
+    const handEyed = config.faceSecondHandEyed;
+    const handTailed = config.faceSecondHandTailed;
+    const handFinned = config.faceSecondHandFinned;
+
+    drawCustomHand(cr, opacity, shadow, handLineWidth, handLineLength, handColor, myClockData.nowSecondDegrees, handTailed, handFinned, handEyed, handFilled)
+
+    //
+    drawCenterDial(cr, opacity, {}, {}, false);
+    //
+    cr.restore();
+
+    // Explicitly tell Cairo to free the context memory
+    cr.$dispose();
     return true;
 }
 
@@ -545,6 +597,16 @@ function drawHand(cr, opacity, center, width, length, color, degrees, hasTail, h
         }
         cr.stroke();
     } 
+}
+
+function drawCustomHand(cr, opacity, center, width, length, color, degrees, hasTail, hasFin, hasEye, isFilled) {
+    //
+    cr.setLineWidth (width);
+    cr.setSourceRGBA (color.R, color.G, color.B, color.A * opacity);
+    cr.moveTo(center.X, center.Y)
+    cr.lineTo(Math.sin(degrees) * length + center.X, -1 * Math.cos(degrees) * length + center.Y);
+    cr.stroke();
+    //
 }
 
 function drawFaceDialLine(cr, opacity, shadow, shadowColor, castShadow) {
