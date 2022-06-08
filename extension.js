@@ -341,7 +341,11 @@ function drawExperimentalClock (area, opacity) {
     const handTailed = config.faceSecondHandTailed;
     const handFinned = config.faceSecondHandFinned;
 
-    drawCustomHand(cr, opacity, shadow, handLineWidth, handLineLength, handColor, myClockData.nowSecondDegrees, handTailed, handFinned, handEyed, handFilled)
+    let thisHand = {};
+    thisHand.hand = [ { type: "moveto", x: 0, y: 0}, {type: "lineto", x: 1, y: 0}, {type: "stroke"} ];
+    thisHand.tail = [ { type: "moveto", x: 0, y: 0}, {type: "lineto", x: 0.25, y: 0}, {type: "stroke"} ];
+
+    drawCustomHand(cr, opacity, shadow, handLineWidth, handLineLength, handColor, myClockData.nowSecondDegrees, handTailed, handFinned, handEyed, handFilled, thisHand)
 
     //
     drawCenterDial(cr, opacity, {}, {}, false);
@@ -599,7 +603,7 @@ function drawHand(cr, opacity, center, width, length, color, degrees, hasTail, h
     } 
 }
 
-function drawCustomHand(cr, opacity, center, width, length, color, degrees, hasTail, hasFin, hasEye, isFilled) {
+function drawCustomHand(cr, opacity, center, width, length, color, degrees, hasTail, hasFin, hasEye, isFilled, handDefinition) {
     //
     cr.setLineWidth (width);
     cr.setSourceRGBA (color.R, color.G, color.B, color.A * opacity);
