@@ -317,36 +317,100 @@ function drawExperimentalClock (area, opacity) {
 
     let faceDialLineTickRadius = 1 - faceDialLineWidth - faceDialLineInset - faceDialLineTickInset
 
+    const faceHourHandLineWidth = config.faceHourHandLineWidth;
+    const faceHourHandLineLength = config.faceHourHandLineLength;
+    const faceHourHandColor = config.faceHourHandColor;
+    const faceHourHandFilled = config.faceHourHandFilled;
+    const faceHourHandEyed = config.faceHourHandEyed;
+    const faceHourHandTailed = config.faceHourHandTailed;
+    const faceHourHandFinned = config.faceHourHandFinned;
+
+    const faceMinuteHandLineWidth = config.faceMinuteHandLineWidth;
+    const faceMinuteHandLineLength = config.faceMinuteHandLineLength;
+    const faceMinuteHandColor = config.faceMinuteHandColor;
+    const faceMinuteHandFilled = config.faceMinuteHandFilled;
+    const faceMinuteHandEyed = config.faceMinuteHandEyed;
+    const faceMinuteHandTailed = config.faceMinuteHandTailed;
+    const faceMinuteHandFinned = config.faceMinuteHandFinned;
+
+    const faceSecondHandLineWidth = config.faceSecondHandLineWidth;
+    const faceSecondHandLineLength = config.faceSecondHandLineLength;
+    const faceSecondHandColor = config.faceSecondHandColor;
+    const faceSecondHandFilled = config.faceSecondHandFilled;
+    const faceSecondHandEyed = config.faceSecondHandEyed;
+    const faceSecondHandTailed = config.faceSecondHandTailed;
+    const faceSecondHandFinned = config.faceSecondHandFinned;
+
+    let thisHand = {};
+    thisHand.hand = [ 
+        {type: "moveto", x: 0, y: 0}, 
+        {type: "lineto", x: 1, y: 0}, 
+        {type: "stroke"}
+    ];
+    thisHand.eyed = [
+        {type: "setlinewidth", width: 0.02},
+        {type: "moveto", x: 0, y: 0}, 
+        {type: "lineto", x: 0.2, y: 2},
+        {type: "lineto", x: 1, y: 0},
+        {type: "lineto", x: 0.2, y: -2},
+        {type: "lineto", x: 0, y: 0},
+        {type: "strokeorfill"}
+    ];
+    thisHand.tail = [
+        {type: "moveto", absolutLength: true, absolutWidth: true, x: 0, y: 0}, 
+        {type: "lineto", absolutLength: true, absolutWidth: true, x: 0.3, y: 0},
+        {type: "stroke"}
+    ];
+    thisHand.finned = [ 
+        {type: "moveto", absolutLength: true, x: 0, y: 0}, 
+        {type: "lineto", absolutLength: true, x: 0.2, y: 0},
+        {type: "stroke"},
+        {type: "moveto", absolutLength: true, x: 0.2, y: 0},
+        {type: "lineto", absolutLength: true, x: 0.2, y: 1.5},
+        {type: "lineto", absolutLength: true, x: 0.4, y: 1.5},
+        {type: "lineto", absolutLength: true, x: 0.4, y: -1.5},
+        {type: "lineto", absolutLength: true, x: 0.2, y: -1.5},
+        {type: "lineto", absolutLength: true, x: 0.2, y: 0},
+        {type: "fill"}
+    ];
+
     // Do some drawing with cairo
     cr.save();
     //
     drawFaceInit(cr);
     drawFaceDial(cr, opacity);
     //
-
+    // Shadow
     let shadow = {};
+    shadow.X = config.faceShadowOffsetX;
+    shadow.Y = config.faceShadowOffsetY;
+    let shadowColor = {};
+    shadowColor = config.faceShadowColor;
+
+    if (config.faceShadowTick) {
+        drawFaceDialLine(cr, opacity, shadow, shadowColor, true);
+        drawFaceDialTicks(cr, opacity, faceDialLineTickRadius, shadow, shadowColor, true);    
+    }
+
+    if (config.faceShadowHand) {
+        drawCustomHand(cr, opacity, shadow, faceHourHandLineWidth, faceHourHandLineLength, shadowColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, faceHourHandTailed, faceHourHandFinned, faceHourHandEyed, faceHourHandFilled, thisHand);
+        drawCustomHand(cr, opacity, shadow, faceMinuteHandLineWidth, faceMinuteHandLineLength, shadowColor, myClockData.nowMinuteDegrees + myClockData.nowSecondDegrees / 60, faceMinuteHandTailed, faceMinuteHandFinned, faceMinuteHandEyed, faceMinuteHandFilled, thisHand);
+        drawCustomHand(cr, opacity, shadow, faceSecondHandLineWidth, faceSecondHandLineLength, shadowColor, myClockData.nowSecondDegrees, faceSecondHandTailed, faceSecondHandFinned, faceSecondHandEyed , faceSecondHandFilled, thisHand);
+        drawCenterDial(cr, opacity, shadow, shadowColor, true);
+    }
+
+    //
+    // Normal Hands
     shadow.X = 0.0;
     shadow.Y = 0.0;
-
     //
     drawFaceDialLine(cr, opacity, {}, {}, false);
     drawFaceDialTicks(cr, opacity, faceDialLineTickRadius, {}, {}, false);
     //
 
-    const handLineWidth = config.faceSecondHandLineWidth;
-    const handLineLength = config.faceSecondHandLineLength;
-    const handColor = config.faceSecondHandColor;
-    const handFilled = config.faceSecondHandFilled;
-    const handEyed = config.faceSecondHandEyed;
-    const handTailed = config.faceSecondHandTailed;
-    const handFinned = config.faceSecondHandFinned;
-
-    let thisHand = {};
-    thisHand.hand = [ { type: "moveto", x: 0, y: 0}, {type: "lineto", x: 1, y: 0}, {type: "stroke"} ];
-    thisHand.tail = [ { type: "moveto", x: 0, y: 0}, {type: "lineto", x: 0.25, y: 0}, {type: "stroke"} ];
-
-    drawCustomHand(cr, opacity, shadow, handLineWidth, handLineLength, handColor, myClockData.nowSecondDegrees, handTailed, handFinned, handEyed, handFilled, thisHand)
-
+    drawCustomHand(cr, opacity, shadow, faceHourHandLineWidth, faceHourHandLineLength, faceHourHandColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, faceHourHandTailed, faceHourHandFinned, faceHourHandEyed, faceHourHandFilled, thisHand);
+    drawCustomHand(cr, opacity, shadow, faceMinuteHandLineWidth, faceMinuteHandLineLength, faceMinuteHandColor, myClockData.nowMinuteDegrees + myClockData.nowSecondDegrees / 60, faceMinuteHandTailed, faceMinuteHandFinned, faceMinuteHandEyed, faceMinuteHandFilled, thisHand);
+    drawCustomHand(cr, opacity, shadow, faceSecondHandLineWidth, faceSecondHandLineLength, faceSecondHandColor, myClockData.nowSecondDegrees, faceSecondHandTailed, faceSecondHandFinned, faceSecondHandEyed, faceSecondHandFilled, thisHand);
     //
     drawCenterDial(cr, opacity, {}, {}, false);
     //
@@ -605,12 +669,142 @@ function drawHand(cr, opacity, center, width, length, color, degrees, hasTail, h
 
 function drawCustomHand(cr, opacity, center, width, length, color, degrees, hasTail, hasFin, hasEye, isFilled, handDefinition) {
     //
-    cr.setLineWidth (width);
-    cr.setSourceRGBA (color.R, color.G, color.B, color.A * opacity);
-    cr.moveTo(center.X, center.Y)
-    cr.lineTo(Math.sin(degrees) * length + center.X, -1 * Math.cos(degrees) * length + center.Y);
-    cr.stroke();
+    let hand = handDefinition.hand;
+    let tail = handDefinition.tail;
+    let eyed = handDefinition.eyed;
+    let fin = handDefinition.finned;
+    let thisStep = {};
+    let localX = 0;
+    let localY = 0;
+    let localLength = 0;
+    let localWidth = 0;
+    let localLineWidth = 0;
     //
+    if (hasEye && (eyed.length > 0)) {
+        // Do Eyed Stuff...
+        cr.setLineWidth (width);
+        cr.setSourceRGBA (color.R, color.G, color.B, color.A * opacity);
+        //
+        cr.moveTo(center.X, center.Y)
+        //
+        for (thisStep of eyed) {
+            localLength = length;
+            if (thisStep.absolutLength) {
+                localLength = 1;
+            }
+            localWidth = width;
+            if (thisStep.absolutWidth) {
+                localWidth = 1;
+            }
+            localLineWidth = thisStep.width;
+            localX = Math.sin(degrees) * (localLength * thisStep.x) + Math.cos(degrees) * (localLength * (thisStep.y * localWidth)) + center.X;
+            localY = -1 * Math.cos(degrees) * (localLength * thisStep.x) + Math.sin(degrees) * (localLength * (thisStep.y * localWidth)) + center.Y
+            drawCustomHandPart(cr,thisStep.type,{X: localX, Y: localY, filled: isFilled, width: width, lineWidth: localLineWidth});
+        }
+    } else {
+        if (hand.length > 0) {
+            cr.setLineWidth (width);
+            cr.setSourceRGBA (color.R, color.G, color.B, color.A * opacity);
+            //
+            cr.moveTo(center.X, center.Y)
+            //
+            for (thisStep of hand) {
+                localLength = length;
+                if (thisStep.absolutLength) {
+                    localLength = 1;
+                }
+                localWidth = width;
+                if (thisStep.absolutWidth) {
+                    localWidth = 1;
+                }
+                localLineWidth = thisStep.width;
+                localX = Math.sin(degrees) * (localLength * thisStep.x) + Math.cos(degrees) * (localLength * (thisStep.y * localWidth)) + center.X;
+                localY = -1 * Math.cos(degrees) * (localLength * thisStep.x) + Math.sin(degrees) * (localLength * (thisStep.y * localWidth)) + center.Y
+                drawCustomHandPart(cr,thisStep.type,{X: localX, Y: localY, filled: isFilled, width: width, lineWidth: localLineWidth});
+            }
+        }
+    }
+    if (hasFin && (fin.length > 0)) {
+        // Do Fin Stuff...
+        cr.setLineWidth (width);
+        cr.setSourceRGBA (color.R, color.G, color.B, color.A * opacity);
+        //
+        cr.moveTo(center.X, center.Y)
+        //
+        for (thisStep of fin) {
+            localLength = length;
+            if (thisStep.absolutLength) {
+                localLength = 1;
+            }
+            localWidth = width;
+            if (thisStep.absolutWidth) {
+                localWidth = 1;
+            }
+            localLineWidth = thisStep.width;
+            localX = -1 * Math.sin(degrees) * (localLength * thisStep.x) + Math.cos(degrees) * (localLength * (thisStep.y * localWidth)) + center.X;
+            localY = Math.cos(degrees) * (localLength * thisStep.x) + Math.sin(degrees) * (localLength * (thisStep.y * localWidth)) + center.Y
+            drawCustomHandPart(cr,thisStep.type,{X: localX, Y: localY, filled: isFilled, width: width, lineWidth: localLineWidth});
+        }
+    } else {
+        if (hasTail && (tail.length > 0)) {
+            // Do Tail Stuff...
+            cr.setLineWidth (width);
+            cr.setSourceRGBA (color.R, color.G, color.B, color.A * opacity);
+            //
+            cr.moveTo(center.X, center.Y)
+            //
+            for (thisStep of tail) {
+                localLength = length;
+                if (thisStep.absolutLength) {
+                    localLength = 1;
+                }
+                localWidth = width;
+                if (thisStep.absolutWidth) {
+                    localWidth = 1;
+                }
+                localLineWidth = thisStep.width;
+                localX = -1 * Math.sin(degrees) * (localLength * thisStep.x) + Math.cos(degrees) * (localLength * (thisStep.y * localWidth)) + center.X;
+                localY = Math.cos(degrees) * (localLength * thisStep.x) + Math.sin(degrees) * (localLength * (thisStep.y * localWidth)) + center.Y
+                drawCustomHandPart(cr,thisStep.type,{X: localX, Y: localY, filled: isFilled, width: width, lineWidth: localLineWidth});
+            }
+        }
+    }
+    //
+}
+
+function drawCustomHandPart(cr, type, localParams) {
+    let localX = localParams.X;
+    let localY = localParams.Y;
+    let isFilled = localParams.filled;
+    let lineWidth = localParams.lineWidth;
+    let localWidth = localParams.width;
+    switch (type) {
+        case "lineto":
+            cr.lineTo(localX, localY);
+            break;
+        case "moveto":
+            cr.moveTo(localX, localY);
+            break;
+        case "setlinewidth":
+            cr.setLineWidth (lineWidth);
+            break;
+        case "resetlinewidth":
+            cr.setLineWidth (localWidth);
+            break;
+        case "strokeorfill":
+            if (isFilled) {
+                cr.fill();
+            } else {
+                cr.stroke();
+            }
+            break;
+        case "stroke":
+            cr.stroke();
+            break;
+        case "fill":
+            cr.fill();
+            break;
+    }
 }
 
 function drawFaceDialLine(cr, opacity, shadow, shadowColor, castShadow) {
