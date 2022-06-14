@@ -2007,7 +2007,31 @@ function buildHandPage () {
   });
   prefsWidget.attach(buttonFaceMinuteHandColor, 5, faceMinuteHandColorRow, 1, 1);
 
-  let secondHandLineRow = faceMinuteHandColorRow +1;
+  let secondHandShowRow = faceMinuteHandColorRow +1;
+
+  let togglesecondHandShowLabel = new Gtk.Label({
+    label: 'Show Second Hand:',
+    halign: Gtk.Align.START,
+    visible: true
+  });
+  prefsWidget.attach(togglesecondHandShowLabel, 0, secondHandShowRow, 1, 1);
+
+  let toggleSecondHandShow = new Gtk.Switch({
+    active: this.settings.get_boolean("facesecondhandfilled"),
+    halign: Gtk.Align.END,
+    vexpand: false,
+    visible: true
+  });
+  prefsWidget.attach(toggleSecondHandShow, 1, secondHandShowRow, 1, 1);
+
+  this.settings.bind(
+    'facesecondhandshow',
+    toggleSecondHandShow,
+    'active',
+    Gio.SettingsBindFlags.DEFAULT
+  );
+
+  let secondHandLineRow = secondHandShowRow +1;
 
   let secondHandLineLabel = new Gtk.Label({
     label: 'Second Hand (Width/Length):',

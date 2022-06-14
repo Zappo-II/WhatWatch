@@ -314,6 +314,10 @@
       <default>true</default>
     </key>
 
+    <key name="facesecondhandshow" type="b">
+      <default>true</default>
+    </key>
+
     <key name="faceminutetickcircle" type="b">
       <default>false</default>
     </key>
