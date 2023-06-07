@@ -11,6 +11,7 @@ This is a gnome-shell-extension that supports the following Gnome-Shell Versions
 * 41 - Tested with Manjaro - Gnome
 * 42 - Tested with Manjaro - Gnome, Ubuntu 22.04 LTS
 * 43 - Tested with Manjaro - Gnome
+* 44 - Tested with Manjaro - Gnome
 
 It displays an analog clock on the desktop and exposes a great variety of customisation options.
 
