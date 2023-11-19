@@ -1,11 +1,19 @@
 {
+    "uuid" : "WhatWatch@Zappo-II.github.io",
     "name" : "What Watch",
     "description" : "Shows a customizeable analog desktop clock.\nPlease visit the GitHub repository for documentation and to report any issues.",
-    "settings-schema": "org.gnome.shell.extensions.zappoii.whatwatch",
     "shell-version" : [
         "45"
     ],
     "url" : "https://github.com/Zappo-II/WhatWatch",
-    "uuid" : "WhatWatch@Zappo-II.github.io",
-    "version" : 8
+    "gettext-domain" : "WhatWatch@Zappo-II.github.io",
+    "settings-schema": "org.gnome.shell.extensions.zappoii.whatwatch",
+    "session-modes": [
+        "user"
+      ],
+    "version" : 8,
+    "version-name" : "8.1",
+    "donations": {
+        "github": "Zappo-II"
+    }
 }

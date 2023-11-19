@@ -12,32 +12,178 @@
 
 'use strict';
 
-//const {GObject, Gtk, Gdk, Gio} = imports.gi;
-//
-//const ExtensionUtils = imports.misc.extensionUtils;
-//const Me = ExtensionUtils.getCurrentExtension();
-//const Common = Me.imports.common;
-//const schemaid = Me.metadata['settings-schema'];
-//var settings;
-//
+import Adw from 'gi://Adw';
+import Gtk from 'gi://Gtk';
+import Gio from 'gi://Gio';
 import {ExtensionPreferences, gettext as _, ngettext, pgettext} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+import * as Common from './common.js';
 
 export default class WhatWatchPreferences extends ExtensionPreferences {
   constructor(metadata) {
       super(metadata);
+      Common.setMetaData(metadata.name, metadata.version);
+      Common.myDebugLog('Entering WhatWatchPreferences.constructor()');
+      //
+      this.initTranslations();
+      //
+      Common.myDebugLog('Exiting WhatWatchPreferences.constructor()');
   }
   
   fillPreferencesWindow(window) {
+    Common.myDebugLog('Entering WhatWatchPreferences.fillPreferencesWindow()');
+    //
+    window._settings = this.getSettings();
+    //
+
+    //
+    // Settings
+    //
+    const pageSettings = new Adw.PreferencesPage({
+      title: _('Settings'),
+      icon_name: 'document-properties-symbolic'
+    });
+
+    const groupSettings = new Adw.PreferencesGroup({
+        title: _('WIP - Work In Progress'),
+        description: _('...work in progress...'),
+    });
+
+    pageSettings.add(groupSettings);
+
+    //
+    // DEBUG
+    //
+    const pageDebug = new Adw.PreferencesPage({
+      title: _('Debug'),
+      icon_name: 'document-properties-symbolic'
+    });
+
+    const groupDebug = new Adw.PreferencesGroup({
+        title: _('Debug Settings'),
+        description: _('Configure the Debug Logging behaviour.'),
+    });
+
+    const rowDebug = new Adw.SwitchRow({
+        title: _('Debugging'),
+        subtitle: _('General Debug Mode, toggles debug output in general.'),
+    });
+    window._settings.bind('debuglogging', rowDebug, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+    const rowDebugTimer = new Adw.SwitchRow({
+      title: _('Timer Debugging'),
+      subtitle: _('Timer Debug Mode, toggels timer specific debug output.'),
+    });
+    window._settings.bind('timerdebug', rowDebugTimer, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+    const rowDebugTime = new Adw.SwitchRow({
+      title: _('Time Debugging'),
+      subtitle: _('Time Debug Mode, toggels time specific debug output.'),
+    });
+    window._settings.bind('timedebug', rowDebugTime, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+    const rowDebugConfig = new Adw.SwitchRow({
+      title: _('Config Debugging'),
+      subtitle: _('Config Debug Mode, toggels configuration specific debug output.'),
+    });
+    window._settings.bind('configdebug', rowDebugConfig, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+    const rowDebugWindow = new Adw.SwitchRow({
+      title: _('Window Debugging'),
+      subtitle: _('Window Debug Mode, toggels window overlapping analysis logging to the system\'s log. You might want to use this to gather window manager class name information for blacklisting to prevent unexpected or unwanted hiding behaviour. See `Blacklist WM_Class(es)` in `Behaviour`.'),
+    });
+    window._settings.bind('windowdebug', rowDebugWindow, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+    window._settings.connect('changed::debuglogging', () => {
+      if ( window._settings.get_boolean('debuglogging') == false) {
+        window._settings.set_boolean('timerdebug', false);
+        window._settings.set_boolean('timedebug', false);
+        window._settings.set_boolean('configdebug', false);
+        window._settings.set_boolean('windowdebug', false);
+      }
+    });
+
+    window._settings.bind('debuglogging',
+      rowDebugTimer,
+      'sensitive',
+      Gio.SettingsBindFlags.GET);
+
+    window._settings.bind('debuglogging',
+      rowDebugTime,
+      'sensitive',
+      Gio.SettingsBindFlags.GET);
+
+    window._settings.bind('debuglogging',
+      rowDebugConfig,
+      'sensitive',
+      Gio.SettingsBindFlags.GET);
+    
+    window._settings.bind('debuglogging',
+      rowDebugWindow,
+      'sensitive',
+      Gio.SettingsBindFlags.GET);
+
+    groupDebug.add(rowDebug);
+    groupDebug.add(rowDebugTimer);
+    groupDebug.add(rowDebugTime);
+    groupDebug.add(rowDebugConfig);
+    groupDebug.add(rowDebugWindow);
+    pageDebug.add(groupDebug);
+
+    //
+    // About
+    //
+    const pageAbout = new Adw.PreferencesPage({
+      title: _('About'),
+      icon_name: 'help-about-symbolic'
+    });
+
+    const groupAbout = new Adw.PreferencesGroup({
+      title: _('About %s - V.%s (%s)').format(this.metadata.name, this.metadata.version, this.metadata['version-name']),
+      description: _('%s was first brought to you in 02.2022 by Zappo II').format(this.metadata.name)
+    });
+    let description_row = new Adw.ActionRow({
+      icon_name: "dialog-information-symbolic",
+      title: _("%s").format(this.metadata['description'])
+    });
+    
+    let ego_row = new Adw.ActionRow({
+      icon_name: "start-here",
+      title: _("Visit this extension@gnome.org...")
+    });
+    let ego_link = new Gtk.LinkButton({
+      label: "Gnome",
+      uri: 'https://extensions.gnome.org/extension/4806/what-watch/'
+    });
+    ego_row.add_suffix(ego_link);
+    ego_row.set_activatable_widget(ego_link);
+    
+    let github_row = new Adw.ActionRow({
+      icon_name: "emblem-system-symbolic",
+      title: _("Documentation, Issues, Code, License, etc.")
+    });
+    let github_link = new Gtk.LinkButton({
+      label: "Github",
+      uri: this.metadata['url'],
+    });
+    github_row.add_suffix(github_link);
+    github_row.set_activatable_widget(github_link);
+    
+    groupAbout.add(description_row);
+    groupAbout.add(ego_row);
+    groupAbout.add(github_row);
+    pageAbout.add(groupAbout);
+
+    //
+    // Assemble Dialog...
+    //
+    window.add(pageSettings);
+    window.add(pageDebug);
+    window.add(pageAbout);
+    window.set_search_enabled(true);
+    //
+    Common.myDebugLog('Exiting WhatWatchPreferences.fillPreferencesWindow()');
   }
 
-}
-
-function deadcode_init () {
-  Common.myDebugLog('Entering prefs.js init()');
-
-  // NOP
-
-  Common.myDebugLog('Exiting prefs.js init()');
 }
 
 function deadcode_buildPrefsWidget () {
@@ -2509,207 +2655,5 @@ function buildShadowPage () {
   prefsWidget.attach(buttonFaceDialShadowColor, 5, faceDialShadowColorRow, 1, 1);
 
   Common.myDebugLog('Exiting prefs.js buildShadowPage()');
-  return prefsWidget;
-}
-
-function buildAboutPage () {
-  Common.myDebugLog('Entering prefs.js buildAboutPage()');
-
-  let prefsWidget = new Gtk.Grid({
-    margin_start: 18,
-    margin_end: 18,
-    margin_top: 18,
-    margin_bottom: 18,
-    column_spacing: 12,
-    row_spacing: 12,
-    visible: true
-  });
-
-  // Title...
-
-  let title = new Gtk.Label({
-    label: `<b>${Me.metadata.name} (V.${Me.metadata.version}) - About</b>`,
-    halign: Gtk.Align.START,
-    use_markup: true,
-    visible: true
-  });
-  prefsWidget.attach(title, 0, 0, 2, 1);
-
-  let theRow = 1;
-
-  let theLabel = new Gtk.Label({
-    label: `${Me.metadata.name} (V.${Me.metadata.version}) was first brought to you in 02-2022 by Zappo-II.\n\n${Me.metadata.description}\n\nVisit <a href="${Me.metadata.url}">${Me.metadata.url}</a> for further details.\n\nThere is more to come, so stay tuned...`,
-    halign: Gtk.Align.START,
-    use_markup: true,
-    visible: true
-  });
-  prefsWidget.attach(theLabel, 0, theRow, 6, 6);
-
-  Common.myDebugLog('Exiting prefs.js buildAboutPage()');
-  return prefsWidget;
-}
-
-function buildDebugPage () {
-  Common.myDebugLog('Entering prefs.js buildDebugPage()');
-
-  let prefsWidget = new Gtk.Grid({
-    margin_start: 18,
-    margin_end: 18,
-    margin_top: 18,
-    margin_bottom: 18,
-    column_spacing: 12,
-    row_spacing: 12,
-    visible: true
-  });
-
-  // Title...
-
-  let title = new Gtk.Label({
-    label: `<b>${Me.metadata.name} (V.${Me.metadata.version}) - Debug settings</b>`,
-    halign: Gtk.Align.START,
-    use_markup: true,
-    visible: true
-  });
-  prefsWidget.attach(title, 0, 0, 2, 1);
-
-  // Debug Toggle
-
-  let debugToggleRow = 1;
-
-  let toggleDebugLoggingLabel = new Gtk.Label({
-    label: 'Debug Logging:',
-    halign: Gtk.Align.START,
-    visible: true
-  });
-  prefsWidget.attach(toggleDebugLoggingLabel, 0, debugToggleRow, 1, 1);
-
-  let toggleDebugLogging = new Gtk.Switch({
-    active: this.settings.get_boolean("debuglogging"),
-    halign: Gtk.Align.END,
-    visible: true
-  });
-  toggleDebugLogging.connect('state-flags-changed', w => {
-    if (toggleDebugLogging.get_state() == false) {
-      toggleTimedebug.set_state(false);
-      toggleTimedebug.set_sensitive(false);
-      toggleTimerdebug.set_state(false);
-      toggleTimerdebug.set_sensitive(false);
-      toggleConfigdebug.set_state(false);
-      toggleConfigdebug.set_sensitive(false);
-      toggleWindowdebug.set_state(false);
-      toggleWindowdebug.set_sensitive(false);
-    } else {
-      toggleTimedebug.set_sensitive(true);
-      toggleTimerdebug.set_sensitive(true);
-      toggleConfigdebug.set_sensitive(true);
-      toggleWindowdebug.set_sensitive(true);
-    }
-  });
-  prefsWidget.attach(toggleDebugLogging, 2, debugToggleRow, 1, 1);
-
-  this.settings.bind(
-    'debuglogging',
-    toggleDebugLogging,
-    'active',
-    Gio.SettingsBindFlags.DEFAULT
-  );
-
-  debugToggleRow += 1;
-
-  let toggleTimerdebugLabel = new Gtk.Label({
-    label: 'Timerdebug:',
-    halign: Gtk.Align.START,
-    visible: true
-  });
-  prefsWidget.attach(toggleTimerdebugLabel, 0, debugToggleRow, 1, 1);
-
-  let toggleTimerdebug = new Gtk.Switch({
-    active: this.settings.get_boolean("timerdebug"),
-    halign: Gtk.Align.END,
-    visible: true
-  });
-  prefsWidget.attach(toggleTimerdebug, 2, debugToggleRow, 1, 1);
-
-  this.settings.bind(
-    'timerdebug',
-    toggleTimerdebug,
-    'active',
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  toggleTimerdebug.set_sensitive(toggleDebugLogging.get_state());
-
-  debugToggleRow += 1;
-
-  let toggleTimedebugLabel = new Gtk.Label({
-    label: 'Timedebug:',
-    halign: Gtk.Align.START,
-    visible: true
-  });
-  prefsWidget.attach(toggleTimedebugLabel, 0, debugToggleRow, 1, 1);
-
-  let toggleTimedebug = new Gtk.Switch({
-    active: this.settings.get_boolean("timedebug"),
-    halign: Gtk.Align.END,
-    visible: true
-  });
-  prefsWidget.attach(toggleTimedebug, 2, debugToggleRow, 1, 1);
-
-  this.settings.bind(
-    'timedebug',
-    toggleTimedebug,
-    'active',
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  toggleTimedebug.set_sensitive(toggleDebugLogging.get_state());
-
-  debugToggleRow += 1;
-
-  let toggleConfigdebugLabel = new Gtk.Label({
-    label: 'Configdebug:',
-    halign: Gtk.Align.START,
-    visible: true
-  });
-  prefsWidget.attach(toggleConfigdebugLabel, 0, debugToggleRow, 1, 1);
-
-  let toggleConfigdebug = new Gtk.Switch({
-    active: this.settings.get_boolean("configdebug"),
-    halign: Gtk.Align.END,
-    visible: true
-  });
-  prefsWidget.attach(toggleConfigdebug, 2, debugToggleRow, 1, 1);
-
-  this.settings.bind(
-    'configdebug',
-    toggleConfigdebug,
-    'active',
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  toggleConfigdebug.set_sensitive(toggleDebugLogging.get_state());
-
-  debugToggleRow += 1;
-
-  let toggleWindowdebugLabel = new Gtk.Label({
-    label: 'Windowdebug:',
-    halign: Gtk.Align.START,
-    visible: true
-  });
-  prefsWidget.attach(toggleWindowdebugLabel, 0, debugToggleRow, 1, 1);
-
-  let toggleWindowdebug = new Gtk.Switch({
-    active: this.settings.get_boolean("windowdebug"),
-    halign: Gtk.Align.END,
-    visible: true
-  });
-  prefsWidget.attach(toggleWindowdebug, 2, debugToggleRow, 1, 1);
-
-  this.settings.bind(
-    'windowdebug',
-    toggleWindowdebug,
-    'active',
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  toggleWindowdebug.set_sensitive(toggleDebugLogging.get_state());
-
-  Common.myDebugLog('Exiting prefs.js buildDebugPage()');
   return prefsWidget;
 }

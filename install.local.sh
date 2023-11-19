@@ -5,32 +5,49 @@
 #* LICENSE and documentation
 #* 
 #
-
 installPath="$(echo ~/.local/share/gnome-shell/extensions/)"
-installDir="$(grep "uuid" metadata.json | cut -f 4 -d '"')/"
+installDir="$(grep "uuid" metadata.json | cut -f 4 -d '"')"
+theVersion="$(echo $(grep '"version"' metadata.json | cut -f 2 -d ':' | cut -f 1 -d ','))"
+theZip="${installDir}.V.${theVersion}.zip"
+gettextDomain="$(grep "gettext-domain" metadata.json | cut -f 4 -d '"')"
+settingsSchema="$(grep "settings-schema" metadata.json | cut -f 4 -d '"')"
 
 echo " "
-echo "Install this gnome-shell-extension to ${installPath}${installDir}"
+echo "Pack for release and install this gnome-shell-extension to ${installPath}${installDir}"
 echo " "
 
-if [ ! -d "${installPath}${installDir}" ]; then
-    echo "Create: ${installPath}${installDir}"
-    mkdir -p "${installPath}${installDir}"
-else
-    echo "Remove: ${installPath}${installDir}*"
-    rm -r "${installPath}${installDir}*" > /dev/null 2>&1
+echo "Create: po/${gettextDomain}.pot"
+xgettext --from-code=UTF-8 --output="po/${gettextDomain}.pot" *.js
+
+if [ -f "${installDir}.shell-extension.zip" ]; then
+	rm -f "${installDir}.shell-extension.zip"
 fi
 
-theDirs="schemas"
-for myDir in ${theDirs}; do
-    echo "CopyDir: ${myDir} to ${installPath}${installDir}"
-    cp -r ${myDir} "${installPath}${installDir}"
-done
+echo "Create: gnome-extensions pack ${gettextDomain}"
+gnome-extensions pack --force --podir="./po" --gettext-domain="${gettextDomain}" --schema="./schemas/${settingsSchema}.gschema.xml" .
 
-theFiles="common.js extension.js LICENSE metadata.json prefs.js stylesheet.css"
-for myFile in ${theFiles}; do
-    echo "CopyFile: ${myFile} to ${installPath}${installDir}"
-    cp ${myFile} "${installPath}${installDir}"
-done
+if [ ! -f "${installDir}.shell-extension.zip" ]; then
+	echo "PANIC: gnome-extension pack failed..."
+	exit 2
+fi
+
+if [ -d "${installPath}${installDir}" ]; then
+    echo "Remove: ${installPath}${installDir}"
+    rm -r "${installPath}${installDir}" > /dev/null 2>&1
+fi
+
+echo "Install: ${installPath}${installDir}"
+unzip ${installDir}.shell-extension.zip -d ${installPath}${installDir}
+
+if [ -f "${theZip}" ]; then
+    echo "Remove: Old ${theZip}"
+    rm "${theZip}"
+fi
+
+echo "Create: Release ${theZip} for this gnome-shell-extension..."
+cp "${installDir}.shell-extension.zip" "${theZip}"
+
+echo "Complete: ${installPath}${installDir}"
+find ${installPath}${installDir} -type f
 
 echo "Done."

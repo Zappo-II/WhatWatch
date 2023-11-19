@@ -7,18 +7,21 @@
  * 
  */
 'use strict';
-//const GLib = imports.gi.GLib;
 import GLib from 'gi://GLib';
-//const Me = imports.misc.extensionUtils.getCurrentExtension();
 
 export var debugLogging = false;
-const metadata = {
-  name: 'MyNameIs',
-  version: 'MyVersionIs'
+let metadata = {
+  name: 'MyNameIsUndefined',
+  version: 'MyVersionIsUndefined'
 };
 
 export function setDebugLogging(myBoolean) {
     debugLogging = myBoolean;
+}
+
+export function setMetaData(myName, myVersion) {
+    metadata.name = myName;
+    metadata.version = myVersion;
 }
 
 export function myDebugLog(msg) {

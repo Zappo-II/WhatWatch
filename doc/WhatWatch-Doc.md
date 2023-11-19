@@ -100,9 +100,9 @@ Settings that style the clock's hands. Not all clock styles support all settings
 * __Minute Hand (Width/Length)__ - Same as above but for minute hand.
 * __Filled/Eyed/Tailed/Finned__ - Same as above but for minute hand.
 * __Minute Hand color (R/G/B/A)__ - Same as above but for minute hand.
-* __Second Hand (Width/Length)__ - Same as above but for minute hand.
-* __Filled/Eyed/Tailed/Finned__ - Same as above but for minute hand.
-* __Second Hand color (R/G/B/A)__ - Same as above but for minute hand.
+* __Second Hand (Width/Length)__ - Same as above but for second hand. Set width to 0.0 to hide the second hand.
+* __Filled/Eyed/Tailed/Finned__ - Same as above but for second hand.
+* __Second Hand color (R/G/B/A)__ - Same as above but for second hand.
 
 ### `Shadow`
 
