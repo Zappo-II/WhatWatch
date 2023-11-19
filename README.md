@@ -4,7 +4,23 @@
 
 ## About
 
-This is a gnome-shell-extension that supports the following Gnome-Shell Versions:
+This is a gnome-shell-extension. It displays an analog clock on the desktop and exposes a great variety of customisation options.
+
+Since V.5 it sports a set of distraction free configuration settings, hiding the clock in various situations.
+
+![Screenshot showing WhatWatch settings page...](doc/WhatWatch-Settings.png "Screenshot showing WhatWatch settings dialog in action...")
+
+## Gnome Shell Support:
+
+### Current Gnome Shell (45 and possibly younger)
+
+Version 8 (and younger) of this Plugin (still work in progress) supports the following Versions of Gnome Shell
+
+* 45 - Tested with Fedora - Gnome and Manjaro - Gnome
+
+### Legacy Gnome Shell (before 45)
+
+Up to Version 7 the Plugin supports the following Versions of Gnome Shell
 
 * 3.38 - Tested with Ubuntu 21.04
 * 40 - Tested with Ubuntu 21.10
@@ -12,12 +28,6 @@ This is a gnome-shell-extension that supports the following Gnome-Shell Versions
 * 42 - Tested with Manjaro - Gnome, Ubuntu 22.04 LTS
 * 43 - Tested with Manjaro - Gnome
 * 44 - Tested with Manjaro - Gnome
-
-It displays an analog clock on the desktop and exposes a great variety of customisation options.
-
-Since V.5 it sports a set of distraction free configuration settings, hiding the clock in various situations.
-
-![Screenshot showing WhatWatch settings page...](doc/WhatWatch-Settings.png "Screenshot showing WhatWatch settings dialog in action...")
 
 ## Install
 
