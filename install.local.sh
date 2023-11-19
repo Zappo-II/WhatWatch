@@ -24,7 +24,7 @@ if [ -f "${installDir}.shell-extension.zip" ]; then
 fi
 
 echo "Create: gnome-extensions pack ${gettextDomain}"
-gnome-extensions pack --force --podir="./po" --gettext-domain="${gettextDomain}" --schema="./schemas/${settingsSchema}.gschema.xml" .
+gnome-extensions pack --force --podir="./po" --gettext-domain="${gettextDomain}" --schema="./schemas/${settingsSchema}.gschema.xml" --extra-source=common.js .
 
 if [ ! -f "${installDir}.shell-extension.zip" ]; then
 	echo "PANIC: gnome-extension pack failed..."

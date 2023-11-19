@@ -55,7 +55,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
     //
     const pageDebug = new Adw.PreferencesPage({
       title: _('Debug'),
-      icon_name: 'document-properties-symbolic'
+      icon_name: 'find-location-symbolic'
     });
 
     const groupDebug = new Adw.PreferencesGroup({
