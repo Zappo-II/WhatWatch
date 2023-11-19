@@ -7,27 +7,36 @@
  * 
  */
 'use strict';
-const GLib = imports.gi.GLib;
-const Me = imports.misc.extensionUtils.getCurrentExtension();
+//const GLib = imports.gi.GLib;
+import GLib from 'gi://GLib';
+//const Me = imports.misc.extensionUtils.getCurrentExtension();
 
-var debugLogging = false;
+export var debugLogging = false;
+const metadata = {
+  name: 'MyNameIs',
+  version: 'MyVersionIs'
+};
 
-function myDebugLog(msg) {
+export function setDebugLogging(myBoolean) {
+    debugLogging = myBoolean;
+}
+
+export function myDebugLog(msg) {
     if (debugLogging) {
         log('' + logPrefix('[DEBUG]') + ' - ' + msg + '');
     }
 }
 
-function myErrorLog(e, msg) {
+export function myErrorLog(e, msg) {
     logError(e, '' + logPrefix('[ERROR]') + ' - ' + msg + '');
 }
 
-function myLog(msg) {
+export function myLog(msg) {
     log('' + logPrefix('') + '' + msg + '');
 }
 
-function logPrefix(msg) {
+export function logPrefix(msg) {
     let now = GLib.DateTime.new_now_local();
     let nowString = now.format("%Y-%m-%d %H:%M:%S.%f");
-    return nowString + ' - ' + `${Me.metadata.name} (V.${Me.metadata.version})` + ' - ' + msg;
+    return nowString + ' - ' + `${metadata.name} (V.${metadata.version})` + ' - ' + msg;
 }

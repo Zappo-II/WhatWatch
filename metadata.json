@@ -3,14 +3,9 @@
     "description" : "Shows a customizeable analog desktop clock.\nPlease visit the GitHub repository for documentation and to report any issues.",
     "settings-schema": "org.gnome.shell.extensions.zappoii.whatwatch",
     "shell-version" : [
-        "3.38",
-        "40",
-        "41",
-        "42",
-        "43",
-        "44"
+        "45"
     ],
     "url" : "https://github.com/Zappo-II/WhatWatch",
     "uuid" : "WhatWatch@Zappo-II.github.io",
-    "version" : 7
+    "version" : 8
 }

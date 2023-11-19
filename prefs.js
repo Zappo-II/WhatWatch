@@ -12,16 +12,27 @@
 
 'use strict';
 
-const {GObject, Gtk, Gdk, Gio} = imports.gi;
+//const {GObject, Gtk, Gdk, Gio} = imports.gi;
 //
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Common = Me.imports.common;
-const schemaid = Me.metadata['settings-schema'];
-var settings;
+//const ExtensionUtils = imports.misc.extensionUtils;
+//const Me = ExtensionUtils.getCurrentExtension();
+//const Common = Me.imports.common;
+//const schemaid = Me.metadata['settings-schema'];
+//var settings;
 //
+import {ExtensionPreferences, gettext as _, ngettext, pgettext} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-function init () {
+export default class WhatWatchPreferences extends ExtensionPreferences {
+  constructor(metadata) {
+      super(metadata);
+  }
+  
+  fillPreferencesWindow(window) {
+  }
+
+}
+
+function deadcode_init () {
   Common.myDebugLog('Entering prefs.js init()');
 
   // NOP
@@ -29,7 +40,7 @@ function init () {
   Common.myDebugLog('Exiting prefs.js init()');
 }
 
-function buildPrefsWidget () {
+function deadcode_buildPrefsWidget () {
   Common.myDebugLog('Entering prefs.js buildPrefsWidget()');
 
   settings = ExtensionUtils.getSettings(schemaid);
