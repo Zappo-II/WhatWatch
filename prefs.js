@@ -51,6 +51,22 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
     pageSettings.add(groupSettings);
 
     //
+    // Legacy Settings
+    //
+    const pageLegacySettings = new Adw.PreferencesPage({
+      title: _('Legacy Settings'),
+      icon_name: 'document-properties-symbolic'
+    });
+
+    const groupLegacySettings = new Adw.PreferencesGroup({
+        title: _('Legacy Behaviour'),
+        description: _('Old Behaviour Settings...'),
+    });
+
+    groupLegacySettings.add(buildBehaviourPage (this, window._settings));
+    pageLegacySettings.add(groupLegacySettings);
+
+    //
     // DEBUG
     //
     const pageDebug = new Adw.PreferencesPage({
@@ -177,6 +193,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
     // Assemble Dialog...
     //
     window.add(pageSettings);
+    window.add(pageLegacySettings);
     window.add(pageDebug);
     window.add(pageAbout);
     window.set_search_enabled(true);
@@ -369,7 +386,7 @@ function buildPrefsPage () {
   return prefsWidget;
 }
 
-function buildBehaviourPage () {
+function buildBehaviourPage (_this, _settings) {
   Common.myDebugLog('Entering prefs.js buildBehaviourPage()');
 
   let prefsWidget = new Gtk.Grid({
@@ -385,7 +402,7 @@ function buildBehaviourPage () {
   // Title...
 
   let title = new Gtk.Label({
-    label: `<b>${Me.metadata.name} (V.${Me.metadata.version}) - Behaviour</b>`,
+    label: `<b>${_this.metadata.name} (V.${_this.metadata.version}) - Behaviour</b>`,
     halign: Gtk.Align.START,
     use_markup: true,
     visible: true
@@ -402,16 +419,16 @@ function buildBehaviourPage () {
   prefsWidget.attach(toggleTrackFullscreenLabel, 0, trackFullscreenRow, 1, 1);
 
   let toggleTrackFullscreen = new Gtk.Switch({
-    active: this.settings.get_boolean("trackfullscreen"),
+    active: _settings.get_boolean("trackfullscreen"),
     halign: Gtk.Align.END,
     visible: true
   });
   prefsWidget.attach(toggleTrackFullscreen, 2, trackFullscreenRow, 1, 1);
   toggleTrackFullscreen.connect('state-flags-changed', w => {
-    this.settings.set_boolean('forcereset', true);
+    _settings.set_boolean('forcereset', true);
   });
 
-  this.settings.bind(
+  _settings.bind(
     'trackfullscreen',
     toggleTrackFullscreen,
     'active',
@@ -428,7 +445,7 @@ function buildBehaviourPage () {
   prefsWidget.attach(toggleHideOnOverlapLabel, 0, hideOnRow, 1, 1);
 
   let toggleHideOnOverlap = new Gtk.Switch({
-    active: this.settings.get_boolean("hideonoverlap"),
+    active: _settings.get_boolean("hideonoverlap"),
     halign: Gtk.Align.END,
     visible: true
   });
@@ -446,7 +463,7 @@ function buildBehaviourPage () {
   });
   prefsWidget.attach(toggleHideOnOverlap, 2, hideOnRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'hideonoverlap',
     toggleHideOnOverlap,
     'active',
@@ -463,7 +480,7 @@ function buildBehaviourPage () {
   prefsWidget.attach(toggleHideOnFocusLabel, 0, hideOnRow, 1, 1);
 
   let toggleHideOnFocus = new Gtk.Switch({
-    active: this.settings.get_boolean("hideonfocusoverlap"),
+    active: _settings.get_boolean("hideonfocusoverlap"),
     halign: Gtk.Align.END,
     visible: true
   });
@@ -474,7 +491,7 @@ function buildBehaviourPage () {
   });
   prefsWidget.attach(toggleHideOnFocus, 2, hideOnRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'hideonfocusoverlap',
     toggleHideOnFocus,
     'active',
@@ -503,11 +520,11 @@ function buildBehaviourPage () {
     digits: 3
   });
   spinHideIncrease.set_range(0.001, 1.000);
-  spinHideIncrease.set_value(this.settings.get_double('hideincrease'));
+  spinHideIncrease.set_value(_settings.get_double('hideincrease'));
   spinHideIncrease.set_increments(0.001, 0.100);
   spinHideIncrease.set_sensitive(toggleHideOnOverlap.get_state());
   spinHideIncrease.connect('value-changed', w => {
-      this.settings.set_double('hideincrease', w.get_value());
+      _settings.set_double('hideincrease', w.get_value());
   });
   prefsWidget.attach(spinHideIncrease, 2, hideIncreaseRow, 1, 1);
 
@@ -525,11 +542,11 @@ function buildBehaviourPage () {
     digits: 3
   });
   spinHideDecrease.set_range(0.001, 1.000);
-  spinHideDecrease.set_value(this.settings.get_double('hidedecrease'));
+  spinHideDecrease.set_value(_settings.get_double('hidedecrease'));
   spinHideDecrease.set_increments(0.001, 0.100);
   spinHideDecrease.set_sensitive(toggleHideOnOverlap.get_state());
   spinHideDecrease.connect('value-changed', w => {
-      this.settings.set_double('hidedecrease', w.get_value());
+      _settings.set_double('hidedecrease', w.get_value());
   });
   prefsWidget.attach(spinHideDecrease, 2, hideDecreaseRow, 1, 1);  
 
@@ -549,10 +566,10 @@ function buildBehaviourPage () {
   inputBlacklistWMClassEntry.set_max_length(128);
   let myinputBlacklistWMClassEntryBuffer = new Gtk.EntryBuffer({
   });
-  myinputBlacklistWMClassEntryBuffer.set_text(this.settings.get_string('hideblacklist'), -1);
+  myinputBlacklistWMClassEntryBuffer.set_text(_settings.get_string('hideblacklist'), -1);
   inputBlacklistWMClassEntry.set_buffer(myinputBlacklistWMClassEntryBuffer);
   inputBlacklistWMClassEntry.connect('changed', w => {
-    this.settings.set_string('hideblacklist', w.get_text().replace(/ /g, ""));
+    _settings.set_string('hideblacklist', w.get_text().replace(/ /g, ""));
   });
   inputBlacklistWMClassEntry.set_sensitive(toggleHideOnOverlap.get_state());
   prefsWidget.attach(inputBlacklistWMClassEntry, 2, blacklistRow, 1, 1);
