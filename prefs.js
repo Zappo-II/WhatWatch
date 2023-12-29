@@ -58,13 +58,20 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       icon_name: 'document-properties-symbolic'
     });
 
-    const groupLegacySettings = new Adw.PreferencesGroup({
+    const groupLegacyPrefsSettings = new Adw.PreferencesGroup({
+      title: _('Legacy Preferences'),
+      description: _('Old Preferences Settings...'),
+    });
+    
+    const groupLegacyBehaviourSettings = new Adw.PreferencesGroup({
         title: _('Legacy Behaviour'),
         description: _('Old Behaviour Settings...'),
     });
 
-    groupLegacySettings.add(buildBehaviourPage (this, window._settings));
-    pageLegacySettings.add(groupLegacySettings);
+    groupLegacyPrefsSettings.add(buildPrefsPage(this, window._settings));
+    groupLegacyBehaviourSettings.add(buildBehaviourPage (this, window._settings));
+    pageLegacySettings.add(groupLegacyPrefsSettings);
+    pageLegacySettings.add(groupLegacyBehaviourSettings);
 
     //
     // DEBUG
@@ -228,7 +235,7 @@ function deadcode_buildPrefsWidget () {
   return prefsWidget;
 }
 
-function buildPrefsPage () {
+function buildPrefsPage (_this, _settings) {
   Common.myDebugLog('Entering prefs.js buildPrefsPage()');
 
   let prefsWidget = new Gtk.Grid({
@@ -244,7 +251,7 @@ function buildPrefsPage () {
   // Title...
 
   let title = new Gtk.Label({
-    label: `<b>${Me.metadata.name} (V.${Me.metadata.version}) - Preferences</b>`,
+    label: `<b>${_this.metadata.name} (V.${_this.metadata.version}) - Preferences</b>`,
     halign: Gtk.Align.START,
     use_markup: true,
     visible: true
@@ -267,7 +274,7 @@ function buildPrefsPage () {
   styleValue.append('OldSchoolRoman', 'OldSchool Roman');
   styleValue.append('OldSchoolDB', 'Deutsche Bahn');
   styleValue.append('Radar', 'Radar');
-  this.settings.bind('clockstyle', styleValue, 'active-id', Gio.SettingsBindFlags.DEFAULT);
+  _settings.bind('clockstyle', styleValue, 'active-id', Gio.SettingsBindFlags.DEFAULT);
   prefsWidget.attach(styleValue, 1, styleRow, 2, 1);
 
   styleRow += 1;
@@ -289,7 +296,7 @@ function buildPrefsPage () {
   positionValue.append('center-left', 'Center-Left');
   positionValue.append('center', 'Center');
   positionValue.append('center-right', 'Center-Right');
-  this.settings.bind('clockposition', positionValue, 'active-id', Gio.SettingsBindFlags.DEFAULT);
+  _settings.bind('clockposition', positionValue, 'active-id', Gio.SettingsBindFlags.DEFAULT);
   prefsWidget.attach(positionValue, 1, styleRow, 2, 1);
 
   let marginRow = styleRow +1;
@@ -307,10 +314,10 @@ function buildPrefsPage () {
   });
   spinMarginTop.set_sensitive(true);
   spinMarginTop.set_range(0, 2000);
-  spinMarginTop.set_value(this.settings.get_int('margintop'));
+  spinMarginTop.set_value(_settings.get_int('margintop'));
   spinMarginTop.set_increments(1, 10);
   spinMarginTop.connect('value-changed', w => {
-      this.settings.set_int('margintop', w.get_value());
+      _settings.set_int('margintop', w.get_value());
   });
   prefsWidget.attach(spinMarginTop, 2, marginRow, 1, 1);
 
@@ -329,10 +336,10 @@ function buildPrefsPage () {
   });
   spinMarginSide.set_sensitive(true);
   spinMarginSide.set_range(0, 4000);
-  spinMarginSide.set_value(this.settings.get_int('marginside'));
+  spinMarginSide.set_value(_settings.get_int('marginside'));
   spinMarginSide.set_increments(1, 10);
   spinMarginSide.connect('value-changed', w => {
-      this.settings.set_int('marginside', w.get_value());
+      _settings.set_int('marginside', w.get_value());
   });
   prefsWidget.attach(spinMarginSide, 2, marginRow, 1, 1);
 
@@ -351,11 +358,11 @@ function buildPrefsPage () {
   });
   spinWidth.set_sensitive(true);
   spinWidth.set_range(0, 1024);
-  spinWidth.set_value(this.settings.get_int('clockwidth'));
+  spinWidth.set_value(_settings.get_int('clockwidth'));
   spinWidth.set_increments(1, 10);
   spinWidth.connect('value-changed', w => {
-      this.settings.set_int('clockwidth', w.get_value());
-      this.settings.set_boolean('forcereset', true);
+      _settings.set_int('clockwidth', w.get_value());
+      _settings.set_boolean('forcereset', true);
   });
   prefsWidget.attach(spinWidth, 2, widthHeightRow, 1, 1);
 
@@ -374,11 +381,11 @@ function buildPrefsPage () {
   });
   spinHeight.set_sensitive(true);
   spinHeight.set_range(0, 1024);
-  spinHeight.set_value(this.settings.get_int('clockheight'));
+  spinHeight.set_value(_settings.get_int('clockheight'));
   spinHeight.set_increments(1, 10);
   spinHeight.connect('value-changed', w => {
-      this.settings.set_int('clockheight', w.get_value());
-      this.settings.set_boolean('forcereset', true);
+      _settings.set_int('clockheight', w.get_value());
+      _settings.set_boolean('forcereset', true);
   });
   prefsWidget.attach(spinHeight, 2, widthHeightRow, 1, 1);
 
