@@ -16,8 +16,12 @@ echo " "
 echo "Pack for release and install this gnome-shell-extension to ${installPath}${installDir}"
 echo " "
 
-echo "Create: po/${gettextDomain}.pot"
-xgettext --from-code=UTF-8 --output="po/${gettextDomain}.pot" *.js
+if [ ! -e "$(which xgettext)" ]; then
+  echo "WARNING: xgettext not found - Unable to create po/${gettextDomain}.pot"
+else
+  echo "Create: po/${gettextDomain}.pot"
+  xgettext --from-code=UTF-8 --output="po/${gettextDomain}.pot" *.js
+fi
 
 if [ -f "${installDir}.shell-extension.zip" ]; then
 	rm -f "${installDir}.shell-extension.zip"

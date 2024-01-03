@@ -14,6 +14,7 @@
 
 import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
+import Gdk from 'gi://Gdk';
 import Gio from 'gi://Gio';
 import {ExtensionPreferences, gettext as _, ngettext, pgettext} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import * as Common from './common.js';
@@ -68,10 +69,40 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
         description: _('Old Behaviour Settings...'),
     });
 
+    const groupLegacyFaceSettings = new Adw.PreferencesGroup({
+      title: _('Legacy Face'),
+      description: _('Old Face Settings...'),
+    });
+
+    const groupLegacyTickSettings = new Adw.PreferencesGroup({
+      title: _('Legacy Ticks'),
+      description: _('Old Ticks Settings...'),
+    });
+
+    const groupLegacyHandSettings = new Adw.PreferencesGroup({
+      title: _('Legacy Hands'),
+      description: _('Old Hands Settings...'),
+    });
+
+    const groupLegacyShadowSettings = new Adw.PreferencesGroup({
+      title: _('Legacy Shadow'),
+      description: _('Old Shadow Settings...'),
+    });
+
     groupLegacyPrefsSettings.add(buildPrefsPage(this, window._settings));
     groupLegacyBehaviourSettings.add(buildBehaviourPage (this, window._settings));
+    groupLegacyFaceSettings.add(buildFacePage(this, window._settings));
+    groupLegacyTickSettings.add(buildTickPage(this, window._settings));
+    groupLegacyHandSettings.add(buildHandPage(this, window._settings));
+    groupLegacyShadowSettings.add(buildShadowPage(this, window._settings));
+  
+    /* */
     pageLegacySettings.add(groupLegacyPrefsSettings);
     pageLegacySettings.add(groupLegacyBehaviourSettings);
+    pageLegacySettings.add(groupLegacyFaceSettings);
+    pageLegacySettings.add(groupLegacyTickSettings);
+    pageLegacySettings.add(groupLegacyHandSettings);
+    pageLegacySettings.add(groupLegacyShadowSettings);
 
     //
     // DEBUG
@@ -208,31 +239,6 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
     Common.myDebugLog('Exiting WhatWatchPreferences.fillPreferencesWindow()');
   }
 
-}
-
-function deadcode_buildPrefsWidget () {
-  Common.myDebugLog('Entering prefs.js buildPrefsWidget()');
-
-  settings = ExtensionUtils.getSettings(schemaid);
-  Common.debugLogging = settings.get_boolean("debuglogging");
-
-  let prefsWidget = new Gtk.Notebook();
-
-  prefsWidget.append_page(buildPrefsPage(), new Gtk.Label({ label: 'Preferences' }));
-  prefsWidget.append_page(buildBehaviourPage(), new Gtk.Label({ label: 'Behaviour' }));
-  prefsWidget.append_page(buildFacePage(), new Gtk.Label({ label: 'Face' }));
-  prefsWidget.append_page(buildTickPage(), new Gtk.Label({ label: 'Ticks' }));
-  prefsWidget.append_page(buildHandPage(), new Gtk.Label({ label: 'Hands' }));
-  prefsWidget.append_page(buildShadowPage(), new Gtk.Label({ label: 'Shadow' }));
-  prefsWidget.append_page(buildDebugPage(), new Gtk.Label({ label: 'Debug' }));
-  prefsWidget.append_page(buildAboutPage(), new Gtk.Label({ label: 'About' }));
-
-  if (prefsWidget.show_all) {
-    prefsWidget.show_all();
-  }
-
-  Common.myDebugLog('Exiting prefs.js buildPrefsWidget()');
-  return prefsWidget;
 }
 
 function buildPrefsPage (_this, _settings) {
@@ -593,7 +599,7 @@ function buildBehaviourPage (_this, _settings) {
   return prefsWidget;
 }
 
-function buildFacePage () {
+function buildFacePage (_this, _settings) {
   Common.myDebugLog('Entering prefs.js buildFacePage()');
 
   let _colorSet;
@@ -611,7 +617,7 @@ function buildFacePage () {
   // Title...
 
   let title = new Gtk.Label({
-    label: `<b>${Me.metadata.name} (V.${Me.metadata.version}) - Face</b>`,
+    label: `<b>${_this.metadata.name} (V.${_this.metadata.version}) - Face</b>`,
     halign: Gtk.Align.START,
     use_markup: true,
     visible: true
@@ -635,10 +641,10 @@ function buildFacePage () {
   });
   spinFaceDialColor_R.set_sensitive(true);
   spinFaceDialColor_R.set_range(0.0, 1.0);
-  spinFaceDialColor_R.set_value(this.settings.get_double('facedialcolor-r'));
+  spinFaceDialColor_R.set_value(_settings.get_double('facedialcolor-r'));
   spinFaceDialColor_R.set_increments(0.01, 0.1);
   spinFaceDialColor_R.connect('value-changed', w => {
-      this.settings.set_double('facedialcolor-r', w.get_value());
+      _settings.set_double('facedialcolor-r', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceDialColor
@@ -659,10 +665,10 @@ function buildFacePage () {
   });
   spinFaceDialColor_G.set_sensitive(true);
   spinFaceDialColor_G.set_range(0.0, 1.0);
-  spinFaceDialColor_G.set_value(this.settings.get_double('facedialcolor-g'));
+  spinFaceDialColor_G.set_value(_settings.get_double('facedialcolor-g'));
   spinFaceDialColor_G.set_increments(0.01, 0.1);
   spinFaceDialColor_G.connect('value-changed', w => {
-      this.settings.set_double('facedialcolor-g', w.get_value());
+      _settings.set_double('facedialcolor-g', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceDialColor
@@ -683,10 +689,10 @@ function buildFacePage () {
   });
   spinFaceDialColor_B.set_sensitive(true);
   spinFaceDialColor_B.set_range(0.0, 1.0);
-  spinFaceDialColor_B.set_value(this.settings.get_double('facedialcolor-b'));
+  spinFaceDialColor_B.set_value(_settings.get_double('facedialcolor-b'));
   spinFaceDialColor_B.set_increments(0.01, 0.1);
   spinFaceDialColor_B.connect('value-changed', w => {
-      this.settings.set_double('facedialcolor-b', w.get_value());
+      _settings.set_double('facedialcolor-b', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceDialColor
@@ -707,10 +713,10 @@ function buildFacePage () {
   });
   spinFaceDialColor_A.set_sensitive(true);
   spinFaceDialColor_A.set_range(0.0, 1.0);
-  spinFaceDialColor_A.set_value(this.settings.get_double('facedialcolor-a'));
+  spinFaceDialColor_A.set_value(_settings.get_double('facedialcolor-a'));
   spinFaceDialColor_A.set_increments(0.01, 0.1);
   spinFaceDialColor_A.connect('value-changed', w => {
-      this.settings.set_double('facedialcolor-a', w.get_value());
+      _settings.set_double('facedialcolor-a', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceDialColor
@@ -728,10 +734,10 @@ function buildFacePage () {
   let buttonFaceDialColor = new Gtk.ColorButton({halign: Gtk.Align.END});
   buttonFaceDialColor.set_use_alpha(true);
   _colorSet = new Gdk.RGBA();
-  _colorSet.red = this.settings.get_double('facedialcolor-r');
-  _colorSet.green = this.settings.get_double('facedialcolor-g');
-  _colorSet.blue = this.settings.get_double('facedialcolor-b');
-  _colorSet.alpha = this.settings.get_double('facedialcolor-a');
+  _colorSet.red = _settings.get_double('facedialcolor-r');
+  _colorSet.green = _settings.get_double('facedialcolor-g');
+  _colorSet.blue = _settings.get_double('facedialcolor-b');
+  _colorSet.alpha = _settings.get_double('facedialcolor-a');
   buttonFaceDialColor.set_rgba(_colorSet);
   buttonFaceDialColor.connect("color_set", () => {
     Common.myDebugLog('buttonFaceDialColor.rgba       : ' + buttonFaceDialColor.rgba.to_string());
@@ -761,10 +767,10 @@ function buildFacePage () {
   });
   spinFaceCenterDialRadius.set_sensitive(true);
   spinFaceCenterDialRadius.set_range(0.0, 1.0);
-  spinFaceCenterDialRadius.set_value(this.settings.get_double('facecenterdialradius'));
+  spinFaceCenterDialRadius.set_value(_settings.get_double('facecenterdialradius'));
   spinFaceCenterDialRadius.set_increments(0.01, 0.1);
   spinFaceCenterDialRadius.connect('value-changed', w => {
-      this.settings.set_double('facecenterdialradius', w.get_value());
+      _settings.set_double('facecenterdialradius', w.get_value());
   });
   prefsWidget.attach(spinFaceCenterDialRadius, 1, faceCenterDialRadiusRow, 1, 1);
 
@@ -783,10 +789,10 @@ function buildFacePage () {
   });
   spinFaceCenterDialColor_R.set_sensitive(true);
   spinFaceCenterDialColor_R.set_range(0.0, 1.0);
-  spinFaceCenterDialColor_R.set_value(this.settings.get_double('facecenterdialcolor-r'));
+  spinFaceCenterDialColor_R.set_value(_settings.get_double('facecenterdialcolor-r'));
   spinFaceCenterDialColor_R.set_increments(0.01, 0.1);
   spinFaceCenterDialColor_R.connect('value-changed', w => {
-      this.settings.set_double('facecenterdialcolor-r', w.get_value());
+      _settings.set_double('facecenterdialcolor-r', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceCenterDialColor
@@ -807,10 +813,10 @@ function buildFacePage () {
   });
   spinFaceCenterDialColor_G.set_sensitive(true);
   spinFaceCenterDialColor_G.set_range(0.0, 1.0);
-  spinFaceCenterDialColor_G.set_value(this.settings.get_double('facecenterdialcolor-g'));
+  spinFaceCenterDialColor_G.set_value(_settings.get_double('facecenterdialcolor-g'));
   spinFaceCenterDialColor_G.set_increments(0.01, 0.1);
   spinFaceCenterDialColor_G.connect('value-changed', w => {
-      this.settings.set_double('facecenterdialcolor-g', w.get_value());
+      _settings.set_double('facecenterdialcolor-g', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceCenterDialColor
@@ -831,10 +837,10 @@ function buildFacePage () {
   });
   spinFaceCenterDialColor_B.set_sensitive(true);
   spinFaceCenterDialColor_B.set_range(0.0, 1.0);
-  spinFaceCenterDialColor_B.set_value(this.settings.get_double('facecenterdialcolor-b'));
+  spinFaceCenterDialColor_B.set_value(_settings.get_double('facecenterdialcolor-b'));
   spinFaceCenterDialColor_B.set_increments(0.01, 0.1);
   spinFaceCenterDialColor_B.connect('value-changed', w => {
-      this.settings.set_double('facecenterdialcolor-b', w.get_value());
+      _settings.set_double('facecenterdialcolor-b', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceCenterDialColor
@@ -855,10 +861,10 @@ function buildFacePage () {
   });
   spinFaceCenterDialColor_A.set_sensitive(true);
   spinFaceCenterDialColor_A.set_range(0.0, 1.0);
-  spinFaceCenterDialColor_A.set_value(this.settings.get_double('facecenterdialcolor-a'));
+  spinFaceCenterDialColor_A.set_value(_settings.get_double('facecenterdialcolor-a'));
   spinFaceCenterDialColor_A.set_increments(0.01, 0.1);
   spinFaceCenterDialColor_A.connect('value-changed', w => {
-      this.settings.set_double('facecenterdialcolor-a', w.get_value());
+      _settings.set_double('facecenterdialcolor-a', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceCenterDialColor
@@ -876,10 +882,10 @@ function buildFacePage () {
   let buttonFaceCenterDialColor = new Gtk.ColorButton({halign: Gtk.Align.END});
   buttonFaceCenterDialColor.set_use_alpha(true);
   _colorSet = new Gdk.RGBA();
-  _colorSet.red = this.settings.get_double('facecenterdialcolor-r');
-  _colorSet.green = this.settings.get_double('facecenterdialcolor-g');
-  _colorSet.blue = this.settings.get_double('facecenterdialcolor-b');
-  _colorSet.alpha = this.settings.get_double('facecenterdialcolor-a');
+  _colorSet.red = _settings.get_double('facecenterdialcolor-r');
+  _colorSet.green = _settings.get_double('facecenterdialcolor-g');
+  _colorSet.blue = _settings.get_double('facecenterdialcolor-b');
+  _colorSet.alpha = _settings.get_double('facecenterdialcolor-a');
   buttonFaceCenterDialColor.set_rgba(_colorSet);
   buttonFaceCenterDialColor.connect("color_set", () => {
     Common.myDebugLog('buttonFaceCenterDialColor.rgba       : ' + buttonFaceCenterDialColor.rgba.to_string());
@@ -909,10 +915,10 @@ function buildFacePage () {
   });
   faceDialLineWidth.set_sensitive(true);
   faceDialLineWidth.set_range(0.0, 1.0);
-  faceDialLineWidth.set_value(this.settings.get_double('facediallinewidth'));
+  faceDialLineWidth.set_value(_settings.get_double('facediallinewidth'));
   faceDialLineWidth.set_increments(0.01, 0.1);
   faceDialLineWidth.connect('value-changed', w => {
-      this.settings.set_double('facediallinewidth', w.get_value());
+      _settings.set_double('facediallinewidth', w.get_value());
   });
   prefsWidget.attach(faceDialLineWidth, 1, faceDialLineRow, 1, 1);
 
@@ -922,10 +928,10 @@ function buildFacePage () {
   });
   faceDialLineLength.set_sensitive(true);
   faceDialLineLength.set_range(0.0, 1.0);
-  faceDialLineLength.set_value(this.settings.get_double('facediallineinset'));
+  faceDialLineLength.set_value(_settings.get_double('facediallineinset'));
   faceDialLineLength.set_increments(0.01, 0.1);
   faceDialLineLength.connect('value-changed', w => {
-      this.settings.set_double('facediallineinset', w.get_value());
+      _settings.set_double('facediallineinset', w.get_value());
   });
   prefsWidget.attach(faceDialLineLength, 2, faceDialLineRow, 1, 1);
 
@@ -944,10 +950,10 @@ function buildFacePage () {
   });
   spinFaceDialLineColor_R.set_sensitive(true);
   spinFaceDialLineColor_R.set_range(0.0, 1.0);
-  spinFaceDialLineColor_R.set_value(this.settings.get_double('facediallinecolor-r'));
+  spinFaceDialLineColor_R.set_value(_settings.get_double('facediallinecolor-r'));
   spinFaceDialLineColor_R.set_increments(0.01, 0.1);
   spinFaceDialLineColor_R.connect('value-changed', w => {
-      this.settings.set_double('facediallinecolor-r', w.get_value());
+      _settings.set_double('facediallinecolor-r', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceDialLineColor
@@ -968,10 +974,10 @@ function buildFacePage () {
   });
   spinFaceDialLineColor_G.set_sensitive(true);
   spinFaceDialLineColor_G.set_range(0.0, 1.0);
-  spinFaceDialLineColor_G.set_value(this.settings.get_double('facediallinecolor-g'));
+  spinFaceDialLineColor_G.set_value(_settings.get_double('facediallinecolor-g'));
   spinFaceDialLineColor_G.set_increments(0.01, 0.1);
   spinFaceDialLineColor_G.connect('value-changed', w => {
-      this.settings.set_double('facediallinecolor-g', w.get_value());
+      _settings.set_double('facediallinecolor-g', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceDialLineColor
@@ -992,10 +998,10 @@ function buildFacePage () {
   });
   spinFaceDialLineColor_B.set_sensitive(true);
   spinFaceDialLineColor_B.set_range(0.0, 1.0);
-  spinFaceDialLineColor_B.set_value(this.settings.get_double('facediallinecolor-b'));
+  spinFaceDialLineColor_B.set_value(_settings.get_double('facediallinecolor-b'));
   spinFaceDialLineColor_B.set_increments(0.01, 0.1);
   spinFaceDialLineColor_B.connect('value-changed', w => {
-      this.settings.set_double('facediallinecolor-b', w.get_value());
+      _settings.set_double('facediallinecolor-b', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceDialLineColor
@@ -1016,10 +1022,10 @@ function buildFacePage () {
   });
   spinFaceDialLineColor_A.set_sensitive(true);
   spinFaceDialLineColor_A.set_range(0.0, 1.0);
-  spinFaceDialLineColor_A.set_value(this.settings.get_double('facediallinecolor-a'));
+  spinFaceDialLineColor_A.set_value(_settings.get_double('facediallinecolor-a'));
   spinFaceDialLineColor_A.set_increments(0.01, 0.1);
   spinFaceDialLineColor_A.connect('value-changed', w => {
-      this.settings.set_double('facediallinecolor-a', w.get_value());
+      _settings.set_double('facediallinecolor-a', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceDialLineColor
@@ -1037,10 +1043,10 @@ function buildFacePage () {
   let buttonFaceDialLineColor = new Gtk.ColorButton({halign: Gtk.Align.END});
   buttonFaceDialLineColor.set_use_alpha(true);
   _colorSet = new Gdk.RGBA();
-  _colorSet.red = this.settings.get_double('facediallinecolor-r');
-  _colorSet.green = this.settings.get_double('facediallinecolor-g');
-  _colorSet.blue = this.settings.get_double('facediallinecolor-b');
-  _colorSet.alpha = this.settings.get_double('facediallinecolor-a');
+  _colorSet.red = _settings.get_double('facediallinecolor-r');
+  _colorSet.green = _settings.get_double('facediallinecolor-g');
+  _colorSet.blue = _settings.get_double('facediallinecolor-b');
+  _colorSet.alpha = _settings.get_double('facediallinecolor-a');
   buttonFaceDialLineColor.set_rgba(_colorSet);
   buttonFaceDialLineColor.connect("color_set", () => {
     Common.myDebugLog('buttonFaceDialLineColor.rgba       : ' + buttonFaceDialLineColor.rgba.to_string());
@@ -1059,7 +1065,7 @@ function buildFacePage () {
   return prefsWidget;
 }
 
-function buildTickPage () {
+function buildTickPage (_this, _settings) {
   Common.myDebugLog('Entering prefs.js buildTickPage()');
 
   let _colorSet;
@@ -1077,7 +1083,7 @@ function buildTickPage () {
   // Title...
 
   let title = new Gtk.Label({
-    label: `<b>${Me.metadata.name} (V.${Me.metadata.version}) - Ticks</b>`,
+    label: `<b>${_this.metadata.name} (V.${_this.metadata.version}) - Ticks</b>`,
     halign: Gtk.Align.START,
     use_markup: true,
     visible: true
@@ -1099,10 +1105,10 @@ function buildTickPage () {
   });
   faceDialLineTI.set_sensitive(true);
   faceDialLineTI.set_range(0.0, 1.0);
-  faceDialLineTI.set_value(this.settings.get_double('facediallinetickinset'));
+  faceDialLineTI.set_value(_settings.get_double('facediallinetickinset'));
   faceDialLineTI.set_increments(0.01, 0.1);
   faceDialLineTI.connect('value-changed', w => {
-      this.settings.set_double('facediallinetickinset', w.get_value());
+      _settings.set_double('facediallinetickinset', w.get_value());
   });
   prefsWidget.attach(faceDialLineTI, 1, faceDialLineTIRow, 1, 1);
 
@@ -1121,10 +1127,10 @@ function buildTickPage () {
   });
   faceMinuteTickLineWidth.set_sensitive(true);
   faceMinuteTickLineWidth.set_range(0.0, 1.0);
-  faceMinuteTickLineWidth.set_value(this.settings.get_double('faceminuteticklinewidth'));
+  faceMinuteTickLineWidth.set_value(_settings.get_double('faceminuteticklinewidth'));
   faceMinuteTickLineWidth.set_increments(0.01, 0.1);
   faceMinuteTickLineWidth.connect('value-changed', w => {
-      this.settings.set_double('faceminuteticklinewidth', w.get_value());
+      _settings.set_double('faceminuteticklinewidth', w.get_value());
   });
   prefsWidget.attach(faceMinuteTickLineWidth, 1, faceMinuteTickLineRow, 1, 1);
 
@@ -1134,10 +1140,10 @@ function buildTickPage () {
   });
   faceMinuteTickLineLength.set_sensitive(true);
   faceMinuteTickLineLength.set_range(0.0, 1.0);
-  faceMinuteTickLineLength.set_value(this.settings.get_double('faceminuteticklineinset'));
+  faceMinuteTickLineLength.set_value(_settings.get_double('faceminuteticklineinset'));
   faceMinuteTickLineLength.set_increments(0.01, 0.1);
   faceMinuteTickLineLength.connect('value-changed', w => {
-      this.settings.set_double('faceminuteticklineinset', w.get_value());
+      _settings.set_double('faceminuteticklineinset', w.get_value());
   });
   prefsWidget.attach(faceMinuteTickLineLength, 2, faceMinuteTickLineRow, 1, 1);
 
@@ -1151,13 +1157,13 @@ function buildTickPage () {
   prefsWidget.attach(toggleMinuteTickLineCircleLabel, 0, faceMinuteTickLineRow, 2, 1);
 
   let toggleMinuteTickLineCircle = new Gtk.Switch({
-    active: this.settings.get_boolean("faceminutetickcircle"),
+    active: _settings.get_boolean("faceminutetickcircle"),
     halign: Gtk.Align.END,
     visible: true
   });
   prefsWidget.attach(toggleMinuteTickLineCircle, 1, faceMinuteTickLineRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'faceminutetickcircle',
     toggleMinuteTickLineCircle,
     'active',
@@ -1165,13 +1171,13 @@ function buildTickPage () {
   );
 
   let toggleMinuteTickLineOuterCircle = new Gtk.Switch({
-    active: this.settings.get_boolean("faceminutetickoutercircle"),
+    active: _settings.get_boolean("faceminutetickoutercircle"),
     halign: Gtk.Align.END,
     visible: true
   });
   prefsWidget.attach(toggleMinuteTickLineOuterCircle, 2, faceMinuteTickLineRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'faceminutetickoutercircle',
     toggleMinuteTickLineOuterCircle,
     'active',
@@ -1193,10 +1199,10 @@ function buildTickPage () {
   });
   spinFaceMinuteTickLineColor_R.set_sensitive(true);
   spinFaceMinuteTickLineColor_R.set_range(0.0, 1.0);
-  spinFaceMinuteTickLineColor_R.set_value(this.settings.get_double('faceminutetickcolor-r'));
+  spinFaceMinuteTickLineColor_R.set_value(_settings.get_double('faceminutetickcolor-r'));
   spinFaceMinuteTickLineColor_R.set_increments(0.01, 0.1);
   spinFaceMinuteTickLineColor_R.connect('value-changed', w => {
-      this.settings.set_double('faceminutetickcolor-r', w.get_value());
+      _settings.set_double('faceminutetickcolor-r', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceMinuteTickLineColor
@@ -1217,10 +1223,10 @@ function buildTickPage () {
   });
   spinFaceMinuteTickLineColor_G.set_sensitive(true);
   spinFaceMinuteTickLineColor_G.set_range(0.0, 1.0);
-  spinFaceMinuteTickLineColor_G.set_value(this.settings.get_double('faceminutetickcolor-g'));
+  spinFaceMinuteTickLineColor_G.set_value(_settings.get_double('faceminutetickcolor-g'));
   spinFaceMinuteTickLineColor_G.set_increments(0.01, 0.1);
   spinFaceMinuteTickLineColor_G.connect('value-changed', w => {
-      this.settings.set_double('faceminutetickcolor-g', w.get_value());
+      _settings.set_double('faceminutetickcolor-g', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceMinuteTickLineColor
@@ -1241,10 +1247,10 @@ function buildTickPage () {
   });
   spinFaceMinuteTickLineColor_B.set_sensitive(true);
   spinFaceMinuteTickLineColor_B.set_range(0.0, 1.0);
-  spinFaceMinuteTickLineColor_B.set_value(this.settings.get_double('faceminutetickcolor-b'));
+  spinFaceMinuteTickLineColor_B.set_value(_settings.get_double('faceminutetickcolor-b'));
   spinFaceMinuteTickLineColor_B.set_increments(0.01, 0.1);
   spinFaceMinuteTickLineColor_B.connect('value-changed', w => {
-      this.settings.set_double('faceminutetickcolor-b', w.get_value());
+      _settings.set_double('faceminutetickcolor-b', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceMinuteTickLineColor
@@ -1265,10 +1271,10 @@ function buildTickPage () {
   });
   spinFaceMinuteTickLineColor_A.set_sensitive(true);
   spinFaceMinuteTickLineColor_A.set_range(0.0, 1.0);
-  spinFaceMinuteTickLineColor_A.set_value(this.settings.get_double('faceminutetickcolor-a'));
+  spinFaceMinuteTickLineColor_A.set_value(_settings.get_double('faceminutetickcolor-a'));
   spinFaceMinuteTickLineColor_A.set_increments(0.01, 0.1);
   spinFaceMinuteTickLineColor_A.connect('value-changed', w => {
-      this.settings.set_double('faceminutetickcolor-a', w.get_value());
+      _settings.set_double('faceminutetickcolor-a', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceMinuteTickLineColor
@@ -1286,10 +1292,10 @@ function buildTickPage () {
   let buttonFaceMinuteTickLineColor = new Gtk.ColorButton({halign: Gtk.Align.END});
   buttonFaceMinuteTickLineColor.set_use_alpha(true);
   _colorSet = new Gdk.RGBA();
-  _colorSet.red = this.settings.get_double('faceminutetickcolor-r');
-  _colorSet.green = this.settings.get_double('faceminutetickcolor-g');
-  _colorSet.blue = this.settings.get_double('faceminutetickcolor-b');
-  _colorSet.alpha = this.settings.get_double('faceminutetickcolor-a');
+  _colorSet.red = _settings.get_double('faceminutetickcolor-r');
+  _colorSet.green = _settings.get_double('faceminutetickcolor-g');
+  _colorSet.blue = _settings.get_double('faceminutetickcolor-b');
+  _colorSet.alpha = _settings.get_double('faceminutetickcolor-a');
   buttonFaceMinuteTickLineColor.set_rgba(_colorSet);
   buttonFaceMinuteTickLineColor.connect("color_set", () => {
     Common.myDebugLog('buttonFaceMinuteTickLineColor.rgba       : ' + buttonFaceMinuteTickLineColor.rgba.to_string());
@@ -1319,10 +1325,10 @@ function buildTickPage () {
   });
   faceTickLineWidth.set_sensitive(true);
   faceTickLineWidth.set_range(0.0, 1.0);
-  faceTickLineWidth.set_value(this.settings.get_double('faceticklinewidth'));
+  faceTickLineWidth.set_value(_settings.get_double('faceticklinewidth'));
   faceTickLineWidth.set_increments(0.01, 0.1);
   faceTickLineWidth.connect('value-changed', w => {
-      this.settings.set_double('faceticklinewidth', w.get_value());
+      _settings.set_double('faceticklinewidth', w.get_value());
   });
   prefsWidget.attach(faceTickLineWidth, 1, faceTickLineRow, 1, 1);
 
@@ -1332,10 +1338,10 @@ function buildTickPage () {
   });
   faceTickLineLength.set_sensitive(true);
   faceTickLineLength.set_range(0.0, 1.0);
-  faceTickLineLength.set_value(this.settings.get_double('faceticklineinset'));
+  faceTickLineLength.set_value(_settings.get_double('faceticklineinset'));
   faceTickLineLength.set_increments(0.01, 0.1);
   faceTickLineLength.connect('value-changed', w => {
-      this.settings.set_double('faceticklineinset', w.get_value());
+      _settings.set_double('faceticklineinset', w.get_value());
   });
   prefsWidget.attach(faceTickLineLength, 2, faceTickLineRow, 1, 1);
 
@@ -1349,13 +1355,13 @@ function buildTickPage () {
   prefsWidget.attach(toggleTickLineCircleLabel, 0, faceTickLineRow, 2, 1);
 
   let toggleTickLineCircle = new Gtk.Switch({
-    active: this.settings.get_boolean("facetickcircle"),
+    active: _settings.get_boolean("facetickcircle"),
     halign: Gtk.Align.END,
     visible: true
   });
   prefsWidget.attach(toggleTickLineCircle, 1, faceTickLineRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'facetickcircle',
     toggleTickLineCircle,
     'active',
@@ -1363,13 +1369,13 @@ function buildTickPage () {
   );
 
   let toggleTickLineOuterCircle = new Gtk.Switch({
-    active: this.settings.get_boolean("facetickoutercircle"),
+    active: _settings.get_boolean("facetickoutercircle"),
     halign: Gtk.Align.END,
     visible: true
   });
   prefsWidget.attach(toggleTickLineOuterCircle, 2, faceTickLineRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'facetickoutercircle',
     toggleTickLineOuterCircle,
     'active',
@@ -1391,10 +1397,10 @@ function buildTickPage () {
   });
   spinFaceTickLineColor_R.set_sensitive(true);
   spinFaceTickLineColor_R.set_range(0.0, 1.0);
-  spinFaceTickLineColor_R.set_value(this.settings.get_double('facetickcolor-r'));
+  spinFaceTickLineColor_R.set_value(_settings.get_double('facetickcolor-r'));
   spinFaceTickLineColor_R.set_increments(0.01, 0.1);
   spinFaceTickLineColor_R.connect('value-changed', w => {
-      this.settings.set_double('facetickcolor-r', w.get_value());
+      _settings.set_double('facetickcolor-r', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceTickLineColor
@@ -1415,10 +1421,10 @@ function buildTickPage () {
   });
   spinFaceTickLineColor_G.set_sensitive(true);
   spinFaceTickLineColor_G.set_range(0.0, 1.0);
-  spinFaceTickLineColor_G.set_value(this.settings.get_double('facetickcolor-g'));
+  spinFaceTickLineColor_G.set_value(_settings.get_double('facetickcolor-g'));
   spinFaceTickLineColor_G.set_increments(0.01, 0.1);
   spinFaceTickLineColor_G.connect('value-changed', w => {
-      this.settings.set_double('facetickcolor-g', w.get_value());
+      _settings.set_double('facetickcolor-g', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceTickLineColor
@@ -1439,10 +1445,10 @@ function buildTickPage () {
   });
   spinFaceTickLineColor_B.set_sensitive(true);
   spinFaceTickLineColor_B.set_range(0.0, 1.0);
-  spinFaceTickLineColor_B.set_value(this.settings.get_double('facetickcolor-b'));
+  spinFaceTickLineColor_B.set_value(_settings.get_double('facetickcolor-b'));
   spinFaceTickLineColor_B.set_increments(0.01, 0.1);
   spinFaceTickLineColor_B.connect('value-changed', w => {
-      this.settings.set_double('facetickcolor-b', w.get_value());
+      _settings.set_double('facetickcolor-b', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceTickLineColor
@@ -1463,10 +1469,10 @@ function buildTickPage () {
   });
   spinFaceTickLineColor_A.set_sensitive(true);
   spinFaceTickLineColor_A.set_range(0.0, 1.0);
-  spinFaceTickLineColor_A.set_value(this.settings.get_double('facetickcolor-a'));
+  spinFaceTickLineColor_A.set_value(_settings.get_double('facetickcolor-a'));
   spinFaceTickLineColor_A.set_increments(0.01, 0.1);
   spinFaceTickLineColor_A.connect('value-changed', w => {
-      this.settings.set_double('facetickcolor-a', w.get_value());
+      _settings.set_double('facetickcolor-a', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceTickLineColor
@@ -1484,10 +1490,10 @@ function buildTickPage () {
   let buttonFaceTickLineColor = new Gtk.ColorButton({halign: Gtk.Align.END});
   buttonFaceTickLineColor.set_use_alpha(true);
   _colorSet = new Gdk.RGBA();
-  _colorSet.red = this.settings.get_double('facetickcolor-r');
-  _colorSet.green = this.settings.get_double('facetickcolor-g');
-  _colorSet.blue = this.settings.get_double('facetickcolor-b');
-  _colorSet.alpha = this.settings.get_double('facetickcolor-a');
+  _colorSet.red = _settings.get_double('facetickcolor-r');
+  _colorSet.green = _settings.get_double('facetickcolor-g');
+  _colorSet.blue = _settings.get_double('facetickcolor-b');
+  _colorSet.alpha = _settings.get_double('facetickcolor-a');
   buttonFaceTickLineColor.set_rgba(_colorSet);
   buttonFaceTickLineColor.connect("color_set", () => {
     Common.myDebugLog('buttonFaceTickLineColor.rgba       : ' + buttonFaceTickLineColor.rgba.to_string());
@@ -1517,10 +1523,10 @@ function buildTickPage () {
   });
   faceProminentTickLineWidth.set_sensitive(true);
   faceProminentTickLineWidth.set_range(0.0, 1.0);
-  faceProminentTickLineWidth.set_value(this.settings.get_double('faceprominentticklinewidth'));
+  faceProminentTickLineWidth.set_value(_settings.get_double('faceprominentticklinewidth'));
   faceProminentTickLineWidth.set_increments(0.01, 0.1);
   faceProminentTickLineWidth.connect('value-changed', w => {
-      this.settings.set_double('faceprominentticklinewidth', w.get_value());
+      _settings.set_double('faceprominentticklinewidth', w.get_value());
   });
   prefsWidget.attach(faceProminentTickLineWidth, 1, faceProminentTickLineRow, 1, 1);
 
@@ -1530,10 +1536,10 @@ function buildTickPage () {
   });
   faceProminentTickLineLength.set_sensitive(true);
   faceProminentTickLineLength.set_range(0.0, 1.0);
-  faceProminentTickLineLength.set_value(this.settings.get_double('faceprominentticklineinset'));
+  faceProminentTickLineLength.set_value(_settings.get_double('faceprominentticklineinset'));
   faceProminentTickLineLength.set_increments(0.01, 0.1);
   faceProminentTickLineLength.connect('value-changed', w => {
-      this.settings.set_double('faceprominentticklineinset', w.get_value());
+      _settings.set_double('faceprominentticklineinset', w.get_value());
   });
   prefsWidget.attach(faceProminentTickLineLength, 2, faceProminentTickLineRow, 1, 1);
 
@@ -1547,13 +1553,13 @@ function buildTickPage () {
   prefsWidget.attach(toggleProminentTickLineCircleLabel, 0, faceProminentTickLineRow, 2, 1);
 
   let toggleProminentTickLineCircle = new Gtk.Switch({
-    active: this.settings.get_boolean("faceprominenttickcircle"),
+    active: _settings.get_boolean("faceprominenttickcircle"),
     halign: Gtk.Align.END,
     visible: true
   });
   prefsWidget.attach(toggleProminentTickLineCircle, 1, faceProminentTickLineRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'faceprominenttickcircle',
     toggleProminentTickLineCircle,
     'active',
@@ -1561,13 +1567,13 @@ function buildTickPage () {
   );
 
   let toggleProminentTickLineOuterCircle = new Gtk.Switch({
-    active: this.settings.get_boolean("faceprominenttickoutercircle"),
+    active: _settings.get_boolean("faceprominenttickoutercircle"),
     halign: Gtk.Align.END,
     visible: true
   });
   prefsWidget.attach(toggleProminentTickLineOuterCircle, 2, faceProminentTickLineRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'faceprominenttickoutercircle',
     toggleProminentTickLineOuterCircle,
     'active',
@@ -1589,10 +1595,10 @@ function buildTickPage () {
   });
   spinFaceProminentTickLineColor_R.set_sensitive(true);
   spinFaceProminentTickLineColor_R.set_range(0.0, 1.0);
-  spinFaceProminentTickLineColor_R.set_value(this.settings.get_double('faceprominenttickcolor-r'));
+  spinFaceProminentTickLineColor_R.set_value(_settings.get_double('faceprominenttickcolor-r'));
   spinFaceProminentTickLineColor_R.set_increments(0.01, 0.1);
   spinFaceProminentTickLineColor_R.connect('value-changed', w => {
-      this.settings.set_double('faceprominenttickcolor-r', w.get_value());
+      _settings.set_double('faceprominenttickcolor-r', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceProminentTickLineColor
@@ -1613,10 +1619,10 @@ function buildTickPage () {
   });
   spinFaceProminentTickLineColor_G.set_sensitive(true);
   spinFaceProminentTickLineColor_G.set_range(0.0, 1.0);
-  spinFaceProminentTickLineColor_G.set_value(this.settings.get_double('faceprominenttickcolor-g'));
+  spinFaceProminentTickLineColor_G.set_value(_settings.get_double('faceprominenttickcolor-g'));
   spinFaceProminentTickLineColor_G.set_increments(0.01, 0.1);
   spinFaceProminentTickLineColor_G.connect('value-changed', w => {
-      this.settings.set_double('faceprominenttickcolor-g', w.get_value());
+      _settings.set_double('faceprominenttickcolor-g', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceProminentTickLineColor
@@ -1637,10 +1643,10 @@ function buildTickPage () {
   });
   spinFaceProminentTickLineColor_B.set_sensitive(true);
   spinFaceProminentTickLineColor_B.set_range(0.0, 1.0);
-  spinFaceProminentTickLineColor_B.set_value(this.settings.get_double('faceprominenttickcolor-b'));
+  spinFaceProminentTickLineColor_B.set_value(_settings.get_double('faceprominenttickcolor-b'));
   spinFaceProminentTickLineColor_B.set_increments(0.01, 0.1);
   spinFaceProminentTickLineColor_B.connect('value-changed', w => {
-      this.settings.set_double('faceprominenttickcolor-b', w.get_value());
+      _settings.set_double('faceprominenttickcolor-b', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceProminentTickLineColor
@@ -1661,10 +1667,10 @@ function buildTickPage () {
   });
   spinFaceProminentTickLineColor_A.set_sensitive(true);
   spinFaceProminentTickLineColor_A.set_range(0.0, 1.0);
-  spinFaceProminentTickLineColor_A.set_value(this.settings.get_double('faceprominenttickcolor-a'));
+  spinFaceProminentTickLineColor_A.set_value(_settings.get_double('faceprominenttickcolor-a'));
   spinFaceProminentTickLineColor_A.set_increments(0.01, 0.1);
   spinFaceProminentTickLineColor_A.connect('value-changed', w => {
-      this.settings.set_double('faceprominenttickcolor-a', w.get_value());
+      _settings.set_double('faceprominenttickcolor-a', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceProminentTickLineColor
@@ -1682,10 +1688,10 @@ function buildTickPage () {
   let buttonFaceProminentTickLineColor = new Gtk.ColorButton({halign: Gtk.Align.END});
   buttonFaceProminentTickLineColor.set_use_alpha(true);
   _colorSet = new Gdk.RGBA();
-  _colorSet.red = this.settings.get_double('faceprominenttickcolor-r');
-  _colorSet.green = this.settings.get_double('faceprominenttickcolor-g');
-  _colorSet.blue = this.settings.get_double('faceprominenttickcolor-b');
-  _colorSet.alpha = this.settings.get_double('faceprominenttickcolor-a');
+  _colorSet.red = _settings.get_double('faceprominenttickcolor-r');
+  _colorSet.green = _settings.get_double('faceprominenttickcolor-g');
+  _colorSet.blue = _settings.get_double('faceprominenttickcolor-b');
+  _colorSet.alpha = _settings.get_double('faceprominenttickcolor-a');
   buttonFaceProminentTickLineColor.set_rgba(_colorSet);
   buttonFaceProminentTickLineColor.connect("color_set", () => {
     Common.myDebugLog('buttonFaceProminentTickLineColor.rgba       : ' + buttonFaceProminentTickLineColor.rgba.to_string());
@@ -1704,7 +1710,7 @@ function buildTickPage () {
   return prefsWidget;
 }
 
-function buildHandPage () {
+function buildHandPage (_this, _settings) {
   Common.myDebugLog('Entering prefs.js buildHandPage()');
 
   let _colorSet;
@@ -1722,7 +1728,7 @@ function buildHandPage () {
   // Title...
 
   let title = new Gtk.Label({
-    label: `<b>${Me.metadata.name} (V.${Me.metadata.version}) - Hands</b>`,
+    label: `<b>${_this.metadata.name} (V.${_this.metadata.version}) - Hands</b>`,
     halign: Gtk.Align.START,
     use_markup: true,
     visible: true
@@ -1744,10 +1750,10 @@ function buildHandPage () {
   });
   hourHandLineWidth.set_sensitive(true);
   hourHandLineWidth.set_range(0.0, 1.0);
-  hourHandLineWidth.set_value(this.settings.get_double('facehourhandlinewidth'));
+  hourHandLineWidth.set_value(_settings.get_double('facehourhandlinewidth'));
   hourHandLineWidth.set_increments(0.01, 0.1);
   hourHandLineWidth.connect('value-changed', w => {
-      this.settings.set_double('facehourhandlinewidth', w.get_value());
+      _settings.set_double('facehourhandlinewidth', w.get_value());
   });
   prefsWidget.attach(hourHandLineWidth, 1, hourHandLineRow, 1, 1);
 
@@ -1757,10 +1763,10 @@ function buildHandPage () {
   });
   hourHandLineLength.set_sensitive(true);
   hourHandLineLength.set_range(0.0, 1.0);
-  hourHandLineLength.set_value(this.settings.get_double('facehourhandlinelength'));
+  hourHandLineLength.set_value(_settings.get_double('facehourhandlinelength'));
   hourHandLineLength.set_increments(0.01, 0.1);
   hourHandLineLength.connect('value-changed', w => {
-      this.settings.set_double('facehourhandlinelength', w.get_value());
+      _settings.set_double('facehourhandlinelength', w.get_value());
   });
   prefsWidget.attach(hourHandLineLength, 2, hourHandLineRow, 1, 1);
 
@@ -1774,13 +1780,13 @@ function buildHandPage () {
   prefsWidget.attach(toggleHourHandFilledLabel, 0, hourHandFilledToggleRow, 1, 1);
 
   let toggleHourHandFilled = new Gtk.Switch({
-    active: this.settings.get_boolean("facehourhandfilled"),
+    active: _settings.get_boolean("facehourhandfilled"),
     halign: Gtk.Align.END,
     visible: true
   });
   prefsWidget.attach(toggleHourHandFilled, 1, hourHandFilledToggleRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'facehourhandfilled',
     toggleHourHandFilled,
     'active',
@@ -1788,14 +1794,14 @@ function buildHandPage () {
   );
 
   let toggleHourHandEyed = new Gtk.Switch({
-    active: this.settings.get_boolean("facehourhandeyed"),
+    active: _settings.get_boolean("facehourhandeyed"),
     halign: Gtk.Align.END,
     vexpand: false,
     visible: true
   });
   prefsWidget.attach(toggleHourHandEyed, 2, hourHandFilledToggleRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'facehourhandeyed',
     toggleHourHandEyed,
     'active',
@@ -1803,14 +1809,14 @@ function buildHandPage () {
   );
 
   let toggleHourHandTailed = new Gtk.Switch({
-    active: this.settings.get_boolean("facehourhandtailed"),
+    active: _settings.get_boolean("facehourhandtailed"),
     halign: Gtk.Align.END,
     vexpand: false,
     visible: true
   });
   prefsWidget.attach(toggleHourHandTailed, 3, hourHandFilledToggleRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'facehourhandtailed',
     toggleHourHandTailed,
     'active',
@@ -1818,14 +1824,14 @@ function buildHandPage () {
   );
 
   let toggleHourHandFinned = new Gtk.Switch({
-    active: this.settings.get_boolean("facehourhandfinned"),
+    active: _settings.get_boolean("facehourhandfinned"),
     halign: Gtk.Align.END,
     vexpand: false,
     visible: true
   });
   prefsWidget.attach(toggleHourHandFinned, 4, hourHandFilledToggleRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'facehourhandfinned',
     toggleHourHandFinned,
     'active',
@@ -1847,10 +1853,10 @@ function buildHandPage () {
   });
   spinFaceHourHandColor_R.set_sensitive(true);
   spinFaceHourHandColor_R.set_range(0.0, 1.0);
-  spinFaceHourHandColor_R.set_value(this.settings.get_double('facehourhandcolor-r'));
+  spinFaceHourHandColor_R.set_value(_settings.get_double('facehourhandcolor-r'));
   spinFaceHourHandColor_R.set_increments(0.01, 0.1);
   spinFaceHourHandColor_R.connect('value-changed', w => {
-      this.settings.set_double('facehourhandcolor-r', w.get_value());
+      _settings.set_double('facehourhandcolor-r', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceHourHandColor
@@ -1871,10 +1877,10 @@ function buildHandPage () {
   });
   spinFaceHourHandColor_G.set_sensitive(true);
   spinFaceHourHandColor_G.set_range(0.0, 1.0);
-  spinFaceHourHandColor_G.set_value(this.settings.get_double('facehourhandcolor-g'));
+  spinFaceHourHandColor_G.set_value(_settings.get_double('facehourhandcolor-g'));
   spinFaceHourHandColor_G.set_increments(0.01, 0.1);
   spinFaceHourHandColor_G.connect('value-changed', w => {
-      this.settings.set_double('facehourhandcolor-g', w.get_value());
+      _settings.set_double('facehourhandcolor-g', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceHourHandColor
@@ -1895,10 +1901,10 @@ function buildHandPage () {
   });
   spinFaceHourHandColor_B.set_sensitive(true);
   spinFaceHourHandColor_B.set_range(0.0, 1.0);
-  spinFaceHourHandColor_B.set_value(this.settings.get_double('facehourhandcolor-b'));
+  spinFaceHourHandColor_B.set_value(_settings.get_double('facehourhandcolor-b'));
   spinFaceHourHandColor_B.set_increments(0.01, 0.1);
   spinFaceHourHandColor_B.connect('value-changed', w => {
-      this.settings.set_double('facehourhandcolor-b', w.get_value());
+      _settings.set_double('facehourhandcolor-b', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceHourHandColor
@@ -1919,10 +1925,10 @@ function buildHandPage () {
   });
   spinFaceHourHandColor_A.set_sensitive(true);
   spinFaceHourHandColor_A.set_range(0.0, 1.0);
-  spinFaceHourHandColor_A.set_value(this.settings.get_double('facehourhandcolor-a'));
+  spinFaceHourHandColor_A.set_value(_settings.get_double('facehourhandcolor-a'));
   spinFaceHourHandColor_A.set_increments(0.01, 0.1);
   spinFaceHourHandColor_A.connect('value-changed', w => {
-      this.settings.set_double('facehourhandcolor-a', w.get_value());
+      _settings.set_double('facehourhandcolor-a', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceHourHandColor
@@ -1940,10 +1946,10 @@ function buildHandPage () {
   let buttonFaceHourHandColor = new Gtk.ColorButton({halign: Gtk.Align.END});
   buttonFaceHourHandColor.set_use_alpha(true);
   _colorSet = new Gdk.RGBA();
-  _colorSet.red = this.settings.get_double('facehourhandcolor-r');
-  _colorSet.green = this.settings.get_double('facehourhandcolor-g');
-  _colorSet.blue = this.settings.get_double('facehourhandcolor-b');
-  _colorSet.alpha = this.settings.get_double('facehourhandcolor-a');
+  _colorSet.red = _settings.get_double('facehourhandcolor-r');
+  _colorSet.green = _settings.get_double('facehourhandcolor-g');
+  _colorSet.blue = _settings.get_double('facehourhandcolor-b');
+  _colorSet.alpha = _settings.get_double('facehourhandcolor-a');
   buttonFaceHourHandColor.set_rgba(_colorSet);
   buttonFaceHourHandColor.connect("color_set", () => {
     Common.myDebugLog('buttonFaceHourHandColor.rgba       : ' + buttonFaceHourHandColor.rgba.to_string());
@@ -1973,10 +1979,10 @@ function buildHandPage () {
   });
   minuteHandLineWidth.set_sensitive(true);
   minuteHandLineWidth.set_range(0.0, 1.0);
-  minuteHandLineWidth.set_value(this.settings.get_double('faceminutehandlinewidth'));
+  minuteHandLineWidth.set_value(_settings.get_double('faceminutehandlinewidth'));
   minuteHandLineWidth.set_increments(0.01, 0.1);
   minuteHandLineWidth.connect('value-changed', w => {
-      this.settings.set_double('faceminutehandlinewidth', w.get_value());
+      _settings.set_double('faceminutehandlinewidth', w.get_value());
   });
   prefsWidget.attach(minuteHandLineWidth, 1, minuteHandLineRow, 1, 1);
 
@@ -1986,10 +1992,10 @@ function buildHandPage () {
   });
   minuteHandLineLength.set_sensitive(true);
   minuteHandLineLength.set_range(0.0, 1.0);
-  minuteHandLineLength.set_value(this.settings.get_double('faceminutehandlinelength'));
+  minuteHandLineLength.set_value(_settings.get_double('faceminutehandlinelength'));
   minuteHandLineLength.set_increments(0.01, 0.1);
   minuteHandLineLength.connect('value-changed', w => {
-      this.settings.set_double('faceminutehandlinelength', w.get_value());
+      _settings.set_double('faceminutehandlinelength', w.get_value());
   });
   prefsWidget.attach(minuteHandLineLength, 2, minuteHandLineRow, 1, 1);
 
@@ -2003,13 +2009,13 @@ function buildHandPage () {
   prefsWidget.attach(toggleMinuteHandFilledLabel, 0, minuteHandFilledToggleRow, 1, 1);
 
   let toggleMinuteHandFilled = new Gtk.Switch({
-    active: this.settings.get_boolean("faceminutehandfilled"),
+    active: _settings.get_boolean("faceminutehandfilled"),
     halign: Gtk.Align.END,
     visible: true
   });
   prefsWidget.attach(toggleMinuteHandFilled, 1, minuteHandFilledToggleRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'faceminutehandfilled',
     toggleMinuteHandFilled,
     'active',
@@ -2017,14 +2023,14 @@ function buildHandPage () {
   );
 
   let toggleMinuteHandEyed = new Gtk.Switch({
-    active: this.settings.get_boolean("faceminutehandeyed"),
+    active: _settings.get_boolean("faceminutehandeyed"),
     halign: Gtk.Align.END,
     vexpand: false,
     visible: true
   });
   prefsWidget.attach(toggleMinuteHandEyed, 2, minuteHandFilledToggleRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'faceminutehandeyed',
     toggleMinuteHandEyed,
     'active',
@@ -2032,14 +2038,14 @@ function buildHandPage () {
   );
 
   let toggleMinuteHandTailed = new Gtk.Switch({
-    active: this.settings.get_boolean("faceminutehandtailed"),
+    active: _settings.get_boolean("faceminutehandtailed"),
     halign: Gtk.Align.END,
     vexpand: false,
     visible: true
   });
   prefsWidget.attach(toggleMinuteHandTailed, 3, minuteHandFilledToggleRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'faceminutehandtailed',
     toggleMinuteHandTailed,
     'active',
@@ -2047,14 +2053,14 @@ function buildHandPage () {
   );
 
   let toggleMinuteHandFinned = new Gtk.Switch({
-    active: this.settings.get_boolean("faceminutehandfinned"),
+    active: _settings.get_boolean("faceminutehandfinned"),
     halign: Gtk.Align.END,
     vexpand: false,
     visible: true
   });
   prefsWidget.attach(toggleMinuteHandFinned, 4, minuteHandFilledToggleRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'faceminutehandfinned',
     toggleMinuteHandFinned,
     'active',
@@ -2076,10 +2082,10 @@ function buildHandPage () {
   });
   spinFaceMinuteHandColor_R.set_sensitive(true);
   spinFaceMinuteHandColor_R.set_range(0.0, 1.0);
-  spinFaceMinuteHandColor_R.set_value(this.settings.get_double('faceminutehandcolor-r'));
+  spinFaceMinuteHandColor_R.set_value(_settings.get_double('faceminutehandcolor-r'));
   spinFaceMinuteHandColor_R.set_increments(0.01, 0.1);
   spinFaceMinuteHandColor_R.connect('value-changed', w => {
-      this.settings.set_double('faceminutehandcolor-r', w.get_value());
+      _settings.set_double('faceminutehandcolor-r', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceMinuteHandColor
@@ -2100,10 +2106,10 @@ function buildHandPage () {
   });
   spinFaceMinuteHandColor_G.set_sensitive(true);
   spinFaceMinuteHandColor_G.set_range(0.0, 1.0);
-  spinFaceMinuteHandColor_G.set_value(this.settings.get_double('faceminutehandcolor-g'));
+  spinFaceMinuteHandColor_G.set_value(_settings.get_double('faceminutehandcolor-g'));
   spinFaceMinuteHandColor_G.set_increments(0.01, 0.1);
   spinFaceMinuteHandColor_G.connect('value-changed', w => {
-      this.settings.set_double('faceminutehandcolor-g', w.get_value());
+      _settings.set_double('faceminutehandcolor-g', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceMinuteHandColor
@@ -2124,10 +2130,10 @@ function buildHandPage () {
   });
   spinFaceMinuteHandColor_B.set_sensitive(true);
   spinFaceMinuteHandColor_B.set_range(0.0, 1.0);
-  spinFaceMinuteHandColor_B.set_value(this.settings.get_double('faceminutehandcolor-b'));
+  spinFaceMinuteHandColor_B.set_value(_settings.get_double('faceminutehandcolor-b'));
   spinFaceMinuteHandColor_B.set_increments(0.01, 0.1);
   spinFaceMinuteHandColor_B.connect('value-changed', w => {
-      this.settings.set_double('faceminutehandcolor-b', w.get_value());
+      _settings.set_double('faceminutehandcolor-b', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceMinuteHandColor
@@ -2148,10 +2154,10 @@ function buildHandPage () {
   });
   spinFaceMinuteHandColor_A.set_sensitive(true);
   spinFaceMinuteHandColor_A.set_range(0.0, 1.0);
-  spinFaceMinuteHandColor_A.set_value(this.settings.get_double('faceminutehandcolor-a'));
+  spinFaceMinuteHandColor_A.set_value(_settings.get_double('faceminutehandcolor-a'));
   spinFaceMinuteHandColor_A.set_increments(0.01, 0.1);
   spinFaceMinuteHandColor_A.connect('value-changed', w => {
-      this.settings.set_double('faceminutehandcolor-a', w.get_value());
+      _settings.set_double('faceminutehandcolor-a', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceMinuteHandColor
@@ -2169,10 +2175,10 @@ function buildHandPage () {
   let buttonFaceMinuteHandColor = new Gtk.ColorButton({halign: Gtk.Align.END});
   buttonFaceMinuteHandColor.set_use_alpha(true);
   _colorSet = new Gdk.RGBA();
-  _colorSet.red = this.settings.get_double('faceminutehandcolor-r');
-  _colorSet.green = this.settings.get_double('faceminutehandcolor-g');
-  _colorSet.blue = this.settings.get_double('faceminutehandcolor-b');
-  _colorSet.alpha = this.settings.get_double('faceminutehandcolor-a');
+  _colorSet.red = _settings.get_double('faceminutehandcolor-r');
+  _colorSet.green = _settings.get_double('faceminutehandcolor-g');
+  _colorSet.blue = _settings.get_double('faceminutehandcolor-b');
+  _colorSet.alpha = _settings.get_double('faceminutehandcolor-a');
   buttonFaceMinuteHandColor.set_rgba(_colorSet);
   buttonFaceMinuteHandColor.connect("color_set", () => {
     Common.myDebugLog('buttonFaceMinuteHandColor.rgba       : ' + buttonFaceMinuteHandColor.rgba.to_string());
@@ -2202,10 +2208,10 @@ function buildHandPage () {
   });
   secondHandLineWidth.set_sensitive(true);
   secondHandLineWidth.set_range(0.0, 1.0);
-  secondHandLineWidth.set_value(this.settings.get_double('facesecondhandlinewidth'));
+  secondHandLineWidth.set_value(_settings.get_double('facesecondhandlinewidth'));
   secondHandLineWidth.set_increments(0.01, 0.1);
   secondHandLineWidth.connect('value-changed', w => {
-      this.settings.set_double('facesecondhandlinewidth', w.get_value());
+      _settings.set_double('facesecondhandlinewidth', w.get_value());
   });
   prefsWidget.attach(secondHandLineWidth, 1, secondHandLineRow, 1, 1);
 
@@ -2215,10 +2221,10 @@ function buildHandPage () {
   });
   secondHandLineLength.set_sensitive(true);
   secondHandLineLength.set_range(0.0, 1.0);
-  secondHandLineLength.set_value(this.settings.get_double('facesecondhandlinelength'));
+  secondHandLineLength.set_value(_settings.get_double('facesecondhandlinelength'));
   secondHandLineLength.set_increments(0.01, 0.1);
   secondHandLineLength.connect('value-changed', w => {
-      this.settings.set_double('facesecondhandlinelength', w.get_value());
+      _settings.set_double('facesecondhandlinelength', w.get_value());
   });
   prefsWidget.attach(secondHandLineLength, 2, secondHandLineRow, 1, 1);
 
@@ -2232,14 +2238,14 @@ function buildHandPage () {
   prefsWidget.attach(toggleSecondHandFilledLabel, 0, secondHandFilledToggleRow, 1, 1);
 
   let toggleSecondHandFilled = new Gtk.Switch({
-    active: this.settings.get_boolean("facesecondhandfilled"),
+    active: _settings.get_boolean("facesecondhandfilled"),
     halign: Gtk.Align.END,
     vexpand: false,
     visible: true
   });
   prefsWidget.attach(toggleSecondHandFilled, 1, secondHandFilledToggleRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'facesecondhandfilled',
     toggleSecondHandFilled,
     'active',
@@ -2247,14 +2253,14 @@ function buildHandPage () {
   );
 
   let toggleSecondHandEyed = new Gtk.Switch({
-    active: this.settings.get_boolean("facesecondhandeyed"),
+    active: _settings.get_boolean("facesecondhandeyed"),
     halign: Gtk.Align.END,
     vexpand: false,
     visible: true
   });
   prefsWidget.attach(toggleSecondHandEyed, 2, secondHandFilledToggleRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'facesecondhandeyed',
     toggleSecondHandEyed,
     'active',
@@ -2262,14 +2268,14 @@ function buildHandPage () {
   );
 
   let toggleSecondHandTailed = new Gtk.Switch({
-    active: this.settings.get_boolean("facesecondhandtailed"),
+    active: _settings.get_boolean("facesecondhandtailed"),
     halign: Gtk.Align.END,
     vexpand: false,
     visible: true
   });
   prefsWidget.attach(toggleSecondHandTailed, 3, secondHandFilledToggleRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'facesecondhandtailed',
     toggleSecondHandTailed,
     'active',
@@ -2277,14 +2283,14 @@ function buildHandPage () {
   );
 
   let toggleSecondHandFinned = new Gtk.Switch({
-    active: this.settings.get_boolean("facesecondhandfinned"),
+    active: _settings.get_boolean("facesecondhandfinned"),
     halign: Gtk.Align.END,
     vexpand: false,
     visible: true
   });
   prefsWidget.attach(toggleSecondHandFinned, 4, secondHandFilledToggleRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'facesecondhandfinned',
     toggleSecondHandFinned,
     'active',
@@ -2306,10 +2312,10 @@ function buildHandPage () {
   });
   spinFaceSecondHandColor_R.set_sensitive(true);
   spinFaceSecondHandColor_R.set_range(0.0, 1.0);
-  spinFaceSecondHandColor_R.set_value(this.settings.get_double('facesecondhandcolor-r'));
+  spinFaceSecondHandColor_R.set_value(_settings.get_double('facesecondhandcolor-r'));
   spinFaceSecondHandColor_R.set_increments(0.01, 0.1);
   spinFaceSecondHandColor_R.connect('value-changed', w => {
-      this.settings.set_double('facesecondhandcolor-r', w.get_value());
+      _settings.set_double('facesecondhandcolor-r', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceSecondHandColor
@@ -2330,10 +2336,10 @@ function buildHandPage () {
   });
   spinFaceSecondHandColor_G.set_sensitive(true);
   spinFaceSecondHandColor_G.set_range(0.0, 1.0);
-  spinFaceSecondHandColor_G.set_value(this.settings.get_double('facesecondhandcolor-g'));
+  spinFaceSecondHandColor_G.set_value(_settings.get_double('facesecondhandcolor-g'));
   spinFaceSecondHandColor_G.set_increments(0.01, 0.1);
   spinFaceSecondHandColor_G.connect('value-changed', w => {
-      this.settings.set_double('facesecondhandcolor-g', w.get_value());
+      _settings.set_double('facesecondhandcolor-g', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceSecondHandColor
@@ -2354,10 +2360,10 @@ function buildHandPage () {
   });
   spinFaceSecondHandColor_B.set_sensitive(true);
   spinFaceSecondHandColor_B.set_range(0.0, 1.0);
-  spinFaceSecondHandColor_B.set_value(this.settings.get_double('facesecondhandcolor-b'));
+  spinFaceSecondHandColor_B.set_value(_settings.get_double('facesecondhandcolor-b'));
   spinFaceSecondHandColor_B.set_increments(0.01, 0.1);
   spinFaceSecondHandColor_B.connect('value-changed', w => {
-      this.settings.set_double('facesecondhandcolor-b', w.get_value());
+      _settings.set_double('facesecondhandcolor-b', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceSecondHandColor
@@ -2378,10 +2384,10 @@ function buildHandPage () {
   });
   spinFaceSecondHandColor_A.set_sensitive(true);
   spinFaceSecondHandColor_A.set_range(0.0, 1.0);
-  spinFaceSecondHandColor_A.set_value(this.settings.get_double('facesecondhandcolor-a'));
+  spinFaceSecondHandColor_A.set_value(_settings.get_double('facesecondhandcolor-a'));
   spinFaceSecondHandColor_A.set_increments(0.01, 0.1);
   spinFaceSecondHandColor_A.connect('value-changed', w => {
-      this.settings.set_double('facesecondhandcolor-a', w.get_value());
+      _settings.set_double('facesecondhandcolor-a', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceSecondHandColor
@@ -2399,10 +2405,10 @@ function buildHandPage () {
   let buttonFaceSecondHandColor = new Gtk.ColorButton({halign: Gtk.Align.END});
   buttonFaceSecondHandColor.set_use_alpha(true);
   _colorSet = new Gdk.RGBA();
-  _colorSet.red = this.settings.get_double('facesecondhandcolor-r');
-  _colorSet.green = this.settings.get_double('facesecondhandcolor-g');
-  _colorSet.blue = this.settings.get_double('facesecondhandcolor-b');
-  _colorSet.alpha = this.settings.get_double('facesecondhandcolor-a');
+  _colorSet.red = _settings.get_double('facesecondhandcolor-r');
+  _colorSet.green = _settings.get_double('facesecondhandcolor-g');
+  _colorSet.blue = _settings.get_double('facesecondhandcolor-b');
+  _colorSet.alpha = _settings.get_double('facesecondhandcolor-a');
   buttonFaceSecondHandColor.set_rgba(_colorSet);
   buttonFaceSecondHandColor.connect("color_set", () => {
     Common.myDebugLog('buttonFaceSecondHandColor.rgba       : ' + buttonFaceSecondHandColor.rgba.to_string());
@@ -2421,7 +2427,7 @@ function buildHandPage () {
   return prefsWidget;
 }
 
-function buildShadowPage () {
+function buildShadowPage (_this, _settings) {
   Common.myDebugLog('Entering prefs.js buildShadowPage()');
 
   let _colorSet;
@@ -2439,7 +2445,7 @@ function buildShadowPage () {
   // Title...
 
   let title = new Gtk.Label({
-    label: `<b>${Me.metadata.name} (V.${Me.metadata.version}) - Shadow</b>`,
+    label: `<b>${_this.metadata.name} (V.${_this.metadata.version}) - Shadow</b>`,
     halign: Gtk.Align.START,
     use_markup: true,
     visible: true
@@ -2458,13 +2464,13 @@ function buildShadowPage () {
   prefsWidget.attach(toggleDialShadowHandLabel, 0, faceDialShadowRow, 1, 1);
 
   let toggleDialShadowHand = new Gtk.Switch({
-    active: this.settings.get_boolean("faceshadowhand"),
+    active: _settings.get_boolean("faceshadowhand"),
     halign: Gtk.Align.END,
     visible: true
   });
   prefsWidget.attach(toggleDialShadowHand, 1, faceDialShadowRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'faceshadowhand',
     toggleDialShadowHand,
     'active',
@@ -2481,13 +2487,13 @@ function buildShadowPage () {
   prefsWidget.attach(toggleDialShadowTickLabel, 0, faceDialShadowRow, 1, 1);
 
   let toggleDialShadowTick = new Gtk.Switch({
-    active: this.settings.get_boolean("faceshadowtick"),
+    active: _settings.get_boolean("faceshadowtick"),
     halign: Gtk.Align.END,
     visible: true
   });
   prefsWidget.attach(toggleDialShadowTick, 1, faceDialShadowRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'faceshadowtick',
     toggleDialShadowTick,
     'active',
@@ -2504,13 +2510,13 @@ function buildShadowPage () {
   prefsWidget.attach(toggleDialShadowNumberLabel, 0, faceDialShadowRow, 1, 1);
 
   let toggleDialShadowNumber = new Gtk.Switch({
-    active: this.settings.get_boolean("faceshadownumber"),
+    active: _settings.get_boolean("faceshadownumber"),
     halign: Gtk.Align.END,
     visible: true
   });
   prefsWidget.attach(toggleDialShadowNumber, 1, faceDialShadowRow, 1, 1);
 
-  this.settings.bind(
+  _settings.bind(
     'faceshadownumber',
     toggleDialShadowNumber,
     'active',
@@ -2532,10 +2538,10 @@ function buildShadowPage () {
   });
   faceDialShadowX.set_sensitive(true);
   faceDialShadowX.set_range(0.0, 1.0);
-  faceDialShadowX.set_value(this.settings.get_double('faceshadowoffsetx'));
+  faceDialShadowX.set_value(_settings.get_double('faceshadowoffsetx'));
   faceDialShadowX.set_increments(0.01, 0.1);
   faceDialShadowX.connect('value-changed', w => {
-      this.settings.set_double('faceshadowoffsetx', w.get_value());
+      _settings.set_double('faceshadowoffsetx', w.get_value());
   });
   prefsWidget.attach(faceDialShadowX, 1, faceDialShadowRow, 1, 1);
 
@@ -2545,10 +2551,10 @@ function buildShadowPage () {
   });
   faceDialShadowY.set_sensitive(true);
   faceDialShadowY.set_range(0.0, 1.0);
-  faceDialShadowY.set_value(this.settings.get_double('faceshadowoffsety'));
+  faceDialShadowY.set_value(_settings.get_double('faceshadowoffsety'));
   faceDialShadowY.set_increments(0.01, 0.1);
   faceDialShadowY.connect('value-changed', w => {
-      this.settings.set_double('faceshadowoffsety', w.get_value());
+      _settings.set_double('faceshadowoffsety', w.get_value());
   });
   prefsWidget.attach(faceDialShadowY, 2, faceDialShadowRow, 1, 1);
 
@@ -2567,10 +2573,10 @@ function buildShadowPage () {
   });
   spinFaceDialShadowColor_R.set_sensitive(true);
   spinFaceDialShadowColor_R.set_range(0.0, 1.0);
-  spinFaceDialShadowColor_R.set_value(this.settings.get_double('faceshadowcolor-r'));
+  spinFaceDialShadowColor_R.set_value(_settings.get_double('faceshadowcolor-r'));
   spinFaceDialShadowColor_R.set_increments(0.01, 0.1);
   spinFaceDialShadowColor_R.connect('value-changed', w => {
-      this.settings.set_double('faceshadowcolor-r', w.get_value());
+      _settings.set_double('faceshadowcolor-r', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceDialShadowColor
@@ -2591,10 +2597,10 @@ function buildShadowPage () {
   });
   spinFaceDialShadowColor_G.set_sensitive(true);
   spinFaceDialShadowColor_G.set_range(0.0, 1.0);
-  spinFaceDialShadowColor_G.set_value(this.settings.get_double('faceshadowcolor-g'));
+  spinFaceDialShadowColor_G.set_value(_settings.get_double('faceshadowcolor-g'));
   spinFaceDialShadowColor_G.set_increments(0.01, 0.1);
   spinFaceDialShadowColor_G.connect('value-changed', w => {
-      this.settings.set_double('faceshadowcolor-g', w.get_value());
+      _settings.set_double('faceshadowcolor-g', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceDialShadowColor
@@ -2615,10 +2621,10 @@ function buildShadowPage () {
   });
   spinFaceDialShadowColor_B.set_sensitive(true);
   spinFaceDialShadowColor_B.set_range(0.0, 1.0);
-  spinFaceDialShadowColor_B.set_value(this.settings.get_double('faceshadowcolor-b'));
+  spinFaceDialShadowColor_B.set_value(_settings.get_double('faceshadowcolor-b'));
   spinFaceDialShadowColor_B.set_increments(0.01, 0.1);
   spinFaceDialShadowColor_B.connect('value-changed', w => {
-      this.settings.set_double('faceshadowcolor-b', w.get_value());
+      _settings.set_double('faceshadowcolor-b', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceDialShadowColor
@@ -2639,10 +2645,10 @@ function buildShadowPage () {
   });
   spinFaceDialShadowColor_A.set_sensitive(true);
   spinFaceDialShadowColor_A.set_range(0.0, 1.0);
-  spinFaceDialShadowColor_A.set_value(this.settings.get_double('faceshadowcolor-a'));
+  spinFaceDialShadowColor_A.set_value(_settings.get_double('faceshadowcolor-a'));
   spinFaceDialShadowColor_A.set_increments(0.01, 0.1);
   spinFaceDialShadowColor_A.connect('value-changed', w => {
-      this.settings.set_double('faceshadowcolor-a', w.get_value());
+      _settings.set_double('faceshadowcolor-a', w.get_value());
       //
       let _color = new Gdk.RGBA();
       let couplingControl = buttonFaceDialShadowColor
@@ -2660,10 +2666,10 @@ function buildShadowPage () {
   let buttonFaceDialShadowColor = new Gtk.ColorButton({halign: Gtk.Align.END});
   buttonFaceDialShadowColor.set_use_alpha(true);
   _colorSet = new Gdk.RGBA();
-  _colorSet.red = this.settings.get_double('faceshadowcolor-r');
-  _colorSet.green = this.settings.get_double('faceshadowcolor-g');
-  _colorSet.blue = this.settings.get_double('faceshadowcolor-b');
-  _colorSet.alpha = this.settings.get_double('faceshadowcolor-a');
+  _colorSet.red = _settings.get_double('faceshadowcolor-r');
+  _colorSet.green = _settings.get_double('faceshadowcolor-g');
+  _colorSet.blue = _settings.get_double('faceshadowcolor-b');
+  _colorSet.alpha = _settings.get_double('faceshadowcolor-a');
   buttonFaceDialShadowColor.set_rgba(_colorSet);
   buttonFaceDialShadowColor.connect("color_set", () => {
     Common.myDebugLog('buttonFaceDialShadowColor.rgba       : ' + buttonFaceDialShadowColor.rgba.to_string());

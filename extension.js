@@ -105,9 +105,9 @@ function areaInit() {
     Common.myDebugLog('Initializing "area" as St.DrawingArea(' + clockWidth + ',' + clockHeight + ')...');
     area = new St.DrawingArea({
         style_class : 'bg-color',
-        reactive : true,
-        can_focus : true,
-        track_hover : true,
+        reactive : false,
+        can_focus : false,
+        track_hover : false,
         width: clockWidth,
         height: clockHeight
     });
@@ -115,6 +115,14 @@ function areaInit() {
     setClockPosition();
 
     /*
+    area = new St.DrawingArea({
+        style_class : 'bg-color',
+        reactive : true,
+        can_focus : true,
+        track_hover : true,
+        width: clockWidth,
+        height: clockHeight
+    });
 
     area.connect("enter-event", () => {
         Common.myDebugLog('entered');
