@@ -17,6 +17,7 @@ Since V.5 it sports a set of distraction free configuration settings, hiding the
 Version 8 (and younger) of this Plugin (still work in progress) supports the following Versions of Gnome Shell
 
 * 45 - Tested with Fedora - Gnome and Manjaro - Gnome
+* 46 - Tested with Manjaro - Gnome
 
 ### Legacy Gnome Shell (before 45)
 
