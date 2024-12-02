@@ -4,7 +4,8 @@
     "description" : "Shows a customizeable analog desktop clock.\nPlease visit the GitHub repository for documentation and to report any issues.",
     "shell-version" : [
         "45",
-        "46"
+        "46",
+        "47"
     ],
     "url" : "https://github.com/Zappo-II/WhatWatch",
     "gettext-domain" : "WhatWatch@Zappo-II.github.io",
@@ -13,7 +14,7 @@
         "user"
       ],
     "version" : 8,
-    "version-name" : "8.1",
+    "version-name" : "8.2",
     "donations": {
         "github": "Zappo-II"
     }
