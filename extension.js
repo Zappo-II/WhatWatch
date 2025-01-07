@@ -47,7 +47,7 @@ export default class WhatWatchExtension extends Extension {
         Common.setMetaData(this.metadata.name, this.metadata.version);
         Common.myDebugLog('Entering init()');
         //
-        this.initTranslations();
+        //this.initTranslations();
         //
         Common.myDebugLog('Exiting init()');
     }

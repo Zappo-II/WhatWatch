@@ -25,7 +25,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       Common.setMetaData(metadata.name, metadata.version);
       Common.myDebugLog('Entering WhatWatchPreferences.constructor()');
       //
-      this.initTranslations();
+      //this.initTranslations();
       //
       Common.myDebugLog('Exiting WhatWatchPreferences.constructor()');
   }

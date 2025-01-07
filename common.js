@@ -26,16 +26,19 @@ export function setMetaData(myName, myVersion) {
 
 export function myDebugLog(msg) {
     if (debugLogging) {
-        log('' + logPrefix('[DEBUG]') + ' - ' + msg + '');
+        //log('' + logPrefix('[DEBUG]') + ' - ' + msg + '');
+        console.debug('' + logPrefix('[DEBUG]') + ' - ' + msg + '');
     }
 }
 
 export function myErrorLog(e, msg) {
-    logError(e, '' + logPrefix('[ERROR]') + ' - ' + msg + '');
+    //logError(e, '' + logPrefix('[ERROR]') + ' - ' + msg + '');
+    console.error(e, '' + logPrefix('[ERROR]') + ' - ' + msg + '');
 }
 
 export function myLog(msg) {
-    log('' + logPrefix('') + '' + msg + '');
+    //log('' + logPrefix('') + '' + msg + '');
+    console.log('' + logPrefix('') + '' + msg + '');
 }
 
 export function logPrefix(msg) {

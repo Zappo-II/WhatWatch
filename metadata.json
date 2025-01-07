@@ -10,11 +10,8 @@
     "url" : "https://github.com/Zappo-II/WhatWatch",
     "gettext-domain" : "WhatWatch@Zappo-II.github.io",
     "settings-schema": "org.gnome.shell.extensions.zappoii.whatwatch",
-    "session-modes": [
-        "user"
-      ],
     "version" : 8,
-    "version-name" : "8.2",
+    "version-name" : "8.3",
     "donations": {
         "github": "Zappo-II"
     }
