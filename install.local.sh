@@ -28,8 +28,7 @@ if [ -f "${installDir}.shell-extension.zip" ]; then
 fi
 
 echo "Create: gnome-extensions pack ${gettextDomain}"
-#gnome-extensions pack --force --podir="./po" --gettext-domain="${gettextDomain}" --schema="./schemas/${settingsSchema}.gschema.xml" --extra-source=common.js .
-gnome-extensions pack --force --podir="./po" --gettext-domain="${gettextDomain}" --schema="./schemas/gschemas.compiled" --extra-source=common.js .
+gnome-extensions pack --force --podir="./po" --gettext-domain="${gettextDomain}" --schema="./schemas/${settingsSchema}.gschema.xml" --extra-source=common.js .
 
 if [ ! -f "${installDir}.shell-extension.zip" ]; then
 	echo "PANIC: gnome-extension pack failed..."
@@ -38,11 +37,11 @@ fi
 
 if [ -d "${installPath}${installDir}" ]; then
     echo "Remove: ${installPath}${installDir}"
-    rm -r "${installPath}${installDir}" > /dev/null 2>&1
+    gnome-extensions uninstall ${installDir}
 fi
 
 echo "Install: ${installPath}${installDir}"
-unzip ${installDir}.shell-extension.zip -d ${installPath}${installDir}
+gnome-extensions install --force ${installDir}.shell-extension.zip
 
 if [ -f "${theZip}" ]; then
     echo "Remove: Old ${theZip}"
