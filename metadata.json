@@ -5,13 +5,14 @@
     "shell-version" : [
         "45",
         "46",
-        "47"
+        "47",
+        "48"
     ],
     "url" : "https://github.com/Zappo-II/WhatWatch",
     "gettext-domain" : "WhatWatch@Zappo-II.github.io",
     "settings-schema": "org.gnome.shell.extensions.zappoii.whatwatch",
     "version" : 8,
-    "version-name" : "8.4",
+    "version-name" : "8.5",
     "donations": {
         "github": "Zappo-II"
     }
