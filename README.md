@@ -20,6 +20,7 @@ Version 8 (and younger) of this Plugin (still work in progress) supports the fol
 * 46 - Tested with Manjaro - Gnome
 * 47 - Tested with Manjaro - Gnome
 * 48 - Tested with Manjaro - Gnome
+* 49 - Tested with Manjaro - Gnome
 
 ### Legacy Gnome Shell (before 45)
 
