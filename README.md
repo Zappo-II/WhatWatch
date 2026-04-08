@@ -14,13 +14,14 @@ Since V.5 it sports a set of distraction free configuration settings, hiding the
 
 ### Current Gnome Shell (45 and possibly younger)
 
-Version 8 (and younger) of this Plugin (still work in progress) supports the following Versions of Gnome Shell
+Version 8 (and younger) of this Plugin supports the following Versions of Gnome Shell
 
 * 45 - Tested with Fedora - Gnome and Manjaro - Gnome
 * 46 - Tested with Manjaro - Gnome
 * 47 - Tested with Manjaro - Gnome
 * 48 - Tested with Manjaro - Gnome
 * 49 - Tested with Manjaro - Gnome
+* 50 - Tested with Arch Linux - Gnome
 
 ### Legacy Gnome Shell (before 45)
 

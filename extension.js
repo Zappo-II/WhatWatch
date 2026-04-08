@@ -19,6 +19,7 @@ import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Cairo from 'gi://cairo';
 import {Extension, gettext as _, ngettext, pgettext} from 'resource:///org/gnome/shell/extensions/extension.js';
+import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 
 import * as Common from './common.js';
 
@@ -114,40 +115,18 @@ function areaInit() {
 
     setClockPosition();
 
-    /*
-    area = new St.DrawingArea({
-        style_class : 'bg-color',
-        reactive : true,
-        can_focus : true,
-        track_hover : true,
-        width: clockWidth,
-        height: clockHeight
-    });
-
-    area.connect("enter-event", () => {
-        Common.myDebugLog('entered');
-    });
-    
-    area.connect("leave-event", () => {
-        Common.myDebugLog('left');
-    });
-
-    area.connect("button-press-event", () => {
-        Common.myDebugLog('clicked');
-        test();
-    });
-
-    */
-
     Common.myDebugLog('Connecting "area - repaint" to local function drawClock()...');
     repaintHandlerID = area.connect('repaint', (area) => drawClock(area));
 
     Common.myDebugLog('Adding "area" to LayoutManager...');
-    Main.layoutManager.addChrome(area, {
-        affectsInputRegion : false,
+    let chromeParams = {
         affectsStruts : false,
         trackFullscreen : config.trackFullscreen
-    });
+    };
+    if (parseInt(Config.PACKAGE_VERSION) < 50)
+        chromeParams.affectsInputRegion = false;
+
+    Main.layoutManager.addChrome(area, chromeParams);
     areaActive = true;
 
 }
