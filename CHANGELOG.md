@@ -2,6 +2,29 @@
 
 All notable changes to WhatWatch will be documented in this file.
 
+## v17 - Monitor Selection, Bug Fixes and German Translation
+
+### New
+- Choose which monitor shows the clock (General > Monitor). The monitor is stored by connector name (e.g. `DP-2`); if it is not connected, the clock falls back to the primary monitor
+- The clock is rebuilt when monitors are added, removed or rearranged
+
+### Fixes
+- Minimized or hidden windows no longer hide the clock when "Hide When Overlapped" is enabled
+- A window without a workspace can no longer stop the clock; errors in the update timer are now logged instead of stopping it
+- Clock width/height can no longer be set below 16 pixels (0 broke drawing)
+- Shadow offset X/Y can now be negative (range -1.0 to 1.0), so shadows can fall left or up
+
+### Improvements
+- Settings are no longer polled 10 times per second; the extension reacts to setting changes via the `changed` signal
+- All spin rows in the preferences are bound to their settings, so changes made via `gsettings`/`dconf` show up in an open dialog
+- The preferences dialog now disconnects its debug-setting handler when it closes
+- German translation completed (150/150 strings) and fixed a broken format string
+
+### Cleanup
+- Remove unused code (`test()`) and unused imports
+- `install.local.sh` drops `POT-Creation-Date` from the generated `.pot`, so it no longer shows up as changed after every build
+- Fix schema descriptions: clock width/height default to 256, not 128
+
 ## v16 - GNOME 51 Compatibility
 
 - Add GNOME Shell 51 to supported versions

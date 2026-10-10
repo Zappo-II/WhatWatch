@@ -38,16 +38,22 @@
       <description>Select the clock's on screen position. Defaults to 'default'.</description>
     </key>
 
+    <key name="monitor" type="s">
+      <default>""</default>
+      <summary>The monitor showing the clock</summary>
+      <description>Connector name of the monitor showing the clock (e.g. 'DP-2'). Empty means the primary monitor, which is also used if the monitor is not connected.</description>
+    </key>
+
     <key name="clockwidth" type="i">
       <default>256</default>
       <summary>The clock's width</summary>
-      <description>Select the clock's width on screen. Defaults to 128.</description>
+      <description>Select the clock's width on screen. Defaults to 256.</description>
     </key>
 
     <key name="clockheight" type="i">
       <default>256</default>
       <summary>The clock's height</summary>
-      <description>Select the clock's height on screen. Defaults to 128.</description>
+      <description>Select the clock's height on screen. Defaults to 256.</description>
     </key>
 
     <key name="trackfullscreen" type="b">

@@ -14,11 +14,10 @@
 
 import St from 'gi://St';
 import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
 import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Cairo from 'gi://cairo';
-import {Extension, gettext as _, ngettext, pgettext} from 'resource:///org/gnome/shell/extensions/extension.js';
+import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 
 import * as Common from './common.js';
@@ -30,6 +29,9 @@ var area = null;
 var config = null;
 var settings = null;
 let timeout = null;
+let settingsChangedID = null;
+let monitorsChangedID = null;
+let forceResetPending = false;
 //
 let clockBox = { x1:0, y1:0, x2: 0, y2:0};
 let areaActive = false;
@@ -62,6 +64,27 @@ export default class WhatWatchExtension extends Extension {
 
         Common.myDebugLog('Entering enable() - After initialisation of Common.debugLogging...');
 
+        // Connect before areaInit() reads the keys - GSettings only emits
+        // "changed" for keys that were read while a handler was connected
+        Common.myDebugLog('Connecting "settings - changed" to readSettings()...');
+        settingsChangedID = settings.connect('changed', (mySettings, key) => {
+            if (key === 'forcereset') {
+                if (mySettings.get_boolean(key)) {
+                    forceResetPending = true;
+                    mySettings.set_boolean(key, false);
+                }
+                return;
+            }
+            config = readSettings();
+        });
+        settings.set_boolean("forcereset", false);
+
+        // Rebuild the clock when monitors are added, removed or rearranged
+        Common.myDebugLog('Connecting "layoutManager - monitors-changed"...');
+        monitorsChangedID = Main.layoutManager.connect('monitors-changed', () => {
+            forceResetPending = true;
+        });
+
         areaInit();
 
         Common.myDebugLog('Adding callback (clockTimeOut()) "timeout" with 100ms to Source context...');
@@ -69,8 +92,12 @@ export default class WhatWatchExtension extends Extension {
             if (timerdebug) {
                 Common.myDebugLog('TimeOut triggered...');
             }
-            clockTimeOut();
-            return true;
+            try {
+                clockTimeOut();
+            } catch (e) {
+                Common.myErrorLog(e, 'clockTimeOut');
+            }
+            return GLib.SOURCE_CONTINUE;
         });
 
         Common.myLog(`${this.metadata.name} is enabled now...`);
@@ -86,8 +113,20 @@ export default class WhatWatchExtension extends Extension {
             timeout = null;
         }
         //
+        if (settingsChangedID) {
+            Common.myDebugLog('Disconnecting "settings - changed"...');
+            settings.disconnect(settingsChangedID);
+            settingsChangedID = null;
+        }
+        if (monitorsChangedID) {
+            Common.myDebugLog('Disconnecting "layoutManager - monitors-changed"...');
+            Main.layoutManager.disconnect(monitorsChangedID);
+            monitorsChangedID = null;
+        }
+        //
         areaDestroy();
         //
+        forceResetPending = false;
         config = null;
         settings = null;
         //
@@ -159,7 +198,7 @@ function setClockPosition() {
     const marginTop = config.marginTop;
     const marginSide = config.marginSide;
     //
-    let pMonitor = Main.layoutManager.primaryMonitor;
+    let pMonitor = getClockMonitor();
 
     switch (clockPosition) {
         case "center-left":
@@ -200,14 +239,26 @@ function setClockPosition() {
 
 }
 
+function getClockMonitor() {
+    // The configured monitor (by connector name, e.g. 'DP-2'), falling back to
+    // the primary monitor when none is set or it is not connected
+    const layoutManager = Main.layoutManager;
+    if (config.monitor) {
+        const index = global.backend.get_monitor_manager().get_monitor_for_connector(config.monitor);
+        if (index >= 0 && index < layoutManager.monitors.length) {
+            return layoutManager.monitors[index];
+        }
+    }
+    return layoutManager.primaryMonitor;
+}
+
 function clockTimeOut() {
     let increment = 0;
     let forcereset = false;
 
-    config = readSettings();
-    forcereset = config.forcereset;
-    settings.set_boolean("forcereset", false);
-    
+    forcereset = forceResetPending;
+    forceResetPending = false;
+
     if (forcereset) {
         if (areaActive) {
             areaDestroy();
@@ -915,6 +966,7 @@ function readSettings() {
         //
         theSettings.clockStyle = settings.get_string("clockstyle");
         theSettings.clockPosition = settings.get_string("clockposition");
+        theSettings.monitor = settings.get_string("monitor");
         //
         theSettings.trackFullscreen = settings.get_boolean("trackfullscreen");
         theSettings.forcereset = settings.get_boolean("forcereset");
@@ -1001,29 +1053,6 @@ function readSettings() {
 
 }
 
-function test() {
-    /*
-        * Dead Code - Experimental...
-        */
-    let myLayoutManager = Main.layoutManager;
-
-    Common.myLog('Display: Test Monitor Output...');
-    Common.myLog('Display: Primary Monitor ' + myLayoutManager.primaryMonitor.index);
-    //Common.myLog('Display: ' + JSON.stringify(myLayoutManager.primaryMonitor, null, 2));
-    Common.myLog('Display: Current Monitor ' + myLayoutManager.currentMonitor.index);
-    //Common.myLog('Display: ' + JSON.stringify(myLayoutManager.currentMonitor, null, 2));
-    Common.myLog('Display: Monitors');
-    Common.myLog('Display: ' + JSON.stringify(myLayoutManager.monitors, null, 2));
-    Common.myLog('Display: Iterating each Monitor');
-    for (let myMonitor in myLayoutManager.monitors) {
-        Common.myLog('Display(' + myMonitor + '): ' + JSON.stringify(myLayoutManager.monitors[myMonitor], null, 2));
-    }
-    Common.myLog('Display: ...');
-
-    windowTest(false);
-
-}
-
 function testOverlap(rect, clockBox) {
     return (rect.x < clockBox.x2) &&
         (rect.x + rect.width > clockBox.x1) &&
@@ -1033,7 +1062,7 @@ function testOverlap(rect, clockBox) {
 
 function windowTest(onlyFocus) {
     let myResult = false;
-    const myMonitor = Main.layoutManager.primaryMonitor.index;
+    const myMonitor = getClockMonitor().index;
     const myWorkspace = global.workspace_manager.get_active_workspace_index();
     let windows = global.get_window_actors();
 
@@ -1084,8 +1113,13 @@ function windowTest(onlyFocus) {
                 if (windowdebug) {
                     windowGetTitleAndName(meta_win);
                 }
-                if (myMonitor == meta_win.get_monitor()) {
-                    if (meta_win.get_workspace().index() == myWorkspace) {
+                if (meta_win.minimized || !meta_win.showing_on_its_workspace()) {
+                    if (windowdebug) {
+                        Common.myDebugLog('This window is minimized or hidden...');
+                    }
+                } else if (myMonitor == meta_win.get_monitor()) {
+                    const myWindowWorkspace = meta_win.get_workspace();
+                    if (myWindowWorkspace && myWindowWorkspace.index() == myWorkspace) {
                         switch (meta_win.get_window_type()) {
                             case 0:
                                 // META_WINDOW_NORMAL

@@ -21,6 +21,8 @@ if [ ! -e "$(which xgettext)" ]; then
 else
   echo "Create: po/${gettextDomain}.pot"
   xgettext --from-code=UTF-8 --output="po/${gettextDomain}.pot" *.js
+  # Drop the creation timestamp so an unchanged .pot does not show up as a git change
+  sed -i '/^"POT-Creation-Date:/d' "po/${gettextDomain}.pot"
 fi
 
 if [ -f "${installDir}.shell-extension.zip" ]; then

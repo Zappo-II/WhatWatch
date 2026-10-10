@@ -14,8 +14,8 @@
     "url" : "https://github.com/Zappo-II/WhatWatch",
     "gettext-domain" : "WhatWatch@Zappo-II.github.io",
     "settings-schema": "org.gnome.shell.extensions.zappoii.whatwatch",
-    "version" : 16,
-    "version-name" : "16",
+    "version" : 17,
+    "version-name" : "17",
     "donations": {
         "github": "Zappo-II"
     }

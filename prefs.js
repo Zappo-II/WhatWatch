@@ -16,7 +16,7 @@ import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
 import Gdk from 'gi://Gdk';
 import Gio from 'gi://Gio';
-import {ExtensionPreferences, gettext as _, ngettext, pgettext} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import * as Common from './common.js';
 
 export default class WhatWatchPreferences extends ExtensionPreferences {
@@ -129,6 +129,37 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
     });
     groupStyle.add(rowPosition);
 
+    // Monitor
+    const rowMonitor = new Adw.ComboRow({
+      title: _('Monitor'),
+      subtitle: _('Which monitor shows the clock')
+    });
+    const monitorNames = [_('(Primary)')];
+    const monitorMap = [''];
+    const monitors = Gdk.Display.get_default().get_monitors();
+    for (let i = 0; i < monitors.get_n_items(); i++) {
+      const monitor = monitors.get_item(i);
+      const connector = monitor.get_connector();
+      if (!connector)
+        continue;
+      const description = monitor.get_description();
+      monitorNames.push(description ? `${description} (${connector})` : connector);
+      monitorMap.push(connector);
+    }
+    const currentMonitor = settings.get_string('monitor');
+    if (currentMonitor && !monitorMap.includes(currentMonitor)) {
+      // Keep a configured but currently unplugged monitor selectable
+      monitorNames.push(_('%s (not connected)').format(currentMonitor));
+      monitorMap.push(currentMonitor);
+    }
+    rowMonitor.model = new Gtk.StringList({ strings: monitorNames });
+    rowMonitor.selected = Math.max(0, monitorMap.indexOf(currentMonitor));
+    rowMonitor.connect('notify::selected', () => {
+      settings.set_string('monitor', monitorMap[rowMonitor.selected]);
+      settings.set_boolean('forcereset', true);
+    });
+    groupStyle.add(rowMonitor);
+
     page.add(groupStyle);
 
     // Size Group
@@ -143,14 +174,14 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       subtitle: _('Width of the clock in pixels')
     });
     rowWidth.adjustment = new Gtk.Adjustment({
-      lower: 0,
+      lower: 16,
       upper: 1024,
       step_increment: 1,
       page_increment: 10,
       value: settings.get_int('clockwidth')
     });
+    settings.bind('clockwidth', rowWidth.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     rowWidth.adjustment.connect('value-changed', () => {
-      settings.set_int('clockwidth', rowWidth.adjustment.value);
       settings.set_boolean('forcereset', true);
     });
     groupSize.add(rowWidth);
@@ -161,14 +192,14 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       subtitle: _('Height of the clock in pixels')
     });
     rowHeight.adjustment = new Gtk.Adjustment({
-      lower: 0,
+      lower: 16,
       upper: 1024,
       step_increment: 1,
       page_increment: 10,
       value: settings.get_int('clockheight')
     });
+    settings.bind('clockheight', rowHeight.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     rowHeight.adjustment.connect('value-changed', () => {
-      settings.set_int('clockheight', rowHeight.adjustment.value);
       settings.set_boolean('forcereset', true);
     });
     groupSize.add(rowHeight);
@@ -193,9 +224,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       page_increment: 10,
       value: settings.get_int('margintop')
     });
-    rowMarginTop.adjustment.connect('value-changed', () => {
-      settings.set_int('margintop', rowMarginTop.adjustment.value);
-    });
+    settings.bind('margintop', rowMarginTop.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     groupMargins.add(rowMarginTop);
 
     // Margin Side
@@ -210,9 +239,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       page_increment: 10,
       value: settings.get_int('marginside')
     });
-    rowMarginSide.adjustment.connect('value-changed', () => {
-      settings.set_int('marginside', rowMarginSide.adjustment.value);
-    });
+    settings.bind('marginside', rowMarginSide.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     groupMargins.add(rowMarginSide);
 
     page.add(groupMargins);
@@ -285,9 +312,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       page_increment: 0.1,
       value: settings.get_double('hideincrease')
     });
-    rowFadeIn.adjustment.connect('value-changed', () => {
-      settings.set_double('hideincrease', rowFadeIn.adjustment.value);
-    });
+    settings.bind('hideincrease', rowFadeIn.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     settings.bind('hideonoverlap', rowFadeIn, 'sensitive', Gio.SettingsBindFlags.GET);
     groupFade.add(rowFadeIn);
 
@@ -304,9 +329,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       page_increment: 0.1,
       value: settings.get_double('hidedecrease')
     });
-    rowFadeOut.adjustment.connect('value-changed', () => {
-      settings.set_double('hidedecrease', rowFadeOut.adjustment.value);
-    });
+    settings.bind('hidedecrease', rowFadeOut.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     settings.bind('hideonoverlap', rowFadeOut, 'sensitive', Gio.SettingsBindFlags.GET);
     groupFade.add(rowFadeOut);
 
@@ -379,9 +402,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       page_increment: 0.1,
       value: settings.get_double('facecenterdialradius')
     });
-    rowCenterRadius.adjustment.connect('value-changed', () => {
-      settings.set_double('facecenterdialradius', rowCenterRadius.adjustment.value);
-    });
+    settings.bind('facecenterdialradius', rowCenterRadius.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     groupCenterDial.add(rowCenterRadius);
 
     // Center Dial Color
@@ -414,9 +435,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       page_increment: 0.1,
       value: settings.get_double('facediallinewidth')
     });
-    rowDialWidth.adjustment.connect('value-changed', () => {
-      settings.set_double('facediallinewidth', rowDialWidth.adjustment.value);
-    });
+    settings.bind('facediallinewidth', rowDialWidth.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     groupDialLine.add(rowDialWidth);
 
     // Dial Line Inset
@@ -432,9 +451,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       page_increment: 0.1,
       value: settings.get_double('facediallineinset')
     });
-    rowDialInset.adjustment.connect('value-changed', () => {
-      settings.set_double('facediallineinset', rowDialInset.adjustment.value);
-    });
+    settings.bind('facediallineinset', rowDialInset.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     groupDialLine.add(rowDialInset);
 
     // Dial Line Color
@@ -478,9 +495,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       page_increment: 0.1,
       value: settings.get_double('facediallinetickinset')
     });
-    rowTickInset.adjustment.connect('value-changed', () => {
-      settings.set_double('facediallinetickinset', rowTickInset.adjustment.value);
-    });
+    settings.bind('facediallinetickinset', rowTickInset.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     groupGeneral.add(rowTickInset);
 
     page.add(groupGeneral);
@@ -529,9 +544,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       page_increment: 0.1,
       value: settings.get_double(prefix + 'linewidth')
     });
-    rowWidth.adjustment.connect('value-changed', () => {
-      settings.set_double(prefix + 'linewidth', rowWidth.adjustment.value);
-    });
+    settings.bind(prefix + 'linewidth', rowWidth.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     group.add(rowWidth);
 
     // Inset
@@ -547,9 +560,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       page_increment: 0.1,
       value: settings.get_double(prefix + 'lineinset')
     });
-    rowInset.adjustment.connect('value-changed', () => {
-      settings.set_double(prefix + 'lineinset', rowInset.adjustment.value);
-    });
+    settings.bind(prefix + 'lineinset', rowInset.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     group.add(rowInset);
 
     // Circle toggles
@@ -627,9 +638,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       page_increment: 0.1,
       value: settings.get_double(prefix + 'linewidth')
     });
-    rowWidth.adjustment.connect('value-changed', () => {
-      settings.set_double(prefix + 'linewidth', rowWidth.adjustment.value);
-    });
+    settings.bind(prefix + 'linewidth', rowWidth.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     group.add(rowWidth);
 
     // Length
@@ -645,9 +654,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       page_increment: 0.1,
       value: settings.get_double(prefix + 'linelength')
     });
-    rowLength.adjustment.connect('value-changed', () => {
-      settings.set_double(prefix + 'linelength', rowLength.adjustment.value);
-    });
+    settings.bind(prefix + 'linelength', rowLength.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     group.add(rowLength);
 
     // Style toggles in an expander
@@ -746,15 +753,13 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       digits: 3
     });
     rowOffsetX.adjustment = new Gtk.Adjustment({
-      lower: 0.0,
+      lower: -1.0,
       upper: 1.0,
       step_increment: 0.01,
       page_increment: 0.1,
       value: settings.get_double('faceshadowoffsetx')
     });
-    rowOffsetX.adjustment.connect('value-changed', () => {
-      settings.set_double('faceshadowoffsetx', rowOffsetX.adjustment.value);
-    });
+    settings.bind('faceshadowoffsetx', rowOffsetX.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     groupOffset.add(rowOffsetX);
 
     const rowOffsetY = new Adw.SpinRow({
@@ -763,15 +768,13 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       digits: 3
     });
     rowOffsetY.adjustment = new Gtk.Adjustment({
-      lower: 0.0,
+      lower: -1.0,
       upper: 1.0,
       step_increment: 0.01,
       page_increment: 0.1,
       value: settings.get_double('faceshadowoffsety')
     });
-    rowOffsetY.adjustment.connect('value-changed', () => {
-      settings.set_double('faceshadowoffsety', rowOffsetY.adjustment.value);
-    });
+    settings.bind('faceshadowoffsety', rowOffsetY.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
     groupOffset.add(rowOffsetY);
 
     page.add(groupOffset);
@@ -849,7 +852,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
     group.add(rowWindow);
 
     // Reset sub-debug options when main debug is disabled
-    settings.connect('changed::debuglogging', () => {
+    const debugChangedID = settings.connect('changed::debuglogging', () => {
       if (!settings.get_boolean('debuglogging')) {
         settings.set_boolean('timerdebug', false);
         settings.set_boolean('timedebug', false);
@@ -857,6 +860,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
         settings.set_boolean('windowdebug', false);
       }
     });
+    page.connect('destroy', () => settings.disconnect(debugChangedID));
 
     page.add(group);
 
@@ -970,8 +974,8 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       const settingKey = settingsPrefix + channel.key;
       const channelKey = channel.key;
 
+      settings.bind(settingKey, row.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
       row.adjustment.connect('value-changed', () => {
-        settings.set_double(settingKey, row.adjustment.value);
         // Update color button
         const newColor = new Gdk.RGBA();
         newColor.red = colorButton.rgba.red;

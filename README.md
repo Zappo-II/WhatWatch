@@ -22,6 +22,7 @@ Version 8 (and younger) of this Plugin supports the following Versions of Gnome 
 * 48 - Tested with Manjaro - Gnome
 * 49 - Tested with Manjaro - Gnome
 * 50 - Tested with Arch Linux - Gnome
+* 51 - Tested with Arch Linux - Gnome
 
 ### Legacy Gnome Shell (before 45)
 
