@@ -261,6 +261,7 @@ class WhatWatchClock {
             case "top-right":
             case "default":
                 skipThis = true;
+                // falls through
             default:
                 if (! skipThis) {
                     Common.myErrorLog('setClockPosition - Invalid clockPosition: ' + clockPosition);
@@ -312,6 +313,7 @@ function drawClock (config, area) {
         case "OldSchool":
         case "default":
             skipThis = true;
+            // falls through
         default:
             if (! skipThis) {
                 Common.myErrorLog('drawClock - Invalid clockStyle: ' + config.clockStyle);
@@ -378,8 +380,7 @@ function drawOldSchoolClock (config, area, hasNumbers, hasRomanNumbers, isBundes
     let shadow = {};
     shadow.X = config.faceShadowOffsetX;
     shadow.Y = config.faceShadowOffsetY;
-    let shadowColor = {};
-    shadowColor = config.faceShadowColor;
+    const shadowColor = config.faceShadowColor;
 
     if (config.faceShadowTick) {
         drawFaceDialLine(config, cr, shadow, shadowColor, true);
@@ -666,12 +667,12 @@ function drawFaceDialNumbers (config, cr, faceDialLineTickRadius, shadow, shadow
     }
     let initialCenter = center;
     let position = { "X": 0, "Y": 0};
-    let adjustX = 0;
+    let adjustX;
     let color = {R: 0, G: 0, B: 0, A: 0};
-    let theNumber = 0;
-    let numberSize = numberNormalSize;
+    let theNumber;
+    let numberSize;
     let numberString = '';
-    let inset = 0;
+    let inset;
 
     for (let i = 0; i < 12; i++) {
 
@@ -1003,8 +1004,8 @@ function windowTest(config, clockBox, onlyFocus) {
     }
     const myMonitor = clockMonitor.index;
     const myWorkspace = global.workspace_manager.get_active_workspace_index();
-    let rect = {x:0, y:0, width:0, height:0};
-    let test = false;
+    let rect;
+    let test;
 
     if (onlyFocus) {
 
@@ -1112,7 +1113,7 @@ function windowGetTitleAndName(window) {
 
 function notExcluded(config, window) {
     let myValue = true;
-    let wmClass = "";
+    let wmClass;
     let excludedClasses = config.excludedClasses.replace(/ /g, "").split(";");
     if (window) {
         wmClass = window.get_wm_class()

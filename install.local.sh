@@ -16,6 +16,16 @@ echo " "
 echo "Pack for release and install this gnome-shell-extension to ${installPath}${installDir}"
 echo " "
 
+if [ -x "./node_modules/.bin/eslint" ]; then
+  echo "Lint: eslint"
+  if ! ./node_modules/.bin/eslint .; then
+    echo "PANIC: eslint found problems..."
+    exit 3
+  fi
+else
+  echo "INFO: eslint not installed (run 'yarn install' or 'npm install') - skipping lint"
+fi
+
 if [ ! -e "$(which xgettext)" ]; then
   echo "WARNING: xgettext not found - Unable to create po/${gettextDomain}.pot"
 else

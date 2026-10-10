@@ -37,6 +37,7 @@ All notable changes to WhatWatch will be documented in this file.
 - Keep all runtime state in a clock object instead of module-level variables, so nothing carries over between disable and enable
 - Rename the "Window Blacklist" to "Excluded Windows" in the preferences (the setting key `hideblacklist` is unchanged, so existing values are kept)
 - Log "enabled"/"disabled" only with debug logging on
+- Add an ESLint setup for development (`yarn lint`); `install.local.sh` runs it before packing when installed
 - Remove the global `.bg-color` stylesheet (St widgets are transparent by default), the committed `gschemas.compiled` (compiled on install since GNOME 44) and `'use strict'` (implied by ES modules)
 
 ## v16 - GNOME 51 Compatibility

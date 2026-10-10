@@ -1,3 +1,4 @@
 *.zip
 ToDo.md
 schemas/gschemas.compiled
+node_modules/

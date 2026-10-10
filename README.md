@@ -81,6 +81,18 @@ You must logout/relogin to activate the (updated) extension. In an X11 session (
 
 Your mileage may vary.
 
+## Development
+
+The code is checked with [ESLint](https://eslint.org/). It is only needed for development and is not part of the extension package.
+
+```
+cd ~/myLocalFolder/WhatWatch
+yarn install    # or: npm install
+yarn lint       # or: npx eslint .
+```
+
+`./install.local.sh` runs ESLint automatically before packing, if it is installed, and stops on problems.
+
 ## Documentation
 
 Please take a look at the documentation found in the `.../doc` folder of this repository.
