@@ -16,6 +16,8 @@ All notable changes to WhatWatch will be documented in this file.
 - Fade in/out descriptions in the preferences said "lower = faster"; a higher value fades faster
 - Debug logging now also works in the preferences dialog
 - The "Debugging" switch had no visible effect: debug messages used `console.debug()`, which GNOME Shell drops by default
+- All numeric settings now have ranges in the schema, so out-of-range values set via `gsettings`/`dconf` are rejected (e.g. a clock width of 0 or a fade step of 0)
+- No errors when no monitor is available (e.g. headless sessions)
 
 ### Improvements
 - The clock is redrawn once per second (aligned to the full second) instead of 10 times per second, and not at all while it is faded out

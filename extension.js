@@ -232,6 +232,10 @@ class WhatWatchClock {
         const marginSide = config.marginSide;
         //
         let pMonitor = getClockMonitor(config);
+        if (!pMonitor) {
+            // No monitor at all (e.g. headless session) - "monitors-changed" rebuilds the clock later
+            return;
+        }
 
         switch (clockPosition) {
             case "center-left":
@@ -993,7 +997,11 @@ function testOverlap(rect, clockBox) {
 
 function windowTest(config, clockBox, onlyFocus) {
     let myResult = false;
-    const myMonitor = getClockMonitor(config).index;
+    const clockMonitor = getClockMonitor(config);
+    if (!clockMonitor) {
+        return false;
+    }
+    const myMonitor = clockMonitor.index;
     const myWorkspace = global.workspace_manager.get_active_workspace_index();
     let rect = {x:0, y:0, width:0, height:0};
     let test = false;

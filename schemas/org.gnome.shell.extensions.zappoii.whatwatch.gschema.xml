@@ -46,12 +46,14 @@
 
     <key name="clockwidth" type="i">
       <default>256</default>
+      <range min="16" max="1024"/>
       <summary>The clock's width</summary>
       <description>Select the clock's width on screen. Defaults to 256.</description>
     </key>
 
     <key name="clockheight" type="i">
       <default>256</default>
+      <range min="16" max="1024"/>
       <summary>The clock's height</summary>
       <description>Select the clock's height on screen. Defaults to 256.</description>
     </key>
@@ -70,9 +72,11 @@
 
     <key name="hideincrease" type="d">
       <default>0.025</default>
+      <range min="0.001" max="1.0"/>
     </key>
     <key name="hidedecrease" type="d">
       <default>0.100</default>
+      <range min="0.001" max="1.0"/>
     </key>
 
     <key name="hideblacklist" type="s">
@@ -81,191 +85,245 @@
 
     <key name="margintop" type="i">
       <default>40</default>
+      <range min="0" max="2000"/>
     </key>
 
     <key name="marginside" type="i">
       <default>40</default>
+      <range min="0" max="4000"/>
     </key>
 
     <key name="facedialcolor-r" type="d">
       <default>0.733</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facedialcolor-g" type="d">
       <default>0.733</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facedialcolor-b" type="d">
       <default>0.733</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facedialcolor-a" type="d">
       <default>0.8</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="facecenterdialradius" type="d">
       <default>0.06</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="facecenterdialcolor-r" type="d">
       <default>1.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facecenterdialcolor-g" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facecenterdialcolor-b" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facecenterdialcolor-a" type="d">
       <default>1.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="facediallinewidth" type="d">
       <default>0.03</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="facediallineinset" type="d">
       <default>0.06</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="facediallinecolor-r" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facediallinecolor-g" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facediallinecolor-b" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facediallinecolor-a" type="d">
       <default>1.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="facediallinetickinset" type="d">
       <default>0.05</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="faceminuteticklinewidth" type="d">
       <default>0.01</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="faceminuteticklineinset" type="d">
       <default>0.05</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="faceminutetickcolor-r" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="faceminutetickcolor-g" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="faceminutetickcolor-b" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="faceminutetickcolor-a" type="d">
       <default>1.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="faceticklinewidth" type="d">
       <default>0.02</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="faceticklineinset" type="d">
       <default>0.10</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="facetickcolor-r" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facetickcolor-g" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facetickcolor-b" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facetickcolor-a" type="d">
       <default>1.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="faceprominentticklinewidth" type="d">
       <default>0.03</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="faceprominentticklineinset" type="d">
       <default>0.15</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="faceprominenttickcolor-r" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="faceprominenttickcolor-g" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="faceprominenttickcolor-b" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="faceprominenttickcolor-a" type="d">
       <default>1.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="facehourhandlinewidth" type="d">
       <default>0.04</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="facehourhandlinelength" type="d">
       <default>0.5</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="facehourhandcolor-r" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facehourhandcolor-g" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facehourhandcolor-b" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facehourhandcolor-a" type="d">
       <default>1.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="faceminutehandlinewidth" type="d">
       <default>0.04</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="faceminutehandlinelength" type="d">
       <default>0.8</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="faceminutehandcolor-r" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="faceminutehandcolor-g" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="faceminutehandcolor-b" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="faceminutehandcolor-a" type="d">
       <default>1.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="facesecondhandlinewidth" type="d">
       <default>0.02</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="facesecondhandlinelength" type="d">
       <default>0.80</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="facesecondhandcolor-r" type="d">
       <default>1.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facesecondhandcolor-g" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facesecondhandcolor-b" type="d">
       <default>0.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="facesecondhandcolor-a" type="d">
       <default>1.0</default>
+      <range min="0.0" max="1.0"/>
     </key>
 
     <key name="facehourhandfilled" type="b">
@@ -342,23 +400,29 @@
 
     <key name="faceshadowoffsetx" type="d">
       <default>0.04</default>
+      <range min="-1.0" max="1.0"/>
     </key>
 
     <key name="faceshadowoffsety" type="d">
       <default>0.02</default>
+      <range min="-1.0" max="1.0"/>
     </key>
 
     <key name="faceshadowcolor-r" type="d">
       <default>0.30</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="faceshadowcolor-g" type="d">
       <default>0.30</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="faceshadowcolor-b" type="d">
       <default>0.30</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="faceshadowcolor-a" type="d">
       <default>0.8</default>
+      <range min="0.0" max="1.0"/>
     </key>
     <key name="faceshadowhand" type="b">
       <default>true</default>
