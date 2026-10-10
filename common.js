@@ -6,7 +6,6 @@
  * LICENSE and documentation
  * 
  */
-'use strict';
 import GLib from 'gi://GLib';
 
 export var debugLogging = false;
@@ -26,7 +25,8 @@ export function setMetaData(myName, myVersion) {
 
 export function myDebugLog(msg) {
     if (debugLogging) {
-        console.debug('' + logPrefix('[DEBUG]') + ' - ' + msg + '');
+        // console.debug() is dropped by GNOME Shell unless G_MESSAGES_DEBUG is set
+        console.log('' + logPrefix('[DEBUG]') + ' - ' + msg + '');
     }
 }
 

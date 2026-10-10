@@ -57,12 +57,12 @@ General settings affecting the clock as a whole.
 
 Settings to configure if and when the clock will hide when overlapped by other windows.
 
-* __Hide in fullscreen mode__ - When on, the clock will hide behind fullscreen windows (like fullscreen video etc.), otherwise it will even sit on top of those. Not affected by __Blacklist WM_Class(es)__.
+* __Hide in fullscreen mode__ - When on, the clock will hide behind fullscreen windows (like fullscreen video etc.), otherwise it will even sit on top of those. Not affected by __Excluded WM_Class(es)__.
 * __Hide when overlapped__ - When on, the clock will fade out until hidden when overlapped by an application window.
 * __Hide only on focus__ - When on, the clock will fade out until hidden when overlapped by an application window having the focus.
 * __Fade in interval__ - Opacity change every 100 ms while fading in (`0.001`-`1.0`, higher = faster). `0.025` takes about 4 seconds, `1.0` is instant.
 * __Fade out interval__ - Opacity change every 100 ms while fading out (`0.001`-`1.0`, higher = faster). `0.1` takes about 1 second, `1.0` is instant.
-* __Blacklist WM_Class(es)__ - Windows of these window manager classes will not be considered overlapping (this is essential when using extensions like `Desktop Icons NG` by example). Several class names might be concatenated by semicolon (`;`). You might want to use the debug settings to get the class name information you need.
+* __Excluded WM_Class(es)__ - Windows of these window manager classes will not be considered overlapping (this is essential when using extensions like `Desktop Icons NG` by example). Several class names might be concatenated by semicolon (`;`). You might want to use the debug settings to get the class name information you need.
 
 ### `Face`
 
@@ -121,4 +121,4 @@ Settings that style the shadow behaviour of the clock's elements. Not all clock 
 * __Timer Debugging__ - Enable / disable timer trigger logging to the system's log.
 * __Time Debugging__ - Enable / disable time value logging to the system's log.
 * __Config Debugging__ - Enable / disable configurational settings logging to the system's log.
-* __Window Debugging__ - Enable / disable window overlapping analysis logging to the system's log. You might want to use this to gather window manager class name information for blacklisting to prevent unexpected or unwanted hiding behaviour. See __Blacklist WM_Class(es)__ in `Behaviour`. 
+* __Window Debugging__ - Enable / disable window overlapping analysis logging to the system's log. You might want to use this to gather window manager class name information for the excluded windows to prevent unexpected or unwanted hiding behaviour. See __Excluded WM_Class(es)__ in `Behaviour`. 

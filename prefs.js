@@ -10,8 +10,6 @@
  *
  */
 
-'use strict';
-
 import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
 import Gdk from 'gi://Gdk';
@@ -154,7 +152,6 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
     rowMonitor.selected = Math.max(0, monitorMap.indexOf(currentMonitor));
     rowMonitor.connect('notify::selected', () => {
       settings.set_string('monitor', monitorMap[rowMonitor.selected]);
-      settings.set_boolean('forcereset', true);
     });
     groupStyle.add(rowMonitor);
 
@@ -179,9 +176,6 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       value: settings.get_int('clockwidth')
     });
     settings.bind('clockwidth', rowWidth.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
-    rowWidth.adjustment.connect('value-changed', () => {
-      settings.set_boolean('forcereset', true);
-    });
     groupSize.add(rowWidth);
 
     // Clock Height
@@ -197,9 +191,6 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       value: settings.get_int('clockheight')
     });
     settings.bind('clockheight', rowHeight.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
-    rowHeight.adjustment.connect('value-changed', () => {
-      settings.set_boolean('forcereset', true);
-    });
     groupSize.add(rowHeight);
 
     page.add(groupSize);
@@ -266,9 +257,6 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
       subtitle: _('Automatically hide the clock when a window is fullscreen')
     });
     settings.bind('trackfullscreen', rowFullscreen, 'active', Gio.SettingsBindFlags.DEFAULT);
-    rowFullscreen.connect('notify::active', () => {
-      settings.set_boolean('forcereset', true);
-    });
     groupVisibility.add(rowFullscreen);
 
     // Hide when overlapped
@@ -333,24 +321,24 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
 
     page.add(groupFade);
 
-    // Blacklist Group
-    const groupBlacklist = new Adw.PreferencesGroup({
-      title: _('Window Blacklist'),
+    // Excluded Windows Group
+    const groupExcluded = new Adw.PreferencesGroup({
+      title: _('Excluded Windows'),
       description: _('Windows that should never trigger hiding (semicolon-separated WM_CLASS names)')
     });
 
-    const rowBlacklist = new Adw.EntryRow({
-      title: _('Blacklist WM_Class(es)'),
+    const rowExcluded = new Adw.EntryRow({
+      title: _('Excluded WM_Class(es)'),
       show_apply_button: true
     });
-    rowBlacklist.text = settings.get_string('hideblacklist');
-    rowBlacklist.connect('apply', () => {
-      settings.set_string('hideblacklist', rowBlacklist.text.replace(/ /g, ''));
+    rowExcluded.text = settings.get_string('hideblacklist');
+    rowExcluded.connect('apply', () => {
+      settings.set_string('hideblacklist', rowExcluded.text.replace(/ /g, ''));
     });
-    settings.bind('hideonoverlap', rowBlacklist, 'sensitive', Gio.SettingsBindFlags.GET);
-    groupBlacklist.add(rowBlacklist);
+    settings.bind('hideonoverlap', rowExcluded, 'sensitive', Gio.SettingsBindFlags.GET);
+    groupExcluded.add(rowExcluded);
 
-    page.add(groupBlacklist);
+    page.add(groupExcluded);
 
     return page;
   }
@@ -843,7 +831,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
 
     const rowWindow = new Adw.SwitchRow({
       title: _('Window Debugging'),
-      subtitle: _('Window debug mode, toggles window overlapping analysis logging. Use to gather WM_CLASS names for blacklisting.')
+      subtitle: _('Window debug mode, toggles window overlapping analysis logging. Use to gather WM_CLASS names for the excluded windows.')
     });
     settings.bind('windowdebug', rowWindow, 'active', Gio.SettingsBindFlags.DEFAULT);
     settings.bind('debuglogging', rowWindow, 'sensitive', Gio.SettingsBindFlags.GET);

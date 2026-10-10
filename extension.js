@@ -10,12 +10,12 @@
  *   `journalctl -f -o cat /usr/bin/gnome-shell`
  * 
  */
-'use strict';
 
 import St from 'gi://St';
 import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
+import Clutter from 'gi://Clutter';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Cairo from 'gi://cairo';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
@@ -23,27 +23,12 @@ import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 
 import * as Common from './common.js';
 
-let schemaid = "";
-//
-let repaintHandlerID = null;
-var area = null;
-var config = null;
-var settings = null;
-let timeout = null;
-let settingsChangedID = null;
-let monitorsChangedID = null;
-let forceResetPending = false;
-//
-let clockBox = { x1:0, y1:0, x2: 0, y2:0};
-let areaActive = false;
-let globalOpacity = 1;
-let globalDirection = 1;
-//
-let timerdebug = false;
-let timedebug = false;
-let configdebug = false;
-let windowdebug = false;
-//
+// How often (ms) windows are checked for overlapping the clock, while "Hide When Overlapped" is on
+const OVERLAP_CHECK_INTERVAL = 200;
+// Settings that need the clock actor to be rebuilt
+const REBUILD_KEYS = ['clockwidth', 'clockheight', 'trackfullscreen', 'monitor'];
+// Settings that switch the overlap check on or off
+const OVERLAP_KEYS = ['hideonoverlap', 'hideonfocusoverlap'];
 
 export default class WhatWatchExtension extends Extension {
     constructor(metadata) {
@@ -52,190 +37,242 @@ export default class WhatWatchExtension extends Extension {
     }
 
     enable() {
-        Common.myDebugLog('Entering enable()');
-        //
-        schemaid = this.metadata['settings-schema']
-        settings = this.getSettings(schemaid);
-        Common.setDebugLogging(settings.get_boolean("debuglogging"));
-
-        Common.myDebugLog('Entering enable() - After initialisation of Common.debugLogging...');
-
-        // Connect before areaInit() reads the keys - GSettings only emits
-        // "changed" for keys that were read while a handler was connected
-        Common.myDebugLog('Connecting "settings - changed" to readSettings()...');
-        settingsChangedID = settings.connect('changed', (mySettings, key) => {
-            if (key === 'forcereset') {
-                if (mySettings.get_boolean(key)) {
-                    forceResetPending = true;
-                    mySettings.set_boolean(key, false);
-                }
-                return;
-            }
-            config = readSettings();
-        });
-        settings.set_boolean("forcereset", false);
-
-        // Rebuild the clock when monitors are added, removed or rearranged
-        Common.myDebugLog('Connecting "layoutManager - monitors-changed"...');
-        monitorsChangedID = Main.layoutManager.connect('monitors-changed', () => {
-            forceResetPending = true;
-        });
-
-        areaInit();
-
-        Common.myDebugLog('Adding callback (clockTimeOut()) "timeout" with 100ms to Source context...');
-        timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
-            if (timerdebug) {
-                Common.myDebugLog('TimeOut triggered...');
-            }
-            try {
-                clockTimeOut();
-            } catch (e) {
-                Common.myErrorLog(e, 'clockTimeOut');
-            }
-            return GLib.SOURCE_CONTINUE;
-        });
-
-        Common.myLog(`${this.metadata.name} is enabled now...`);
-        Common.myDebugLog('Exiting enable()');
+        this._settings = this.getSettings();
+        Common.setDebugLogging(this._settings.get_boolean("debuglogging"));
+        this._clock = new WhatWatchClock(this._settings);
+        Common.myDebugLog(`${this.metadata.name} is enabled now...`);
     }
 
     disable() {
-        Common.myDebugLog('Entering disable()');
-        //
-        if (timeout) {
-            Common.myDebugLog('Removing "timeout" from Source context...');
-            GLib.Source.remove(timeout);
-            timeout = null;
-        }
-        //
-        if (settingsChangedID) {
-            Common.myDebugLog('Disconnecting "settings - changed"...');
-            settings.disconnect(settingsChangedID);
-            settingsChangedID = null;
-        }
-        if (monitorsChangedID) {
-            Common.myDebugLog('Disconnecting "layoutManager - monitors-changed"...');
-            Main.layoutManager.disconnect(monitorsChangedID);
-            monitorsChangedID = null;
-        }
-        //
-        areaDestroy();
-        //
-        forceResetPending = false;
-        config = null;
-        settings = null;
-        //
-        Common.myLog(`${this.metadata.name} is disabled now...`);
-        Common.myDebugLog('Exiting disable()');
+        this._clock?.destroy();
+        this._clock = null;
+        this._settings = null;
+        Common.myDebugLog(`${this.metadata.name} is disabled now...`);
     }
 }
 
-function areaInit() {
+class WhatWatchClock {
+    constructor(settings) {
+        this._settings = settings;
+        this._area = null;
+        this._clockBox = { x1: 0, y1: 0, x2: 0, y2: 0 };
+        this._overlapped = false;
+        this._repaintTimeoutID = null;
+        this._overlapTimeoutID = null;
 
-    config = readSettings();
+        // Connect before reading the keys - GSettings only emits "changed"
+        // for keys that were read while a handler was connected
+        this._settingsChangedID = settings.connect('changed', (mySettings, key) => this._onSettingsChanged(key));
+        this._config = readSettings(settings);
 
-    const clockWidth = config.clockWidth;
-    const clockHeight = config.clockHeight;
+        // Rebuild the clock when monitors are added, removed or rearranged
+        this._monitorsChangedID = Main.layoutManager.connect('monitors-changed', () => this._rebuild());
 
-    Common.myDebugLog('Initializing "area" as St.DrawingArea(' + clockWidth + ',' + clockHeight + ')...');
-    area = new St.DrawingArea({
-        style_class : 'bg-color',
-        reactive : false,
-        can_focus : false,
-        track_hover : false,
-        width: clockWidth,
-        height: clockHeight
-    });
+        this._createArea();
+        this._scheduleRepaint();
+        this._updateOverlapCheck();
+    }
 
-    setClockPosition();
-
-    Common.myDebugLog('Connecting "area - repaint" to local function drawClock()...');
-    repaintHandlerID = area.connect('repaint', (area) => drawClock(area));
-
-    Common.myDebugLog('Adding "area" to LayoutManager...');
-    let chromeParams = {
-        affectsStruts : false,
-        trackFullscreen : config.trackFullscreen
-    };
-    if (parseInt(Config.PACKAGE_VERSION) < 50)
-        chromeParams.affectsInputRegion = false;
-
-    Main.layoutManager.addChrome(area, chromeParams);
-    areaActive = true;
-
-}
-
-function areaDestroy() {
-
-    if (repaintHandlerID) {
-        if (area) {
-            Common.myDebugLog('Disconnecting "area" repaintHandler...');
-            area.disconnect(repaintHandlerID);
+    destroy() {
+        if (this._settingsChangedID) {
+            this._settings.disconnect(this._settingsChangedID);
+            this._settingsChangedID = null;
         }
-        repaintHandlerID = null;
+        if (this._monitorsChangedID) {
+            Main.layoutManager.disconnect(this._monitorsChangedID);
+            this._monitorsChangedID = null;
+        }
+        if (this._repaintTimeoutID) {
+            GLib.Source.remove(this._repaintTimeoutID);
+            this._repaintTimeoutID = null;
+        }
+        this._stopOverlapCheck();
+        this._destroyArea();
+        this._settings = null;
+        this._config = null;
     }
-    if (area) {
-        Common.myDebugLog('Removing "area" from LayoutManager...');
-        Main.layoutManager.removeChrome(area);
-        area.destroy();
-        area = null;
+
+    _onSettingsChanged(key) {
+        this._config = readSettings(this._settings);
+
+        if (REBUILD_KEYS.includes(key)) {
+            this._rebuild();
+        } else if (OVERLAP_KEYS.includes(key)) {
+            this._updateOverlapCheck();
+        } else if (this._area) {
+            this._setClockPosition();
+            this._area.queue_repaint();
+        }
     }
-    areaActive = false;
 
-}
+    _createArea() {
+        const config = this._config;
 
-function setClockPosition() {
-    let skipThis = false;
-    //
-    const clockPosition = config.clockPosition;
-    const clockWidth = config.clockWidth;
-    const clockHeight = config.clockHeight;
-    const marginTop = config.marginTop;
-    const marginSide = config.marginSide;
-    //
-    let pMonitor = getClockMonitor();
-
-    switch (clockPosition) {
-        case "center-left":
-            area.set_position(pMonitor.x + marginSide, pMonitor.y + (( pMonitor.height / 2 ) - ( clockHeight / 2 )));
-            break;
-    
-        case "center":
-            area.set_position(pMonitor.x + (( pMonitor.width / 2 ) - ( clockWidth / 2 )), pMonitor.y + (( pMonitor.height / 2 ) - ( clockHeight / 2 )));
-            break;
-        
-        case "center-right":
-            area.set_position(pMonitor.x + ( pMonitor.width - clockWidth - marginSide ), pMonitor.y + (( pMonitor.height / 2 ) - ( clockHeight / 2 )));
-            break;
-
-        case "top-left":
-            area.set_position(pMonitor.x + marginSide, pMonitor.y + marginTop);
-            break;
-
-        case "top-middle":
-            area.set_position(pMonitor.x + ((pMonitor.width / 2 ) - (clockWidth / 2)), pMonitor.y + marginTop);
-            break;
-
-        case "top-right":
-        case "default":
-            skipThis = true;            
-        default:
-            if (! skipThis) {
-                Common.myErrorLog('setClockPosition - Invalid clockPosition: ' + clockPosition);
+        Common.myDebugLog('Initializing "area" as St.DrawingArea(' + config.clockWidth + ',' + config.clockHeight + ')...');
+        this._area = new St.DrawingArea({
+            reactive : false,
+            can_focus : false,
+            track_hover : false,
+            width: config.clockWidth,
+            height: config.clockHeight,
+            opacity: this._overlapped ? 0 : 255
+        });
+        this._area.connect('repaint', (area) => {
+            try {
+                drawClock(this._config, area);
+            } catch (e) {
+                Common.myErrorLog(e, 'drawClock');
             }
-            area.set_position(pMonitor.x + (pMonitor.width - clockWidth - marginSide), pMonitor.y + marginTop);
-            break;
+        });
+
+        this._setClockPosition();
+
+        let chromeParams = {
+            affectsStruts : false,
+            trackFullscreen : config.trackFullscreen
+        };
+        if (parseInt(Config.PACKAGE_VERSION) < 50)
+            chromeParams.affectsInputRegion = false;
+
+        Main.layoutManager.addChrome(this._area, chromeParams);
     }
 
-    clockBox.x1 = area.get_position()[0];
-    clockBox.y1 = area.get_position()[1];
-    clockBox.x2 = clockBox.x1 + area.width;
-    clockBox.y2 = clockBox.y1 + area.height;
+    _destroyArea() {
+        if (this._area) {
+            Common.myDebugLog('Removing "area" from LayoutManager...');
+            Main.layoutManager.removeChrome(this._area);
+            this._area.destroy();
+            this._area = null;
+        }
+    }
 
+    _rebuild() {
+        this._destroyArea();
+        this._createArea();
+    }
+
+    _scheduleRepaint() {
+        // Wake up just after the next full second, so the second hand moves in time
+        const now = GLib.DateTime.new_now_local();
+        const delay = 1000 - Math.floor(now.get_microsecond() / 1000) + 10;
+
+        this._repaintTimeoutID = GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+            if (this._config.timerDebug) {
+                Common.myDebugLog('Repaint timeout triggered...');
+            }
+            // A fully faded out clock does not need to be drawn
+            if (this._area && this._area.opacity > 0) {
+                this._area.queue_repaint();
+            }
+            this._scheduleRepaint();
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
+    _updateOverlapCheck() {
+        if (this._config.hideOnOverlap) {
+            if (!this._overlapTimeoutID) {
+                this._overlapTimeoutID = GLib.timeout_add(GLib.PRIORITY_DEFAULT, OVERLAP_CHECK_INTERVAL, () => {
+                    try {
+                        this._setOverlapped(windowTest(this._config, this._clockBox, this._config.hideOnFocusOverlap));
+                    } catch (e) {
+                        Common.myErrorLog(e, 'windowTest');
+                    }
+                    return GLib.SOURCE_CONTINUE;
+                });
+            }
+        } else {
+            this._stopOverlapCheck();
+            this._setOverlapped(false);
+        }
+    }
+
+    _stopOverlapCheck() {
+        if (this._overlapTimeoutID) {
+            GLib.Source.remove(this._overlapTimeoutID);
+            this._overlapTimeoutID = null;
+        }
+    }
+
+    _setOverlapped(overlapped) {
+        if (overlapped === this._overlapped) {
+            return;
+        }
+        this._overlapped = overlapped;
+
+        const area = this._area;
+        if (!area) {
+            return;
+        }
+        if (!overlapped) {
+            // The clock was not drawn while hidden, bring it up to date before fading in
+            area.queue_repaint();
+        }
+
+        // hidedecrease / hideincrease are the opacity change per 100 ms
+        const step = overlapped ? this._config.hideDecrease : this._config.hideIncrease;
+        const target = overlapped ? 0 : 255;
+        const remaining = Math.abs(target - area.opacity) / 255;
+        area.ease({
+            opacity: target,
+            duration: Math.round(remaining * 100 / step),
+            mode: Clutter.AnimationMode.LINEAR
+        });
+    }
+
+    _setClockPosition() {
+        let skipThis = false;
+        //
+        const area = this._area;
+        const config = this._config;
+        const clockPosition = config.clockPosition;
+        const clockWidth = config.clockWidth;
+        const clockHeight = config.clockHeight;
+        const marginTop = config.marginTop;
+        const marginSide = config.marginSide;
+        //
+        let pMonitor = getClockMonitor(config);
+
+        switch (clockPosition) {
+            case "center-left":
+                area.set_position(pMonitor.x + marginSide, pMonitor.y + (( pMonitor.height / 2 ) - ( clockHeight / 2 )));
+                break;
+
+            case "center":
+                area.set_position(pMonitor.x + (( pMonitor.width / 2 ) - ( clockWidth / 2 )), pMonitor.y + (( pMonitor.height / 2 ) - ( clockHeight / 2 )));
+                break;
+
+            case "center-right":
+                area.set_position(pMonitor.x + ( pMonitor.width - clockWidth - marginSide ), pMonitor.y + (( pMonitor.height / 2 ) - ( clockHeight / 2 )));
+                break;
+
+            case "top-left":
+                area.set_position(pMonitor.x + marginSide, pMonitor.y + marginTop);
+                break;
+
+            case "top-middle":
+                area.set_position(pMonitor.x + ((pMonitor.width / 2 ) - (clockWidth / 2)), pMonitor.y + marginTop);
+                break;
+
+            case "top-right":
+            case "default":
+                skipThis = true;
+            default:
+                if (! skipThis) {
+                    Common.myErrorLog('setClockPosition - Invalid clockPosition: ' + clockPosition);
+                }
+                area.set_position(pMonitor.x + (pMonitor.width - clockWidth - marginSide), pMonitor.y + marginTop);
+                break;
+        }
+
+        this._clockBox.x1 = area.get_position()[0];
+        this._clockBox.y1 = area.get_position()[1];
+        this._clockBox.x2 = this._clockBox.x1 + area.width;
+        this._clockBox.y2 = this._clockBox.y1 + area.height;
+    }
 }
 
-function getClockMonitor() {
+function getClockMonitor(config) {
     // The configured monitor (by connector name, e.g. 'DP-2'), falling back to
     // the primary monitor when none is set or it is not connected
     const layoutManager = Main.layoutManager;
@@ -248,84 +285,26 @@ function getClockMonitor() {
     return layoutManager.primaryMonitor;
 }
 
-function clockTimeOut() {
-    let increment = 0;
-    let forcereset = false;
-
-    forcereset = forceResetPending;
-    forceResetPending = false;
-
-    if (forcereset) {
-        if (areaActive) {
-            areaDestroy();
-        }
-    }
-
-    if ( (! config.hideOnOverlap) || (! windowTest(config.hideOnOverlap && config.hideOnFocusOverlap))) {
-
-        globalDirection = 1;
-        if ( ! areaActive) {
-            areaInit();
-        }
-
-    } else {
-
-        globalDirection = -1;
-        if (globalOpacity <= 0) {
-            if (areaActive) {
-                areaDestroy();
-            }
-        }
-
-    }
-
-    if (globalDirection > 0) {
-        increment = config.hideIncrease;
-    } else {
-        increment = config.hideDecrease;
-    }
-    globalOpacity = globalOpacity + (globalDirection * increment);
-
-    if (globalOpacity <= 0) {
-        globalDirection = 0;
-        globalOpacity = 0;
-    }
-
-    if (globalOpacity >= 1) {
-        globalDirection = 0;
-        globalOpacity = 1;
-    }
-
-    if (areaActive) {
-        area.queue_repaint();
-    }
-
-    return true;
-
-}
-
-function drawClock (area) {
+function drawClock (config, area) {
     let skipThis = false;
-
-    setClockPosition();
 
     switch (config.clockStyle) {
         case "Radar":
-            drawRadarClock (area, globalOpacity);
+            drawRadarClock (config, area);
             break;
 
         case "OldSchoolDB":
-            drawOldSchoolClock (area, globalOpacity, false, false, true);
+            drawOldSchoolClock (config, area, false, false, true);
             break;
 
         case "OldSchoolArabian":
-            drawOldSchoolClock (area, globalOpacity, true, false, false);
+            drawOldSchoolClock (config, area, true, false, false);
             break;
 
         case "OldSchoolRoman":
-            drawOldSchoolClock (area, globalOpacity, true, true, false);
+            drawOldSchoolClock (config, area, true, true, false);
             break;
-                
+
         case "OldSchool":
         case "default":
             skipThis = true;
@@ -333,18 +312,18 @@ function drawClock (area) {
             if (! skipThis) {
                 Common.myErrorLog('drawClock - Invalid clockStyle: ' + config.clockStyle);
             }
-            drawOldSchoolClock (area, globalOpacity, false, false, false);
+            drawOldSchoolClock (config, area, false, false, false);
             break;
     }
 
     return true;
 }
 
-function drawOldSchoolClock (area, opacity, hasNumbers, hasRomanNumbers, isBundesBahn) {
+function drawOldSchoolClock (config, area, hasNumbers, hasRomanNumbers, isBundesBahn) {
     // Get the cairo context
     let cr = area.get_context();
 
-    const myClockData = clockGetTime();
+    const myClockData = clockGetTime(config);
 
     const faceDialLineWidth = config.faceDialLineWidth;
     const faceDialLineInset = config.faceDialLineInset;
@@ -382,12 +361,12 @@ function drawOldSchoolClock (area, opacity, hasNumbers, hasRomanNumbers, isBunde
     // Do some drawing with cairo
     cr.save();
     //
-    drawFaceInit(cr);
-    drawFaceDial(cr, opacity);
+    drawFaceInit(cr, area);
+    drawFaceDial(config, cr);
 
     if (isBundesBahn) {
-        clockRoundRectangle (cr, {X: -0.13, Y: (-1 * (faceDialLineTickRadius - config.faceProminentTickLineInset - 0.05))}, {height: 0.15, width: 0.26}, 0.02, 4, {R: 1, G: 0, B: 0, A: 1 * opacity}, false);
-        clockPrint(cr, {X: -0.1, Y: (-1 * (faceDialLineTickRadius - config.faceProminentTickLineInset - 0.17))}, {R: 1, G: 0, B: 0, A: 1 * opacity}, "", 0.125, false, true, "DB");
+        clockRoundRectangle (cr, {X: -0.13, Y: (-1 * (faceDialLineTickRadius - config.faceProminentTickLineInset - 0.05))}, {height: 0.15, width: 0.26}, 0.02, 4, {R: 1, G: 0, B: 0, A: 1}, false);
+        clockPrint(cr, {X: -0.1, Y: (-1 * (faceDialLineTickRadius - config.faceProminentTickLineInset - 0.17))}, {R: 1, G: 0, B: 0, A: 1}, "", 0.125, false, true, "DB");
     }
 
     //
@@ -399,19 +378,19 @@ function drawOldSchoolClock (area, opacity, hasNumbers, hasRomanNumbers, isBunde
     shadowColor = config.faceShadowColor;
 
     if (config.faceShadowTick) {
-        drawFaceDialLine(cr, opacity, shadow, shadowColor, true);
-        drawFaceDialTicks(cr, opacity, faceDialLineTickRadius, shadow, shadowColor, true);    
+        drawFaceDialLine(config, cr, shadow, shadowColor, true);
+        drawFaceDialTicks(config, cr, faceDialLineTickRadius, shadow, shadowColor, true);    
     }
 
     if (hasNumbers && config.faceShadowNumber) {
-        drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, shadow, shadowColor, true, theArabianNumbers, theFont);
+        drawFaceDialNumbers (config, cr, faceDialLineTickRadius, shadow, shadowColor, true, theArabianNumbers, theFont);
     }
 
     if (config.faceShadowHand) {
-        drawHand(cr, opacity, shadow, faceHourHandLineWidth, faceHourHandLineLength, shadowColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, faceHourHandTailed, faceHourHandFinned, faceHourHandEyed, faceHourHandFilled);
-        drawHand(cr, opacity, shadow, faceMinuteHandLineWidth, faceMinuteHandLineLength, shadowColor, myClockData.nowMinuteDegrees + myClockData.nowSecondDegrees / 60, faceMinuteHandTailed, faceMinuteHandFinned, faceMinuteHandEyed, faceMinuteHandFilled);
-        drawHand(cr, opacity, shadow, faceSecondHandLineWidth, faceSecondHandLineLength, shadowColor, myClockData.nowSecondDegrees, faceSecondHandTailed, faceSecondHandFinned, faceSecondHandEyed , faceSecondHandFilled);    
-        drawCenterDial(cr, opacity, shadow, shadowColor, true);
+        drawHand(cr, shadow, faceHourHandLineWidth, faceHourHandLineLength, shadowColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, faceHourHandTailed, faceHourHandFinned, faceHourHandEyed, faceHourHandFilled);
+        drawHand(cr, shadow, faceMinuteHandLineWidth, faceMinuteHandLineLength, shadowColor, myClockData.nowMinuteDegrees + myClockData.nowSecondDegrees / 60, faceMinuteHandTailed, faceMinuteHandFinned, faceMinuteHandEyed, faceMinuteHandFilled);
+        drawHand(cr, shadow, faceSecondHandLineWidth, faceSecondHandLineLength, shadowColor, myClockData.nowSecondDegrees, faceSecondHandTailed, faceSecondHandFinned, faceSecondHandEyed , faceSecondHandFilled);    
+        drawCenterDial(config, cr, shadow, shadowColor, true);
     }
 
     //
@@ -419,18 +398,18 @@ function drawOldSchoolClock (area, opacity, hasNumbers, hasRomanNumbers, isBunde
     shadow.X = 0.0;
     shadow.Y = 0.0;
     //
-    drawFaceDialLine(cr, opacity, {}, {}, false);
-    drawFaceDialTicks(cr, opacity, faceDialLineTickRadius, {}, {}, false);
+    drawFaceDialLine(config, cr, {}, {}, false);
+    drawFaceDialTicks(config, cr, faceDialLineTickRadius, {}, {}, false);
     //
     if (hasNumbers) {
-        drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, null, null, false, theArabianNumbers, theFont);
+        drawFaceDialNumbers (config, cr, faceDialLineTickRadius, null, null, false, theArabianNumbers, theFont);
     }
     //
-    drawHand(cr, opacity, shadow, faceHourHandLineWidth, faceHourHandLineLength, faceHourHandColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, faceHourHandTailed, faceHourHandFinned, faceHourHandEyed, faceHourHandFilled);
-    drawHand(cr, opacity, shadow, faceMinuteHandLineWidth, faceMinuteHandLineLength, faceMinuteHandColor, myClockData.nowMinuteDegrees + myClockData.nowSecondDegrees / 60, faceMinuteHandTailed, faceMinuteHandFinned, faceMinuteHandEyed, faceMinuteHandFilled);
-    drawHand(cr, opacity, shadow, faceSecondHandLineWidth, faceSecondHandLineLength, faceSecondHandColor, myClockData.nowSecondDegrees, faceSecondHandTailed, faceSecondHandFinned, faceSecondHandEyed, faceSecondHandFilled);
+    drawHand(cr, shadow, faceHourHandLineWidth, faceHourHandLineLength, faceHourHandColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, faceHourHandTailed, faceHourHandFinned, faceHourHandEyed, faceHourHandFilled);
+    drawHand(cr, shadow, faceMinuteHandLineWidth, faceMinuteHandLineLength, faceMinuteHandColor, myClockData.nowMinuteDegrees + myClockData.nowSecondDegrees / 60, faceMinuteHandTailed, faceMinuteHandFinned, faceMinuteHandEyed, faceMinuteHandFilled);
+    drawHand(cr, shadow, faceSecondHandLineWidth, faceSecondHandLineLength, faceSecondHandColor, myClockData.nowSecondDegrees, faceSecondHandTailed, faceSecondHandFinned, faceSecondHandEyed, faceSecondHandFilled);
     //
-    drawCenterDial(cr, opacity, {}, {}, false);
+    drawCenterDial(config, cr, {}, {}, false);
     //
     cr.restore();
 
@@ -439,11 +418,11 @@ function drawOldSchoolClock (area, opacity, hasNumbers, hasRomanNumbers, isBunde
     return true;
 }
 
-function drawRadarClock (area, opacity) {
+function drawRadarClock (config, area) {
     // Get the cairo context
     let cr = area.get_context();
 
-    const myClockData = clockGetTime();
+    const myClockData = clockGetTime(config);
 
     const faceHourHandLineWidth = config.faceHourHandLineWidth;
     const faceHourHandLineLength = config.faceHourHandLineLength;
@@ -465,15 +444,15 @@ function drawRadarClock (area, opacity) {
     // Do some drawing with cairo
     cr.save();
     //
-    drawFaceInit(cr);
-    drawFaceDial(cr, opacity);
-    drawFaceDialTicks(cr, opacity, faceDialLineTickRadius, {}, {}, false);
+    drawFaceInit(cr, area);
+    drawFaceDial(config, cr);
+    drawFaceDialTicks(config, cr, faceDialLineTickRadius, {}, {}, false);
     //
     let arcOffset = -1 * ((Math.PI * 2) / 4);
     //
     // Second Hand
     cr.setLineWidth (faceSecondHandLineWidth);
-    cr.setSourceRGBA (faceSecondHandColor.R, faceSecondHandColor.G, faceSecondHandColor.B, faceSecondHandColor.A * opacity);
+    cr.setSourceRGBA (faceSecondHandColor.R, faceSecondHandColor.G, faceSecondHandColor.B, faceSecondHandColor.A);
     if (faceSecondHandFilled == true) {
         cr.moveTo (0,0);
         cr.lineTo(0, faceSecondHandLineLength);
@@ -488,7 +467,7 @@ function drawRadarClock (area, opacity) {
     //
     // Minute Hand
     cr.setLineWidth (faceMinuteHandLineWidth);
-    cr.setSourceRGBA (faceMinuteHandColor.R, faceMinuteHandColor.G, faceMinuteHandColor.B, faceMinuteHandColor.A * opacity);
+    cr.setSourceRGBA (faceMinuteHandColor.R, faceMinuteHandColor.G, faceMinuteHandColor.B, faceMinuteHandColor.A);
     if (faceMinuteHandFilled == true) {
         cr.moveTo (0,0);
         cr.lineTo(0, faceMinuteHandLineLength);
@@ -503,7 +482,7 @@ function drawRadarClock (area, opacity) {
     //
     // Hour Hand
     cr.setLineWidth (faceHourHandLineWidth);
-    cr.setSourceRGBA (faceHourHandColor.R, faceHourHandColor.G, faceHourHandColor.B, faceHourHandColor.A * opacity);
+    cr.setSourceRGBA (faceHourHandColor.R, faceHourHandColor.G, faceHourHandColor.B, faceHourHandColor.A);
     if (faceHourHandFilled == true) {
         cr.moveTo (0,0);
         cr.lineTo(0, faceHourHandLineLength);
@@ -516,7 +495,7 @@ function drawRadarClock (area, opacity) {
         cr.stroke();
     }
     //
-    drawCenterDial(cr, opacity, {}, {}, false);
+    drawCenterDial(config, cr, {}, {}, false);
 
     //
     cr.restore();
@@ -525,10 +504,10 @@ function drawRadarClock (area, opacity) {
     return true;
 }
 
-function drawHand(cr, opacity, center, width, length, color, degrees, hasTail, hasFin, hasEye, isFilled) {
+function drawHand(cr, center, width, length, color, degrees, hasTail, hasFin, hasEye, isFilled) {
     //
     cr.setLineWidth (width);
-    cr.setSourceRGBA (color.R, color.G, color.B, color.A * opacity);
+    cr.setSourceRGBA (color.R, color.G, color.B, color.A);
     cr.moveTo(center.X, center.Y)
     if (hasEye) {
         cr.lineTo(Math.sin(degrees) * (length / 5 * 3) + center.X, -1 * Math.cos(degrees) * (length / 5 * 3) + center.Y);
@@ -564,7 +543,7 @@ function drawHand(cr, opacity, center, width, length, color, degrees, hasTail, h
     } 
 }
 
-function drawFaceDialLine(cr, opacity, shadow, shadowColor, castShadow) {
+function drawFaceDialLine(config, cr, shadow, shadowColor, castShadow) {
     // Face Dial Line (circle)
     const faceDialLineWidth = config.faceDialLineWidth;
     const faceDialLineInset = config.faceDialLineInset;
@@ -576,12 +555,12 @@ function drawFaceDialLine(cr, opacity, shadow, shadowColor, castShadow) {
     }
     let faceDialLineRadius = 1 - faceDialLineWidth - faceDialLineInset;
     cr.setLineWidth (faceDialLineWidth);
-    cr.setSourceRGBA (faceDialLineColor.R, faceDialLineColor.G, faceDialLineColor.B, faceDialLineColor.A * opacity);
+    cr.setSourceRGBA (faceDialLineColor.R, faceDialLineColor.G, faceDialLineColor.B, faceDialLineColor.A);
     cr.arc(center.X, center.Y, faceDialLineRadius, 0, 2 * Math.PI);
     cr.stroke();
 }
 
-function drawFaceDialTicks (cr, opacity, faceDialLineTickRadius, shadow, shadowColor, castShadow) {
+function drawFaceDialTicks (config, cr, faceDialLineTickRadius, shadow, shadowColor, castShadow) {
     // Dial Ticks
     const faceMinuteTickLineWidth = config.faceMinuteTickLineWidth;
     const faceMinuteTickLineInset = config.faceMinuteTickLineInset;
@@ -611,18 +590,18 @@ function drawFaceDialTicks (cr, opacity, faceDialLineTickRadius, shadow, shadowC
             if (i % 5 != 0) {
                 // Minute Ticks
                 inset = faceMinuteTickLineInset;
-                cr.setSourceRGBA (faceMinuteTickColor.R, faceMinuteTickColor.G, faceMinuteTickColor.B, faceMinuteTickColor.A * opacity);
+                cr.setSourceRGBA (faceMinuteTickColor.R, faceMinuteTickColor.G, faceMinuteTickColor.B, faceMinuteTickColor.A);
                 cr.setLineWidth(faceMinuteTickLineWidth);
             } else {
                 // (5er) Ticks on 5 / 10 / 20 / 25 / 35 / 40 / 50 / 55
                 inset = faceTickLineInset;
-                cr.setSourceRGBA (faceTickColor.R, faceTickColor.G, faceTickColor.B, faceTickColor.A * opacity);
+                cr.setSourceRGBA (faceTickColor.R, faceTickColor.G, faceTickColor.B, faceTickColor.A);
                 cr.setLineWidth(faceTickLineWidth);
             }
         } else {
             // Prominent (Quarter) Ticks on 3 / 6 / 9 / 12
             inset = faceProminentTickLineInset;
-            cr.setSourceRGBA (faceProminentTickColor.R, faceProminentTickColor.G, faceProminentTickColor.B, faceProminentTickColor.A * opacity);
+            cr.setSourceRGBA (faceProminentTickColor.R, faceProminentTickColor.G, faceProminentTickColor.B, faceProminentTickColor.A);
             cr.setLineWidth(faceProminentTickLineWidth);    
         }
 
@@ -633,7 +612,7 @@ function drawFaceDialTicks (cr, opacity, faceDialLineTickRadius, shadow, shadowC
     }
 
     if (config.faceMinuteTickCircle || config.faceMinuteTickOuterCircle) {
-        cr.setSourceRGBA (faceMinuteTickColor.R, faceMinuteTickColor.G, faceMinuteTickColor.B, faceMinuteTickColor.A * opacity);
+        cr.setSourceRGBA (faceMinuteTickColor.R, faceMinuteTickColor.G, faceMinuteTickColor.B, faceMinuteTickColor.A);
         cr.setLineWidth(faceMinuteTickLineWidth);
         if (config.faceMinuteTickCircle)
             cr.arc(center.X, center.Y, faceDialLineTickRadius - faceMinuteTickLineInset, 0, 2 * Math.PI);
@@ -643,7 +622,7 @@ function drawFaceDialTicks (cr, opacity, faceDialLineTickRadius, shadow, shadowC
     }
 
     if (config.faceTickCircle || config.faceTickOuterCircle) {
-        cr.setSourceRGBA (faceTickColor.R, faceTickColor.G, faceTickColor.B, faceTickColor.A * opacity);
+        cr.setSourceRGBA (faceTickColor.R, faceTickColor.G, faceTickColor.B, faceTickColor.A);
         cr.setLineWidth(faceTickLineWidth);
         if (config.faceTickCircle)
             cr.arc(center.X, center.Y, faceDialLineTickRadius - faceTickLineInset, 0, 2 * Math.PI);
@@ -653,7 +632,7 @@ function drawFaceDialTicks (cr, opacity, faceDialLineTickRadius, shadow, shadowC
     }
 
     if (config.faceProminentTickCircle || config.faceProminentTickOuterCircle) {
-        cr.setSourceRGBA (faceProminentTickColor.R, faceProminentTickColor.G, faceProminentTickColor.B, faceProminentTickColor.A * opacity);
+        cr.setSourceRGBA (faceProminentTickColor.R, faceProminentTickColor.G, faceProminentTickColor.B, faceProminentTickColor.A);
         cr.setLineWidth(faceProminentTickLineWidth);
         if (config.faceProminentTickCircle)
             cr.arc(center.X, center.Y, faceDialLineTickRadius - faceProminentTickLineInset, 0, 2 * Math.PI);
@@ -664,7 +643,7 @@ function drawFaceDialTicks (cr, opacity, faceDialLineTickRadius, shadow, shadowC
 
 }
 
-function drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, shadow, shadowColor, castShadow, numberArabian, numberFont) {
+function drawFaceDialNumbers (config, cr, faceDialLineTickRadius, shadow, shadowColor, castShadow, numberArabian, numberFont) {
 
     const numberNormalSize = 0.18;
     const numberSmallSize = 0.12;
@@ -707,14 +686,14 @@ function drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, shadow, shado
             color.R = faceProminentTickColor.R;
             color.G = faceProminentTickColor.G;
             color.B = faceProminentTickColor.B;
-            color.A = faceProminentTickColor.A * opacity;
+            color.A = faceProminentTickColor.A;
             inset += faceProminentTickLineInset;
         } else {
             // 5er on 5 / 10 / 20 / 25 / 35 / 40 / 50 / 55
             color.R = faceTickColor.R;
             color.G = faceTickColor.G;
             color.B = faceTickColor.B;
-            color.A = faceTickColor.A * opacity;
+            color.A = faceTickColor.A;
             inset += faceTickLineInset;
             numberSize = numberSmallSize;
         }
@@ -777,20 +756,20 @@ function drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, shadow, shado
 
 }
 
-function drawFaceInit(cr) {
+function drawFaceInit(cr, area) {
     cr.translate(area.width / 2, area.height / 2);
     cr.scale(area.width / 2, area.height / 2);
 }
 
-function drawFaceDial(cr, opacity) {
+function drawFaceDial(config, cr) {
     // Face Dial
     const faceDialColor = config.faceDialColor;
-    cr.setSourceRGBA (faceDialColor.R, faceDialColor.G, faceDialColor.B, faceDialColor.A * opacity);
+    cr.setSourceRGBA (faceDialColor.R, faceDialColor.G, faceDialColor.B, faceDialColor.A);
     cr.arc(0.0, 0.0, 1.0 - 0.05, 0, 2 * Math.PI);
     cr.fill();
 }
 
-function drawCenterDial(cr, opacity, shadow, shadowColor, castShadow) {
+function drawCenterDial(config, cr, shadow, shadowColor, castShadow) {
     // Center Dial
     const faceCenterDialRadius = config.faceCenterDialRadius;
     let faceCenterDialColor = config.faceCenterDialColor;
@@ -799,7 +778,7 @@ function drawCenterDial(cr, opacity, shadow, shadowColor, castShadow) {
         faceCenterDialColor = shadowColor;
         center = { "X": shadow.X, "Y": shadow.Y}
     }
-    cr.setSourceRGBA (faceCenterDialColor.R, faceCenterDialColor.G, faceCenterDialColor.B, faceCenterDialColor.A * opacity);
+    cr.setSourceRGBA (faceCenterDialColor.R, faceCenterDialColor.G, faceCenterDialColor.B, faceCenterDialColor.A);
     cr.arc(center.X, center.Y, faceCenterDialRadius, 0, 2 * Math.PI);
     cr.fill();    
 }
@@ -882,7 +861,7 @@ function clockPrint (cr, position, color, font, size, italic, bold, text) {
 
 }
 
-function clockGetTime() {
+function clockGetTime(config) {
     let clockTime = {};
     let now = GLib.DateTime.new_now_local()
     //
@@ -892,21 +871,17 @@ function clockGetTime() {
     clockTime.nowMinuteDegrees = clockTime.nowMinute * Math.PI / 30;
     clockTime.nowSecond = now.format("%S") / 1;
     clockTime.nowSecondDegrees = clockTime.nowSecond * Math.PI / 30;
-    if (timedebug) {
+    if (config.timeDebug) {
         Common.myDebugLog(JSON.stringify(clockTime));
     }
     return clockTime;
 }
 
-function readSettings() {
+function readSettings(settings) {
 
     let theSettings = {};
     //
     try {
-        if (configdebug) {
-            Common.myDebugLog('Reading Settings (\'' + schemaid + '\')');
-        }
-        //
         if (Common.debugLogging != settings.get_boolean("debuglogging")) {
             Common.setDebugLogging(settings.get_boolean("debuglogging"));
             let myLogging = "off!";
@@ -916,10 +891,10 @@ function readSettings() {
             Common.myLog('Debug Logging is now ' + myLogging);
         }
         //
-        timerdebug = settings.get_boolean("timerdebug");
-        timedebug = settings.get_boolean("timedebug");
-        configdebug = settings.get_boolean("configdebug");
-        windowdebug = settings.get_boolean("windowdebug");
+        theSettings.timerDebug = settings.get_boolean("timerdebug");
+        theSettings.timeDebug = settings.get_boolean("timedebug");
+        theSettings.configDebug = settings.get_boolean("configdebug");
+        theSettings.windowDebug = settings.get_boolean("windowdebug");
         //
         theSettings.clockStyle = settings.get_string("clockstyle");
         theSettings.clockPosition = settings.get_string("clockposition");
@@ -932,7 +907,7 @@ function readSettings() {
         //
         theSettings.hideIncrease = settings.get_double("hideincrease");
         theSettings.hideDecrease = settings.get_double("hidedecrease");
-        theSettings.hideBlacklist = settings.get_string("hideblacklist");
+        theSettings.excludedClasses = settings.get_string("hideblacklist");
         //
         theSettings.clockWidth = settings.get_int("clockwidth");
         theSettings.clockHeight = settings.get_int("clockheight");
@@ -998,7 +973,7 @@ function readSettings() {
         theSettings.faceShadowNumber = settings.get_boolean("faceshadownumber");
         theSettings.faceShadowColor = {"R": settings.get_double("faceshadowcolor-r"), "G": settings.get_double("faceshadowcolor-g"), "B": settings.get_double("faceshadowcolor-b"), "A": settings.get_double("faceshadowcolor-a")};
         //
-        if (configdebug) {
+        if (theSettings.configDebug) {
             Common.myDebugLog('readSettings - theSettings: ' + JSON.stringify(theSettings));
         }
     } catch (e) {
@@ -1016,9 +991,9 @@ function testOverlap(rect, clockBox) {
         (rect.y + rect.height > clockBox.y1);
 }
 
-function windowTest(onlyFocus) {
+function windowTest(config, clockBox, onlyFocus) {
     let myResult = false;
-    const myMonitor = getClockMonitor().index;
+    const myMonitor = getClockMonitor(config).index;
     const myWorkspace = global.workspace_manager.get_active_workspace_index();
     let rect = {x:0, y:0, width:0, height:0};
     let test = false;
@@ -1030,23 +1005,23 @@ function windowTest(onlyFocus) {
 
             rect = focusWindow.get_frame_rect();
 
-            if (windowdebug) {
+            if (config.windowDebug) {
                 windowGetTitleAndName(focusWindow);
             }
 
             test = testOverlap(rect, clockBox);
             if (test) {
-                if (windowdebug) {
+                if (config.windowDebug) {
                     Common.myDebugLog('This focus window is overlapping...');
                 }
-                myResult = notOnBlacklist(focusWindow);
+                myResult = notExcluded(config, focusWindow);
             } else {
-                if (windowdebug) {
+                if (config.windowDebug) {
                     Common.myDebugLog('This focus window is not overlapping...');
                 }
             }
 
-            if (windowdebug) {
+            if (config.windowDebug) {
                 Common.myDebugLog('-----------------------------------------');
             }
         }
@@ -1056,11 +1031,11 @@ function windowTest(onlyFocus) {
         const windows = global.get_window_actors();
         for (let i = windows.length - 1; i >= 0; i--) {
             let meta_win = windows[i].get_meta_window();
-            if (windowdebug) {
+            if (config.windowDebug) {
                 windowGetTitleAndName(meta_win);
             }
             if (meta_win.minimized || !meta_win.showing_on_its_workspace()) {
-                if (windowdebug) {
+                if (config.windowDebug) {
                     Common.myDebugLog('This window is minimized or hidden...');
                 }
             } else if (myMonitor == meta_win.get_monitor()) {
@@ -1078,30 +1053,30 @@ function windowTest(onlyFocus) {
                             rect = meta_win.get_frame_rect();
                             test = testOverlap(rect, clockBox);
                             if (test) {
-                                if (windowdebug) {
+                                if (config.windowDebug) {
                                     Common.myDebugLog('This window is overlapping...');
                                 }
-                                myResult = myResult || notOnBlacklist(meta_win);
+                                myResult = myResult || notExcluded(config, meta_win);
                             }
                             break;
                         default:
-                            if (windowdebug) {
+                            if (config.windowDebug) {
                                 Common.myDebugLog('This windowtype is irrelevant...');
                             }
                             break;
                     }
 
                 } else {
-                    if (windowdebug) {
+                    if (config.windowDebug) {
                         Common.myDebugLog('This window is on another Workspace...');
                     }
                 }
             } else {
-                if (windowdebug) {
+                if (config.windowDebug) {
                     Common.myDebugLog('This window is on another Monitor...');
                 }
             }
-            if (windowdebug) {
+            if (config.windowDebug) {
                 Common.myDebugLog('-----------------------------------------');
             }
 
@@ -1127,18 +1102,18 @@ function windowGetTitleAndName(window) {
     Common.myDebugLog('Win.Window.Rect(x, y, width, height): ' + rect.x + ',' + rect.y + ',' + rect.width + ',' + rect.height);
 }
 
-function notOnBlacklist(window) {
+function notExcluded(config, window) {
     let myValue = true;
     let wmClass = "";
-    let wmClassBlacklist = config.hideBlacklist.replace(/ /g, "").split(";");
+    let excludedClasses = config.excludedClasses.replace(/ /g, "").split(";");
     if (window) {
         wmClass = window.get_wm_class()
 
-        for (let thisClass of wmClassBlacklist) {
+        for (let thisClass of excludedClasses) {
             if (thisClass != "") {
                 if (wmClass == thisClass) {
-                    if (windowdebug) {
-                        Common.myDebugLog('This window\'s class "' + thisClass + '" is on the focus blacklist, overlapping will be ignored...');
+                    if (config.windowDebug) {
+                        Common.myDebugLog('This window\'s class "' + thisClass + '" is on the excluded windows list, overlapping will be ignored...');
                     }
                     myValue = false;
                 }
@@ -1146,9 +1121,9 @@ function notOnBlacklist(window) {
         }
     }
 
-    if (windowdebug) {
+    if (config.windowDebug) {
         if (myValue) {
-            Common.myDebugLog('This windowclass is not on the focus blacklist, overlapping will be signaled...');
+            Common.myDebugLog('This windowclass is not on the excluded windows list, overlapping will be signaled...');
         }
     }
 

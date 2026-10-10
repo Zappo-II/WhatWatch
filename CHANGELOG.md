@@ -15,9 +15,13 @@ All notable changes to WhatWatch will be documented in this file.
 - Shadow offset X/Y can now be negative (range -1.0 to 1.0), so shadows can fall left or up
 - Fade in/out descriptions in the preferences said "lower = faster"; a higher value fades faster
 - Debug logging now also works in the preferences dialog
+- The "Debugging" switch had no visible effect: debug messages used `console.debug()`, which GNOME Shell drops by default
 
 ### Improvements
-- Settings are no longer polled 10 times per second; the extension reacts to setting changes via the `changed` signal
+- The clock is redrawn once per second (aligned to the full second) instead of 10 times per second, and not at all while it is faded out
+- Fading uses Clutter's `ease()` on the clock's opacity instead of redrawing every element with reduced alpha; the clock is no longer destroyed and recreated when it hides
+- The window overlap check only runs while "Hide When Overlapped" is on
+- Settings are no longer polled; the extension reacts to setting changes via the `changed` signal and rebuilds the clock itself when size, fullscreen tracking or monitor change. The internal `forcereset` setting is gone
 - All spin rows in the preferences are bound to their settings, so changes made via `gsettings`/`dconf` show up in an open dialog
 - The preferences dialog now disconnects its debug-setting handler when it closes
 - German translation completed (150/150 strings) and fixed a broken format string
@@ -28,6 +32,10 @@ All notable changes to WhatWatch will be documented in this file.
 - Fix schema descriptions: clock width/height default to 256, not 128
 - Remove dead and commented-out code in the drawing and window-overlap code; use `Meta.WindowType` constants instead of raw numbers
 - Update documentation (tab names, monitor selection, fade and shadow ranges, debug option names)
+- Keep all runtime state in a clock object instead of module-level variables, so nothing carries over between disable and enable
+- Rename the "Window Blacklist" to "Excluded Windows" in the preferences (the setting key `hideblacklist` is unchanged, so existing values are kept)
+- Log "enabled"/"disabled" only with debug logging on
+- Remove the global `.bg-color` stylesheet (St widgets are transparent by default), the committed `gschemas.compiled` (compiled on install since GNOME 44) and `'use strict'` (implied by ES modules)
 
 ## v16 - GNOME 51 Compatibility
 

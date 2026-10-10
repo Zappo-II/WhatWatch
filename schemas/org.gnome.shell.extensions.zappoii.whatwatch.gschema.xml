@@ -60,10 +60,6 @@
       <default>true</default>
     </key>
 
-    <key name="forcereset" type="b">
-      <default>false</default>
-    </key>
-
     <key name="hideonoverlap" type="b">
       <default>true</default>
     </key>
