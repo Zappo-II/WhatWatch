@@ -926,10 +926,13 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
     });
 
     // Create color button for the header
-    const colorButton = new Gtk.ColorButton({
-      use_alpha: true,
+    const colorButton = new Gtk.ColorDialogButton({
+      dialog: new Gtk.ColorDialog({ with_alpha: true }),
       valign: Gtk.Align.CENTER
     });
+    // Set while the spin rows push their value into the button, so the
+    // resulting notify::rgba does not write the color back into the spin rows
+    let updatingFromSpin = false;
 
     // Initialize color from settings
     const color = new Gdk.RGBA();
@@ -981,7 +984,9 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
         else if (channelKey === '-b') newColor.blue = row.adjustment.value;
         else if (channelKey === '-a') newColor.alpha = row.adjustment.value;
 
+        updatingFromSpin = true;
         colorButton.set_rgba(newColor);
+        updatingFromSpin = false;
       });
 
       spinRows[channel.key] = row;
@@ -989,7 +994,9 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
     }
 
     // Connect color button to update spin rows
-    colorButton.connect('color-set', () => {
+    colorButton.connect('notify::rgba', () => {
+      if (updatingFromSpin)
+        return;
       const rgba = colorButton.rgba;
       spinRows['-r'].adjustment.value = rgba.red;
       spinRows['-g'].adjustment.value = rgba.green;

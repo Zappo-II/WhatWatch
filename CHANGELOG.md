@@ -2,6 +2,12 @@
 
 All notable changes to WhatWatch will be documented in this file.
 
+## v16 - GNOME 51 Compatibility
+
+- Add GNOME Shell 51 to supported versions
+- Replace deprecated `Gtk.ColorButton` with `Gtk.ColorDialogButton` in the color settings
+- Remove unused experimental D-Bus monitor code (`dbus_test()`), which would break under GNOME 51's `makeProxyWrapper()` change
+
 ## v13 - Preferences Dialog Modernization
 
 **Rewritten preferences dialog using native libadwaita widgets**
