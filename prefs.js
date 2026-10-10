@@ -23,14 +23,12 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
   constructor(metadata) {
     super(metadata);
     Common.setMetaData(metadata.name, metadata.version);
-    Common.myDebugLog('Entering WhatWatchPreferences.constructor()');
-    Common.myDebugLog('Exiting WhatWatchPreferences.constructor()');
   }
 
   fillPreferencesWindow(window) {
-    Common.myDebugLog('Entering WhatWatchPreferences.fillPreferencesWindow()');
-
     window._settings = this.getSettings();
+    Common.setDebugLogging(window._settings.get_boolean('debuglogging'));
+    Common.myDebugLog('Entering WhatWatchPreferences.fillPreferencesWindow()');
 
     // General Settings Page
     const pageGeneral = this._buildGeneralPage(window._settings);
@@ -302,7 +300,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
     // Fade in interval
     const rowFadeIn = new Adw.SpinRow({
       title: _('Fade In Interval'),
-      subtitle: _('Speed of fade in animation (lower = faster)'),
+      subtitle: _('Opacity change per 100 ms while fading in (higher = faster)'),
       digits: 3
     });
     rowFadeIn.adjustment = new Gtk.Adjustment({
@@ -319,7 +317,7 @@ export default class WhatWatchPreferences extends ExtensionPreferences {
     // Fade out interval
     const rowFadeOut = new Adw.SpinRow({
       title: _('Fade Out Interval'),
-      subtitle: _('Speed of fade out animation (lower = faster)'),
+      subtitle: _('Opacity change per 100 ms while fading out (higher = faster)'),
       digits: 3
     });
     rowFadeOut.adjustment = new Gtk.Adjustment({

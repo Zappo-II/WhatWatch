@@ -8,6 +8,8 @@ This is a gnome-shell-extension. It displays an analog clock on the desktop and 
 
 Since V.5 it sports a set of distraction free configuration settings, hiding the clock in various situations.
 
+Since V.17 you can choose which monitor shows the clock when several monitors are connected.
+
 ![Screenshot showing WhatWatch settings page...](doc/WhatWatch-Settings.png "Screenshot showing WhatWatch settings dialog in action...")
 
 ## Gnome Shell Support:
@@ -75,7 +77,7 @@ cd ~/myLocalFolder/WhatWatch
 
 This will install to `~/.local/share/gnome-shell/extensions/`
 
-You must restart (X11: `Alt-F2` --> `r`) or logout/relogin (Wayland) to activate the (updated) extension.
+You must logout/relogin to activate the (updated) extension. In an X11 session (only available up to Gnome 48/49) restarting the shell with `Alt-F2` --> `r` is enough.
 
 Your mileage may vary.
 

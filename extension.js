@@ -14,6 +14,7 @@
 
 import St from 'gi://St';
 import GLib from 'gi://GLib';
+import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Cairo from 'gi://cairo';
@@ -48,11 +49,6 @@ export default class WhatWatchExtension extends Extension {
     constructor(metadata) {
         super(metadata);
         Common.setMetaData(this.metadata.name, this.metadata.version);
-        Common.myDebugLog('Entering init()');
-        //
-        //this.initTranslations();
-        //
-        Common.myDebugLog('Exiting init()');
     }
 
     enable() {
@@ -270,7 +266,6 @@ function clockTimeOut() {
         globalDirection = 1;
         if ( ! areaActive) {
             areaInit();
-            //return true;
         }
 
     } else {
@@ -381,10 +376,8 @@ function drawOldSchoolClock (area, opacity, hasNumbers, hasRomanNumbers, isBunde
     const faceSecondHandTailed = config.faceSecondHandTailed;
     const faceSecondHandFinned = config.faceSecondHandFinned;
 
-    let theFont = '';
-    let theOnlyQuarters = false;
-    let theOthersSmall = false;
-    let theArabianNumbers = false;
+    const theFont = hasRomanNumbers ? 'serif' : 'sans serif';
+    const theArabianNumbers = !hasRomanNumbers;
 
     // Do some drawing with cairo
     cr.save();
@@ -410,19 +403,8 @@ function drawOldSchoolClock (area, opacity, hasNumbers, hasRomanNumbers, isBunde
         drawFaceDialTicks(cr, opacity, faceDialLineTickRadius, shadow, shadowColor, true);    
     }
 
-    if (hasNumbers) {
-        theFont = 'sans serif';
-        theOnlyQuarters = false;
-        theOthersSmall = true;
-        theArabianNumbers = true;
-        if (hasRomanNumbers) {
-            theFont = 'serif';
-            theArabianNumbers = false;
-            theOthersSmall = true;
-        }
-        if (config.faceShadowNumber) {
-            drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, shadow, shadowColor, true, theArabianNumbers, theOnlyQuarters, theOthersSmall, theFont);
-        }
+    if (hasNumbers && config.faceShadowNumber) {
+        drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, shadow, shadowColor, true, theArabianNumbers, theFont);
     }
 
     if (config.faceShadowHand) {
@@ -441,16 +423,7 @@ function drawOldSchoolClock (area, opacity, hasNumbers, hasRomanNumbers, isBunde
     drawFaceDialTicks(cr, opacity, faceDialLineTickRadius, {}, {}, false);
     //
     if (hasNumbers) {
-        theFont = 'sans serif';
-        theOnlyQuarters = false;
-        theOthersSmall = true;
-        theArabianNumbers = true;
-        if (hasRomanNumbers) {
-            theFont = 'serif';
-            theArabianNumbers = false;
-            theOthersSmall = true;
-        }
-        drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, null, null, false, theArabianNumbers, theOnlyQuarters, theOthersSmall, theFont);
+        drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, null, null, false, theArabianNumbers, theFont);
     }
     //
     drawHand(cr, opacity, shadow, faceHourHandLineWidth, faceHourHandLineLength, faceHourHandColor, myClockData.nowHourDegrees + myClockData.nowMinuteDegrees / 12, faceHourHandTailed, faceHourHandFinned, faceHourHandEyed, faceHourHandFilled);
@@ -691,14 +664,10 @@ function drawFaceDialTicks (cr, opacity, faceDialLineTickRadius, shadow, shadowC
 
 }
 
-function drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, shadow, shadowColor, castShadow, numberArabian, onlyQuarters, othersSmall, numberFont) {
+function drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, shadow, shadowColor, castShadow, numberArabian, numberFont) {
 
-    // const numberArabian = true;
-    // const numberFont = '';
     const numberNormalSize = 0.18;
     const numberSmallSize = 0.12;
-    // const othersSmall = true;
-    // const onlyQuarters = false;
 
     // Dial Numbers
     let faceTickColor = config.faceTickColor;
@@ -714,30 +683,23 @@ function drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, shadow, shado
     }
     let initialCenter = center;
     let position = { "X": 0, "Y": 0};
-    let adjust = { "X": 0, "Y": 0};
+    let adjustX = 0;
     let color = {R: 0, G: 0, B: 0, A: 0};
     let theNumber = 0;
     let numberSize = numberNormalSize;
     let numberString = '';
-    let showThis = true;
     let inset = 0;
 
     for (let i = 0; i < 12; i++) {
 
-        showThis = true;
-        adjust = { "X": 0, "Y": 0};
+        adjustX = 0;
         numberSize = numberNormalSize;
-
-        if (numberArabian) {
-            inset = numberSize / 1.5;
-        } else {
-            inset = numberSize / 1.5;
-        }
+        inset = numberSize / 1.5;
 
         theNumber = ((i +3) % 12);
         if (i == 9) {
             theNumber = 12;
-            adjust.X = - numberSize / 3;
+            adjustX = - numberSize / 3;
         }
 
         if (i % 3 == 0) {
@@ -753,11 +715,8 @@ function drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, shadow, shado
             color.G = faceTickColor.G;
             color.B = faceTickColor.B;
             color.A = faceTickColor.A * opacity;
-            showThis = !onlyQuarters;
             inset += faceTickLineInset;
-            if (othersSmall) {
-                numberSize = numberSmallSize;
-            }
+            numberSize = numberSmallSize;
         }
 
         if (numberArabian) {
@@ -766,8 +725,8 @@ function drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, shadow, shado
             center = { "X": initialCenter.X + (-1 * (numberSize / 1.9)), "Y": initialCenter.Y + ((numberSize / 3))};
         }
 
-        position.X = (faceDialLineTickRadius - inset) * Math.cos (i * Math.PI / 6) + adjust.X + center.X
-        position.Y = (faceDialLineTickRadius - inset) * Math.sin (i * Math.PI / 6) + adjust.Y + center.Y;
+        position.X = (faceDialLineTickRadius - inset) * Math.cos (i * Math.PI / 6) + adjustX + center.X;
+        position.Y = (faceDialLineTickRadius - inset) * Math.sin (i * Math.PI / 6) + center.Y;
 
         if (numberArabian) {
             numberString = '' + theNumber + '';
@@ -808,13 +767,11 @@ function drawFaceDialNumbers (cr, opacity, faceDialLineTickRadius, shadow, shado
                     break;
                 case 12:
                     numberString = 'XII';
-                    break;                                                                                                                                                                                                                                                                                    }
+                    break;
+            }
         }
 
-        if (showThis) {
-            clockPrint(cr, position, color, numberFont, numberSize, false, false, numberString)
-            cr.stroke();
-        }
+        clockPrint(cr, position, color, numberFont, numberSize, false, false, numberString);
 
     }
 
@@ -969,7 +926,6 @@ function readSettings() {
         theSettings.monitor = settings.get_string("monitor");
         //
         theSettings.trackFullscreen = settings.get_boolean("trackfullscreen");
-        theSettings.forcereset = settings.get_boolean("forcereset");
         //
         theSettings.hideOnOverlap = settings.get_boolean("hideonoverlap");
         theSettings.hideOnFocusOverlap = settings.get_boolean("hideonfocusoverlap");
@@ -1064,24 +1020,14 @@ function windowTest(onlyFocus) {
     let myResult = false;
     const myMonitor = getClockMonitor().index;
     const myWorkspace = global.workspace_manager.get_active_workspace_index();
-    let windows = global.get_window_actors();
-
-    let focusWindow = global.display.get_focus_window();
     let rect = {x:0, y:0, width:0, height:0};
     let test = false;
 
     if (onlyFocus) {
 
+        const focusWindow = global.display.get_focus_window();
         if (focusWindow !== null) {
 
-            //Common.myLog('global.display.get_focus_window: ' + global.display.get_focus_window());
-            /*
-            for (let thing in global.display.get_focus_window()) {
-                Common.myLog('global.display.get_focus_window.thing: ' + thing);
-            } 
-            */  
-            //Common.myLog('global.display.get_focus_window: -----------------------------------------');
-        
             rect = focusWindow.get_frame_rect();
 
             if (windowdebug) {
@@ -1107,67 +1053,58 @@ function windowTest(onlyFocus) {
 
     } else {
 
-        if (windows.length > 0) {
-            for (let i = windows.length - 1; i >= 0; i--) {
-                let meta_win = windows[i].get_meta_window();
-                if (windowdebug) {
-                    windowGetTitleAndName(meta_win);
-                }
-                if (meta_win.minimized || !meta_win.showing_on_its_workspace()) {
-                    if (windowdebug) {
-                        Common.myDebugLog('This window is minimized or hidden...');
-                    }
-                } else if (myMonitor == meta_win.get_monitor()) {
-                    const myWindowWorkspace = meta_win.get_workspace();
-                    if (myWindowWorkspace && myWindowWorkspace.index() == myWorkspace) {
-                        switch (meta_win.get_window_type()) {
-                            case 0:
-                                // META_WINDOW_NORMAL
-                            case 1:
-                                // META_WINDOW_DESKTOP
-                            case 2:
-                                // META_WINDOW_DOCK
-                            case 3:
-                                // META_WINDOW_DIALOG
-                            case 4:
-                                // META_WINDOW_MODAL_DIALOG
-                            case 5:
-                                // META_WINDOW_TOOLBAR
-                            case 6:
-                                // META_WINDOW_MENU
-                            case 7:
-                                // META_WINDOW_UTILITY
-                                rect = meta_win.get_frame_rect();
-                                test = testOverlap(rect, clockBox);
-                                if (test) {
-                                    if (windowdebug) {
-                                        Common.myDebugLog('This window is overlapping...');
-                                    }
-                                    myResult = myResult || notOnBlacklist(meta_win);
-                                }
-                                break;                            
-                            default:
-                                if (windowdebug) {
-                                    Common.myDebugLog('This windowtype is irrelevant...');
-                                }
-                                break;
-                        }
-
-                    } else {
-                        if (windowdebug) {
-                            Common.myDebugLog('This window is on another Workspace...');
-                        }
+        const windows = global.get_window_actors();
+        for (let i = windows.length - 1; i >= 0; i--) {
+            let meta_win = windows[i].get_meta_window();
+            if (windowdebug) {
+                windowGetTitleAndName(meta_win);
             }
+            if (meta_win.minimized || !meta_win.showing_on_its_workspace()) {
+                if (windowdebug) {
+                    Common.myDebugLog('This window is minimized or hidden...');
+                }
+            } else if (myMonitor == meta_win.get_monitor()) {
+                const myWindowWorkspace = meta_win.get_workspace();
+                if (myWindowWorkspace && myWindowWorkspace.index() == myWorkspace) {
+                    switch (meta_win.get_window_type()) {
+                        case Meta.WindowType.NORMAL:
+                        case Meta.WindowType.DESKTOP:
+                        case Meta.WindowType.DOCK:
+                        case Meta.WindowType.DIALOG:
+                        case Meta.WindowType.MODAL_DIALOG:
+                        case Meta.WindowType.TOOLBAR:
+                        case Meta.WindowType.MENU:
+                        case Meta.WindowType.UTILITY:
+                            rect = meta_win.get_frame_rect();
+                            test = testOverlap(rect, clockBox);
+                            if (test) {
+                                if (windowdebug) {
+                                    Common.myDebugLog('This window is overlapping...');
+                                }
+                                myResult = myResult || notOnBlacklist(meta_win);
+                            }
+                            break;
+                        default:
+                            if (windowdebug) {
+                                Common.myDebugLog('This windowtype is irrelevant...');
+                            }
+                            break;
+                    }
+
                 } else {
                     if (windowdebug) {
-                        Common.myDebugLog('This window is on another Monitor...');
+                        Common.myDebugLog('This window is on another Workspace...');
                     }
                 }
+            } else {
                 if (windowdebug) {
-                    Common.myDebugLog('-----------------------------------------');
+                    Common.myDebugLog('This window is on another Monitor...');
                 }
-
             }
+            if (windowdebug) {
+                Common.myDebugLog('-----------------------------------------');
+            }
+
         }
 
     }

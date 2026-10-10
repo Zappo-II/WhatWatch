@@ -1,7 +1,7 @@
 {
     "uuid" : "WhatWatch@Zappo-II.github.io",
     "name" : "What Watch",
-    "description" : "Shows a customizeable analog desktop clock.\nPlease visit the GitHub repository for documentation and to report any issues.",
+    "description" : "Shows a customizable analog desktop clock.\nPlease visit the GitHub repository for documentation and to report any issues.",
     "shell-version" : [
         "45",
         "46",

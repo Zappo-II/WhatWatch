@@ -13,6 +13,8 @@ All notable changes to WhatWatch will be documented in this file.
 - A window without a workspace can no longer stop the clock; errors in the update timer are now logged instead of stopping it
 - Clock width/height can no longer be set below 16 pixels (0 broke drawing)
 - Shadow offset X/Y can now be negative (range -1.0 to 1.0), so shadows can fall left or up
+- Fade in/out descriptions in the preferences said "lower = faster"; a higher value fades faster
+- Debug logging now also works in the preferences dialog
 
 ### Improvements
 - Settings are no longer polled 10 times per second; the extension reacts to setting changes via the `changed` signal
@@ -24,6 +26,8 @@ All notable changes to WhatWatch will be documented in this file.
 - Remove unused code (`test()`) and unused imports
 - `install.local.sh` drops `POT-Creation-Date` from the generated `.pot`, so it no longer shows up as changed after every build
 - Fix schema descriptions: clock width/height default to 256, not 128
+- Remove dead and commented-out code in the drawing and window-overlap code; use `Meta.WindowType` constants instead of raw numbers
+- Update documentation (tab names, monitor selection, fade and shadow ranges, debug option names)
 
 ## v16 - GNOME 51 Compatibility
 

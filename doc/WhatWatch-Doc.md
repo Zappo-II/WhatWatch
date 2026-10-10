@@ -22,9 +22,9 @@ The settings dialog will expose quite a bunch of parameters and attributes of th
 
 ![Screenshot showing WhatWatch settings dialog...](WhatWatch-Settings.png "Screenshot showing WhatWatch settings dialog in action...")
 
-The settings are dived into different tabs for different parts of the clock:
+The settings are divided into different tabs for different parts of the clock:
 
-* `Preferences` - General settings affecting the clock as a whole.
+* `General` - General settings affecting the clock as a whole.
 * `Behaviour` - If and when the clock will hide when overlapped by other windows.
 * `Face` - Settings that style the clock's face appearance.
 * `Ticks` - Settings that style the clock's interval markers.
@@ -34,7 +34,7 @@ The settings are dived into different tabs for different parts of the clock:
 
 Followed by an `About` tab with some general information on the extension.
 
-### `Preferences`
+### `General`
 
 General settings affecting the clock as a whole.
 
@@ -44,9 +44,10 @@ General settings affecting the clock as a whole.
     * __OldSchool Roman__ - ...add Roman numbers.
     * __Deutsche Bahn__ - ...like seen everywhere in germany's public transportation.
     * __Radar__ - The death star is in firing range...
-* __Clock Position__ - Select the general orientation on primary screen...
-* __Margin Top__ - Pixel Margin from top of screen (will not allways be used depending on _clock position_)
-* __Margin Side__ - Pixel Margin from the relevant side of screen (will not allways be used depending on _clock position_)
+* __Clock Position__ - Select the general orientation on the chosen monitor...
+* __Monitor__ - Select the monitor showing the clock. `(Primary)` follows the primary monitor. A specific monitor is remembered by its connector name (e.g. `DP-2`); while it is not connected, the clock is shown on the primary monitor and moves back once the monitor is plugged in again.
+* __Margin Top__ - Pixel Margin from top of screen (will not always be used depending on _clock position_)
+* __Margin Side__ - Pixel Margin from the relevant side of screen (will not always be used depending on _clock position_)
 * __Clock Size Width__ - Width of the clock
     * Width/Height should be the same but you might want to adjust to match your screen's aspect ratio...
 * __Clock Size Height__ - Height of the clock
@@ -59,9 +60,9 @@ Settings to configure if and when the clock will hide when overlapped by other w
 * __Hide in fullscreen mode__ - When on, the clock will hide behind fullscreen windows (like fullscreen video etc.), otherwise it will even sit on top of those. Not affected by __Blacklist WM_Class(es)__.
 * __Hide when overlapped__ - When on, the clock will fade out until hidden when overlapped by an application window.
 * __Hide only on focus__ - When on, the clock will fade out until hidden when overlapped by an application window having the focus.
-* __Fade in interval__ - Percentage step of opacity fade in every 100 ms.
-* __Fade out interval__ - Percentage step of opacity fade in every 100 ms.
-* __Blacklist WM_Class(es)__ - Windows of these window manager classes will not be considdered overlapping (this is essential when using extensions like `Desktop Icons NG` by example). Several class names might be concatenated by semicolon (`;`). You might want to use the debug settings to get the class name information you need.
+* __Fade in interval__ - Opacity change every 100 ms while fading in (`0.001`-`1.0`, higher = faster). `0.025` takes about 4 seconds, `1.0` is instant.
+* __Fade out interval__ - Opacity change every 100 ms while fading out (`0.001`-`1.0`, higher = faster). `0.1` takes about 1 second, `1.0` is instant.
+* __Blacklist WM_Class(es)__ - Windows of these window manager classes will not be considered overlapping (this is essential when using extensions like `Desktop Icons NG` by example). Several class names might be concatenated by semicolon (`;`). You might want to use the debug settings to get the class name information you need.
 
 ### `Face`
 
@@ -111,13 +112,13 @@ Settings that style the shadow behaviour of the clock's elements. Not all clock 
 * __Shadow Hands__ - Hands cast shadows, when on.
 * __Shadow Ticks__ - Ticks cast shadows, when on.
 * __Shadow Numbers__ - Numbers cast shadows, when on.
-* __Shadow offset (X/Y)__ - X and Y shadow offset values are given in their spin button value fields.
+* __Shadow offset (X/Y)__ - X and Y shadow offset values (`-1.0`-`1.0`, relative to the clock size) are given in their spin button value fields. Negative values move the shadow left / up.
 * __Shadow color (R/G/B/A)__ - `R`, `G`, `B` Color-Values are 0-1, with `0` no color and `1` full color of the certain channel. Same for `A` in Opacity. Values are given in their spin button value fields or via color picker control at the end of the config row.
 
 ### `Debug`
 
-* __Debug Logging__ - Enable / disable general logging to the system's log.
-* __Timerdebug__ - Enable / disable timer trigger logging to the system's log.
-* __Timedebug__ - Enable / disable time value logging to the system's log.
-* __Configdebug__ - Enable / disable configurational settings logging to the system's log.
-* __Windowdebug__ - Enable / disable window overlapping analysis logging to the system's log. You might want to use this to gather window manager class name information for blacklisting to prevent unexpected or unwanted hiding behaviour. See __Blacklist WM_Class(es)__ in `Behaviour`. 
+* __Debugging__ - Enable / disable general logging to the system's log. The other debug options can only be switched on while this is on.
+* __Timer Debugging__ - Enable / disable timer trigger logging to the system's log.
+* __Time Debugging__ - Enable / disable time value logging to the system's log.
+* __Config Debugging__ - Enable / disable configurational settings logging to the system's log.
+* __Window Debugging__ - Enable / disable window overlapping analysis logging to the system's log. You might want to use this to gather window manager class name information for blacklisting to prevent unexpected or unwanted hiding behaviour. See __Blacklist WM_Class(es)__ in `Behaviour`. 

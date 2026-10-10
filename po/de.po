@@ -16,628 +16,628 @@ msgstr ""
 "X-Generator: Gtranslator 45.3\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: prefs.js:79 prefs.js:482
+#: prefs.js:77 prefs.js:480
 msgid "General"
 msgstr "Allgemein"
 
-#: prefs.js:85 prefs.js:91
+#: prefs.js:83 prefs.js:89
 msgid "Clock Style"
 msgstr "Uhrenstil"
 
-#: prefs.js:86
+#: prefs.js:84
 msgid "Configure the clock appearance"
 msgstr "Aussehen der Uhr einstellen"
 
-#: prefs.js:92
+#: prefs.js:90
 msgid "Select the visual style of the clock"
 msgstr "Darstellungsstil der Uhr auswählen"
 
-#: prefs.js:95 prefs.js:116
+#: prefs.js:93 prefs.js:114
 msgid "(default)"
 msgstr "(Standard)"
 
-#: prefs.js:96
+#: prefs.js:94
 msgid "OldSchool"
 msgstr "OldSchool"
 
-#: prefs.js:97
+#: prefs.js:95
 msgid "OldSchool Arabian"
 msgstr "OldSchool Arabisch"
 
-#: prefs.js:98
+#: prefs.js:96
 msgid "OldSchool Roman"
 msgstr "OldSchool Römisch"
 
-#: prefs.js:99
+#: prefs.js:97
 msgid "Deutsche Bahn"
 msgstr "Deutsche Bahn"
 
-#: prefs.js:100
+#: prefs.js:98
 msgid "Radar"
 msgstr "Radar"
 
-#: prefs.js:112
+#: prefs.js:110
 msgid "Clock Position"
 msgstr "Position der Uhr"
 
-#: prefs.js:113
+#: prefs.js:111
 msgid "Where to display the clock on screen"
 msgstr "Wo die Uhr auf dem Bildschirm angezeigt wird"
 
-#: prefs.js:117
+#: prefs.js:115
 msgid "Top-Left"
 msgstr "Oben links"
 
-#: prefs.js:118
+#: prefs.js:116
 msgid "Top-Middle"
 msgstr "Oben mittig"
 
-#: prefs.js:119
+#: prefs.js:117
 msgid "Top-Right"
 msgstr "Oben rechts"
 
-#: prefs.js:120
+#: prefs.js:118
 msgid "Center-Left"
 msgstr "Mitte links"
 
-#: prefs.js:121
+#: prefs.js:119
 msgid "Center"
 msgstr "Mitte"
 
-#: prefs.js:122
+#: prefs.js:120
 msgid "Center-Right"
 msgstr "Mitte rechts"
 
-#: prefs.js:134
+#: prefs.js:132
 msgid "Monitor"
 msgstr "Monitor"
 
-#: prefs.js:135
+#: prefs.js:133
 msgid "Which monitor shows the clock"
 msgstr "Auf welchem Monitor die Uhr angezeigt wird"
 
-#: prefs.js:137
+#: prefs.js:135
 msgid "(Primary)"
 msgstr "(Primärer Monitor)"
 
-#: prefs.js:152
+#: prefs.js:150
 #, javascript-format
 msgid "%s (not connected)"
 msgstr "%s (nicht verbunden)"
 
-#: prefs.js:167
+#: prefs.js:165
 msgid "Size"
 msgstr "Größe"
 
-#: prefs.js:168
+#: prefs.js:166
 msgid "Configure the clock dimensions"
 msgstr "Abmessungen der Uhr einstellen"
 
-#: prefs.js:173
+#: prefs.js:171
 msgid "Clock Width"
 msgstr "Breite der Uhr"
 
-#: prefs.js:174
+#: prefs.js:172
 msgid "Width of the clock in pixels"
 msgstr "Breite der Uhr in Pixeln"
 
-#: prefs.js:191
+#: prefs.js:189
 msgid "Clock Height"
 msgstr "Höhe der Uhr"
 
-#: prefs.js:192
+#: prefs.js:190
 msgid "Height of the clock in pixels"
 msgstr "Höhe der Uhr in Pixeln"
 
-#: prefs.js:211
+#: prefs.js:209
 msgid "Margins"
 msgstr "Abstände"
 
-#: prefs.js:212
+#: prefs.js:210
 msgid "Configure the clock position offsets"
 msgstr "Abstände der Uhr zum Bildschirmrand einstellen"
 
-#: prefs.js:217
+#: prefs.js:215
 msgid "Margin Top"
 msgstr "Abstand oben"
 
-#: prefs.js:218
+#: prefs.js:216
 msgid "Distance from the top of the screen"
 msgstr "Abstand vom oberen Bildschirmrand"
 
-#: prefs.js:232
+#: prefs.js:230
 msgid "Margin Side"
 msgstr "Abstand seitlich"
 
-#: prefs.js:233
+#: prefs.js:231
 msgid "Distance from the side of the screen"
 msgstr "Abstand vom seitlichen Bildschirmrand"
 
-#: prefs.js:255
+#: prefs.js:253
 msgid "Behaviour"
 msgstr "Verhalten"
 
-#: prefs.js:261
+#: prefs.js:259
 msgid "Visibility"
 msgstr "Sichtbarkeit"
 
-#: prefs.js:262
+#: prefs.js:260
 msgid "Configure when the clock should hide"
 msgstr "Einstellen, wann die Uhr ausgeblendet wird"
 
-#: prefs.js:267
+#: prefs.js:265
 msgid "Hide in Fullscreen Mode"
 msgstr "Im Vollbildmodus ausblenden"
 
-#: prefs.js:268
+#: prefs.js:266
 msgid "Automatically hide the clock when a window is fullscreen"
 msgstr "Uhr automatisch ausblenden, wenn ein Fenster im Vollbild ist"
 
-#: prefs.js:278
+#: prefs.js:276
 msgid "Hide When Overlapped"
 msgstr "Bei Überdeckung ausblenden"
 
-#: prefs.js:279
+#: prefs.js:277
 msgid "Automatically hide when windows overlap the clock"
 msgstr "Automatisch ausblenden, wenn Fenster die Uhr überdecken"
 
-#: prefs.js:286
+#: prefs.js:284
 msgid "Hide Only on Focus"
 msgstr "Nur bei Fokus ausblenden"
 
-#: prefs.js:287
+#: prefs.js:285
 msgid "Only hide when the overlapping window is focused"
 msgstr "Nur ausblenden, wenn das überdeckende Fenster den Fokus hat"
 
-#: prefs.js:298
+#: prefs.js:296
 msgid "Fade Animation"
 msgstr "Überblendung"
 
-#: prefs.js:299
+#: prefs.js:297
 msgid "Configure the fade in/out animation speed"
 msgstr "Geschwindigkeit des Ein- und Ausblendens einstellen"
 
-#: prefs.js:304
+#: prefs.js:302
 msgid "Fade In Interval"
 msgstr "Einblend-Intervall"
 
-#: prefs.js:305
-msgid "Speed of fade in animation (lower = faster)"
-msgstr "Geschwindigkeit des Einblendens (niedriger = schneller)"
+#: prefs.js:303
+msgid "Opacity change per 100 ms while fading in (higher = faster)"
+msgstr "Änderung der Deckkraft alle 100 ms beim Einblenden (höher = schneller)"
 
-#: prefs.js:321
+#: prefs.js:319
 msgid "Fade Out Interval"
 msgstr "Ausblend-Intervall"
 
-#: prefs.js:322
-msgid "Speed of fade out animation (lower = faster)"
-msgstr "Geschwindigkeit des Ausblendens (niedriger = schneller)"
+#: prefs.js:320
+msgid "Opacity change per 100 ms while fading out (higher = faster)"
+msgstr "Änderung der Deckkraft alle 100 ms beim Ausblenden (höher = schneller)"
 
-#: prefs.js:340
+#: prefs.js:338
 msgid "Window Blacklist"
 msgstr "Fenster-Ausnahmeliste"
 
-#: prefs.js:341
+#: prefs.js:339
 msgid "Windows that should never trigger hiding (semicolon-separated WM_CLASS names)"
 msgstr "Fenster, die nie ein Ausblenden auslösen sollen (WM_CLASS-Namen, durch Semikolon getrennt)"
 
-#: prefs.js:345
+#: prefs.js:343
 msgid "Blacklist WM_Class(es)"
 msgstr "WM_Class(es) auf der Ausnahmeliste"
 
-#: prefs.js:365 prefs.js:371
+#: prefs.js:363 prefs.js:369
 msgid "Face"
 msgstr "Zifferblatt"
 
-#: prefs.js:372
+#: prefs.js:370
 msgid "Configure the clock face appearance"
 msgstr "Aussehen des Zifferblatts einstellen"
 
-#: prefs.js:378
+#: prefs.js:376
 msgid "Face Color"
 msgstr "Farbe des Zifferblatts"
 
-#: prefs.js:379
+#: prefs.js:377
 msgid "Background color of the clock face"
 msgstr "Hintergrundfarbe des Zifferblatts"
 
-#: prefs.js:388
+#: prefs.js:386
 msgid "Center Dial"
 msgstr "Mittelpunkt"
 
-#: prefs.js:389
+#: prefs.js:387
 msgid "Configure the center dial (hub) of the clock"
 msgstr "Mittelpunkt (Nabe) der Uhr einstellen"
 
-#: prefs.js:394
+#: prefs.js:392
 msgid "Center Dial Radius"
 msgstr "Radius des Mittelpunkts"
 
-#: prefs.js:395
+#: prefs.js:393
 msgid "Size of the center dial (0-1 relative to clock size)"
 msgstr "Größe des Mittelpunkts (0-1 relativ zur Uhrgröße)"
 
-#: prefs.js:411
+#: prefs.js:409
 msgid "Center Dial Color"
 msgstr "Farbe des Mittelpunkts"
 
-#: prefs.js:412
+#: prefs.js:410
 msgid "Color of the center dial"
 msgstr "Farbe des Mittelpunkts"
 
-#: prefs.js:421
+#: prefs.js:419
 msgid "Dial Line"
 msgstr "Randlinie"
 
-#: prefs.js:422
+#: prefs.js:420
 msgid "Configure the outer dial line (rim) of the clock"
 msgstr "Äußere Randlinie der Uhr einstellen"
 
-#: prefs.js:427
+#: prefs.js:425
 msgid "Dial Line Width"
 msgstr "Breite der Randlinie"
 
-#: prefs.js:428
+#: prefs.js:426
 msgid "Width of the dial line (0-1 relative to clock size)"
 msgstr "Breite der Randlinie (0-1 relativ zur Uhrgröße)"
 
-#: prefs.js:443
+#: prefs.js:441
 msgid "Dial Line Inset"
 msgstr "Einzug der Randlinie"
 
-#: prefs.js:444
+#: prefs.js:442
 msgid "Inset of the dial line from the edge"
 msgstr "Abstand der Randlinie vom Rand"
 
-#: prefs.js:460
+#: prefs.js:458
 msgid "Dial Line Color"
 msgstr "Farbe der Randlinie"
 
-#: prefs.js:461
+#: prefs.js:459
 msgid "Color of the dial line"
 msgstr "Farbe der Randlinie"
 
-#: prefs.js:476
+#: prefs.js:474
 msgid "Ticks"
 msgstr "Markierungen"
 
-#: prefs.js:483
+#: prefs.js:481
 msgid "Global tick settings"
 msgstr "Allgemeine Einstellungen der Markierungen"
 
-#: prefs.js:487
+#: prefs.js:485
 msgid "Tick Inset"
 msgstr "Einzug der Markierungen"
 
-#: prefs.js:488
+#: prefs.js:486
 msgid "Global inset for all ticks from the dial line"
 msgstr "Gemeinsamer Abstand aller Markierungen von der Randlinie"
 
-#: prefs.js:505
+#: prefs.js:503
 msgid "Minute Ticks"
 msgstr "Minutenmarkierungen"
 
-#: prefs.js:506
+#: prefs.js:504
 msgid "Configure the small minute tick marks"
 msgstr "Kleine Minutenmarkierungen einstellen"
 
-#: prefs.js:509
+#: prefs.js:507
 msgid "Minute Tick"
 msgstr "Minutenmarkierung"
 
-#: prefs.js:514
+#: prefs.js:512
 msgid "Hour Ticks (5-minute marks)"
 msgstr "Stundenmarkierungen (5-Minuten-Striche)"
 
-#: prefs.js:515
+#: prefs.js:513
 msgid "Configure the 5-minute interval tick marks"
 msgstr "Markierungen im 5-Minuten-Abstand einstellen"
 
-#: prefs.js:518
+#: prefs.js:516
 msgid "Hour Tick"
 msgstr "Stundenmarkierung"
 
-#: prefs.js:523
+#: prefs.js:521
 msgid "Quarter Ticks (15-minute marks)"
 msgstr "Viertelstundenmarkierungen (15-Minuten-Striche)"
 
-#: prefs.js:524
+#: prefs.js:522
 msgid "Configure the quarter hour tick marks"
 msgstr "Viertelstundenmarkierungen einstellen"
 
-#: prefs.js:527
+#: prefs.js:525
 msgid "Quarter Tick"
 msgstr "Viertelstundenmarkierung"
 
-#: prefs.js:536 prefs.js:630
+#: prefs.js:534 prefs.js:628
 #, javascript-format
 msgid "%s Width"
 msgstr "%s Breite"
 
-#: prefs.js:537
+#: prefs.js:535
 msgid "Width of the tick marks"
 msgstr "Breite der Markierungen"
 
-#: prefs.js:552
+#: prefs.js:550
 #, javascript-format
 msgid "%s Inset"
 msgstr "%s Einzug"
 
-#: prefs.js:553
+#: prefs.js:551
 msgid "Length/inset of the tick marks"
 msgstr "Länge/Einzug der Markierungen"
 
-#: prefs.js:568
+#: prefs.js:566
 #, javascript-format
 msgid "%s Inner Circle"
 msgstr "%s Innenkreis"
 
-#: prefs.js:569
+#: prefs.js:567
 msgid "Draw as circle at inner position"
 msgstr "Als Kreis an der inneren Position zeichnen"
 
-#: prefs.js:575
+#: prefs.js:573
 #, javascript-format
 msgid "%s Outer Circle"
 msgstr "%s Außenkreis"
 
-#: prefs.js:576
+#: prefs.js:574
 msgid "Draw as circle at outer position"
 msgstr "Als Kreis an der äußeren Position zeichnen"
 
-#: prefs.js:584 prefs.js:699
+#: prefs.js:582 prefs.js:697
 #, javascript-format
 msgid "%s Color"
 msgstr "%s Farbe"
 
-#: prefs.js:585
+#: prefs.js:583
 msgid "Color of the tick marks"
 msgstr "Farbe der Markierungen"
 
-#: prefs.js:596
+#: prefs.js:594
 msgid "Hands"
 msgstr "Zeiger"
 
-#: prefs.js:602 prefs.js:605
+#: prefs.js:600 prefs.js:603
 msgid "Hour Hand"
 msgstr "Stundenzeiger"
 
-#: prefs.js:603
+#: prefs.js:601
 msgid "Configure the hour hand appearance"
 msgstr "Aussehen des Stundenzeigers einstellen"
 
-#: prefs.js:610 prefs.js:613
+#: prefs.js:608 prefs.js:611
 msgid "Minute Hand"
 msgstr "Minutenzeiger"
 
-#: prefs.js:611
+#: prefs.js:609
 msgid "Configure the minute hand appearance"
 msgstr "Aussehen des Minutenzeigers einstellen"
 
-#: prefs.js:618 prefs.js:621
+#: prefs.js:616 prefs.js:619
 msgid "Second Hand"
 msgstr "Sekundenzeiger"
 
-#: prefs.js:619
+#: prefs.js:617
 msgid "Configure the second hand appearance"
 msgstr "Aussehen des Sekundenzeigers einstellen"
 
-#: prefs.js:631
+#: prefs.js:629
 msgid "Width of the hand"
 msgstr "Breite des Zeigers"
 
-#: prefs.js:646
+#: prefs.js:644
 #, javascript-format
 msgid "%s Length"
 msgstr "%s Länge"
 
-#: prefs.js:647
+#: prefs.js:645
 msgid "Length of the hand"
 msgstr "Länge des Zeigers"
 
-#: prefs.js:662
+#: prefs.js:660
 #, javascript-format
 msgid "%s Style"
 msgstr "%s Form"
 
-#: prefs.js:663
+#: prefs.js:661
 msgid "Hand shape options"
 msgstr "Optionen für die Zeigerform"
 
-#: prefs.js:667
+#: prefs.js:665
 msgid "Filled"
 msgstr "Gefüllt"
 
-#: prefs.js:668
+#: prefs.js:666
 msgid "Draw hand with filled shape"
 msgstr "Zeiger als gefüllte Form zeichnen"
 
-#: prefs.js:674
+#: prefs.js:672
 msgid "Eyed"
 msgstr "Mit Öse"
 
-#: prefs.js:675
+#: prefs.js:673
 msgid "Add an eye/hole to the hand"
 msgstr "Dem Zeiger eine Öse/ein Loch hinzufügen"
 
-#: prefs.js:681
+#: prefs.js:679
 msgid "Tailed"
 msgstr "Mit Gegengewicht"
 
-#: prefs.js:682
+#: prefs.js:680
 msgid "Add a tail/counterweight to the hand"
 msgstr "Dem Zeiger ein Ende/Gegengewicht hinzufügen"
 
-#: prefs.js:688
+#: prefs.js:686
 msgid "Finned"
 msgstr "Mit Finne"
 
-#: prefs.js:689
+#: prefs.js:687
 msgid "Add fins to the hand"
 msgstr "Dem Zeiger eine Finne hinzufügen"
 
-#: prefs.js:700
+#: prefs.js:698
 msgid "Color of the hand"
 msgstr "Farbe des Zeigers"
 
-#: prefs.js:711
+#: prefs.js:709
 msgid "Shadow"
 msgstr "Schatten"
 
-#: prefs.js:717
+#: prefs.js:715
 msgid "Shadow Elements"
 msgstr "Schattenelemente"
 
-#: prefs.js:718
+#: prefs.js:716
 msgid "Choose which elements cast shadows"
 msgstr "Auswählen, welche Elemente Schatten werfen"
 
-#: prefs.js:722
+#: prefs.js:720
 msgid "Shadow Hands"
 msgstr "Schatten der Zeiger"
 
-#: prefs.js:723
+#: prefs.js:721
 msgid "Draw shadows for clock hands"
 msgstr "Schatten für die Zeiger zeichnen"
 
-#: prefs.js:729
+#: prefs.js:727
 msgid "Shadow Ticks"
 msgstr "Schatten der Markierungen"
 
-#: prefs.js:730
+#: prefs.js:728
 msgid "Draw shadows for tick marks"
 msgstr "Schatten für die Markierungen zeichnen"
 
-#: prefs.js:736
+#: prefs.js:734
 msgid "Shadow Numbers"
 msgstr "Schatten der Ziffern"
 
-#: prefs.js:737
+#: prefs.js:735
 msgid "Draw shadows for numbers"
 msgstr "Schatten für die Ziffern zeichnen"
 
-#: prefs.js:746
+#: prefs.js:744
 msgid "Shadow Offset"
 msgstr "Schattenversatz"
 
-#: prefs.js:747
+#: prefs.js:745
 msgid "Configure shadow position"
 msgstr "Position des Schattens einstellen"
 
-#: prefs.js:751
+#: prefs.js:749
 msgid "Shadow Offset X"
 msgstr "Schattenversatz X"
 
-#: prefs.js:752
+#: prefs.js:750
 msgid "Horizontal shadow offset"
 msgstr "Horizontaler Schattenversatz"
 
-#: prefs.js:766
+#: prefs.js:764
 msgid "Shadow Offset Y"
 msgstr "Schattenversatz Y"
 
-#: prefs.js:767
+#: prefs.js:765
 msgid "Vertical shadow offset"
 msgstr "Vertikaler Schattenversatz"
 
-#: prefs.js:784 prefs.js:790
+#: prefs.js:782 prefs.js:788
 msgid "Shadow Color"
 msgstr "Schattenfarbe"
 
-#: prefs.js:785
+#: prefs.js:783
 msgid "Configure shadow color and opacity"
 msgstr "Farbe und Deckkraft des Schattens einstellen"
 
-#: prefs.js:791
+#: prefs.js:789
 msgid "Color and opacity of shadows"
 msgstr "Farbe und Deckkraft der Schatten"
 
-#: prefs.js:806
+#: prefs.js:804
 msgid "Debug"
 msgstr "Debug"
 
-#: prefs.js:811
+#: prefs.js:809
 msgid "Debug Settings"
 msgstr "Debug Einstellungen"
 
-#: prefs.js:812
+#: prefs.js:810
 msgid "Configure the debug logging behaviour"
 msgstr "Verhalten der Debug-Protokollierung einstellen"
 
-#: prefs.js:816
+#: prefs.js:814
 msgid "Debugging"
 msgstr "Debugging"
 
-#: prefs.js:817
+#: prefs.js:815
 msgid "General debug mode, toggles debug output in general"
 msgstr "Allgemeiner Debug-Modus, schaltet die Debug-Ausgabe generell ein oder aus"
 
-#: prefs.js:823
+#: prefs.js:821
 msgid "Timer Debugging"
 msgstr "Timer Debugging"
 
-#: prefs.js:824
+#: prefs.js:822
 msgid "Timer debug mode, toggles timer specific debug output"
 msgstr "Timer-Debug-Modus, schaltet die Timer-spezifische Debug-Ausgabe ein oder aus"
 
-#: prefs.js:831
+#: prefs.js:829
 msgid "Time Debugging"
 msgstr "Zeit Debugging"
 
-#: prefs.js:832
+#: prefs.js:830
 msgid "Time debug mode, toggles time specific debug output"
 msgstr "Zeit-Debug-Modus, schaltet die zeitspezifische Debug-Ausgabe ein oder aus"
 
-#: prefs.js:839
+#: prefs.js:837
 msgid "Config Debugging"
 msgstr "Konfigurations Debugging"
 
-#: prefs.js:840
+#: prefs.js:838
 msgid "Config debug mode, toggles configuration specific debug output"
 msgstr "Konfigurations-Debug-Modus, schaltet die konfigurationsspezifische Debug-Ausgabe ein oder aus"
 
-#: prefs.js:847
+#: prefs.js:845
 msgid "Window Debugging"
 msgstr "Fenster Debugging"
 
-#: prefs.js:848
+#: prefs.js:846
 msgid "Window debug mode, toggles window overlapping analysis logging. Use to gather WM_CLASS names for blacklisting."
 msgstr "Fenster-Debug-Modus, protokolliert die Analyse überdeckender Fenster. Hilfreich, um WM_CLASS-Namen für die Ausnahmeliste zu ermitteln."
 
-#: prefs.js:875
+#: prefs.js:873
 msgid "About"
 msgstr "Über"
 
-#: prefs.js:880
+#: prefs.js:878
 #, javascript-format
 msgid "About %s - V.%s (%s)"
 msgstr "Über %s - V.%s (%s)"
 
-#: prefs.js:885
+#: prefs.js:883
 #, javascript-format
 msgid "%s was first brought to you in 02.2022 by Zappo II"
 msgstr "%s wurde erstmalig in 02.2022 von Zappo II präsentiert"
 
-#: prefs.js:896
+#: prefs.js:894
 msgid "Visit this extension@gnome.org..."
 msgstr "Besuche diese extension@gnome.org..."
 
-#: prefs.js:908
+#: prefs.js:906
 msgid "Documentation, Issues, Code, License, etc."
 msgstr "Dokumentation, Probleme, Code, Lizenzen, etc."
 
-#: prefs.js:953
+#: prefs.js:951
 msgid "Red"
 msgstr "Rot"
 
-#: prefs.js:954
+#: prefs.js:952
 msgid "Green"
 msgstr "Grün"
 
-#: prefs.js:955
+#: prefs.js:953
 msgid "Blue"
 msgstr "Blau"
 
-#: prefs.js:956
+#: prefs.js:954
 msgid "Alpha"
 msgstr "Alpha"
